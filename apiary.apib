@@ -1,0 +1,802 @@
+FORMAT: 1A
+HOST: https://stratum.registercentrum.se/
+
+# Öppna data från Stratum
+
+> ___Detta är en levande dokumentation som till och från kan innehålla fel eller sakna väsentlig information. 
+Frågor besvaras gladeligen av [Roger Salomonsson](mailto:roger.salomonsson@registercentrum.se), Stratum-arkitekt.___
+
+## Vad är Stratum?
+Stratum är en teknisk plattform för att beskriva, samla in, analysera och presentera data från kvalitetsregister inom hälso- och sjukvård. 
+I Stratum ingår en avancerad formulärapplikation, integrationsfunktioner, PROM-stöd och en uppsättning programkomponenter för 
+visualisering och interaktion. Skräddarsydda komponenter för till exempel visualisering kan också utvecklas, 
+av oss eller externa leverantörer, och hanteras på bästa sätt via ett tillägg i Chrome som vi kallar 
+[SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension). 
+Stratum kan också skapa datalager av registerdata, som är utformade för att vara underlag till statistiker 
+för forskningsändamål och förbättringsarbete.
+
+Mer information om Nationella Kvalitetsregister finns på [SKL:s webbplats för kvalitetsregister](http://www.kvalitetsregister.se/). 
+
+## Stratums API
+De flesta api-anrop kräver api-nyckel och kan fås på begäran via mejl till [mig](mailto:roger.salomonsson@registercentrum.se). 
+En del anrop kräver stark autentisering och det framgår i så fall av respektive anropsexempel. 
+En del anrop fungerar endast med https, andra över både http och https. 
+
+Vissa api-grenar är mer REST-orienterade än andra, framför allt för att de inte är bundna till "statiska"
+resurser, till exempel api-grenen för [aggregat](#reference/statistik/fordefinierad-aggregatstatistik), som är ett api för registerstatistik på aggregerad nivå. 
+[Metadata](#reference/metadata), som är ett api för beskrivande information, följer mer REST då det avspeglar "statiska" resurser
+som register, formulär, frågor och svarsalternativ som är entydigt definerade entiteter i Stratum.
+
+Våra api:er kan anropas med api-nyckel och/eller så kallad inloggningskontext. En inloggningskontext fås efter stark [autentisering](#reference/autentisering)
+och skickas automatiskt med vid varje anrop till Stratum.
+I de fall både båda existerar, det vill säga api-anrop görs med api-nyckel i ett scenario där användaren är starkt autentiserad, 
+är det oftast inloggningskontexten som har högre prioritet men det finns
+enstaka fall då det motsatta gäller. Detta är i så fall noterat under respektive anrop.
+
+HTTP-statuskoder som används:
+<table>
+<tr><th>Statuskod</th><th>Förklaring</th></tr>
+<tr><td>200</td><td>OK.</td></tr>
+<tr><td>400</td><td>Syntaktiskt eller semantiskt fel (till exempel i URI eller parametrar).</td></tr>
+<tr><td>401</td><td>Api-nyckel eller giltig session saknas (autentiseringsproblem).</td></tr>
+<tr><td>403</td><td>Behörighet saknas (auktoriseringsproblem).</td></tr>
+<tr><td>404</td><td>Efterfrågad resurs finns inte.</td></tr>
+<tr><td>405</td><td>Otillåten anropsmetod (till exempel POST där endast GET är tillåtet).</td></tr>
+<tr><td>500</td><td>Funktionen saknas.</td></tr>
+</table>
+
+Använda HTTP-metoder:
+<table>
+<tr><th>Metod</th><th>Avser</th></tr>
+<tr><td>GET</td><td>Hämtar resurs.</td></tr>
+<tr><td>PUT</td><td>Uppdaterar resurs (ger fel om resurs inte finns).</td></tr>
+<tr><td>POST</td><td>Skapar resurs (ger fel om resurs redan finns).</td></tr>
+<tr><td>DELETE</td><td>Tar bort resurs.</td></tr>
+</table>
+
+All retur från api-anrop är inkapslade enligt:
+
+    {
+        "data": {           // Returvärde från anropet.
+            ...
+        },
+        "success": true,    // Om anropet lyckades.
+        "message": null,    // Felmeddelande om anropet inte lyckades, annars null.
+        "code": 0           // Felkod om anropet inte lyckades, annars noll.
+    }
+    
+För att undvika upprepning är det endast returvärdet från anropet, det vill säga "data"-attributet som beskrivs som resultat från anropen i 
+api-beskrivningarna i [referensdelen](#reference/andpunkter).
+
+Resultat från anrop är i JSON (endast). 
+
+## Group Ändpunkter
+
+# Stratums api-rot [/api]
+
+Den här resursen innehåller länkar till api:ets olika ändpunkter, som återspeglar vilken "gren" anropet verkar inom.
+
+## Hämta ändpunkter [GET]
+
++ Response 200 (application/json)
+
+        {
+            "Authentication": "/api/authentication",
+            "Metadata": "/api/metadata",
+            "Registrations": "/api/registrations",
+            "Aggregate": "/api/aggregate",
+            "Statistics": "/api/statistics",
+            "Overview": "/api/overview",
+            "Widgets": "/api/widgets",
+            "Configurations": "/api/configurations",
+            "Proxies": "/api/proxies"
+        }
+
+# Group Autentisering
+
+En [kontext](#reference/metadata/kontext) beskriver det sammanhang inom vilket en användare kommunicerar med Stratum. 
+Kontexten pekar ut en användare, en roll och en vårdenhet. 
+Eftersom vårdenheter är registerspecifika pekar kontexten även ut register indirekt.
+En inloggad användare är alltid knuten till en kontext. En api-nyckel pekar också ut en kontext men används enbart för att läsa öppen data.
+Detta betyder att en api-nyckel är knuten till en vårdenhet även om den kan användas för generell åtkomst i de flesta sammanhang.
+
+För att se data från kvalitetsregister krävs tvåfaktorautentisering. Inloggning kan göras med:
+* __SITHS-kort__ - den rekommenderade autentiseringsmetoden för alla som arbetar inom hälso- och sjukvård i Sverige (läs mer hos [Inera](http://www.inera.se/siths)).
+* __Mobilt BankID__ - erbjuds i första hand som alternativ till de som inte har möjlighet att använda SITHS-kort (läs mer hos [BankID](https://support.bankid.com/sv)).
+
+Autentisering med "mjuka" SITHS-certifikat eller med våra egna RC-certifikat kan också användas men är bara tillåtna för dator-dator-kommunikation då de inte är av tvåfaktortyp.
+
+_Dessa anrop kan endast göras över https._
+
+## Aktuell kontext [/api/authentication/context]
+
+### Hämta [GET]
+
+Returnerar aktuell kontext för den som begär anropet. Kan användas för att kontrollera om anroparen är starkt autentiserad.
+
++ Response 200 (application/json)
+    + Attributes(Context)
+
+### Byt [PUT]
+
+Genomför ett kontextbyte.
+
+Vid status 400 gäller:
+<table>
+<tr><th>"code"</th><th>"message"</th><th>förklaring</th></tr>
+<tr><td>1</td><td>null</td><td>Ogiltig kontextidentifierare</td></tr>
+<tr><td>9</td><td>null</td><td>Autentiserad session saknas</td></tr>
+</table>
+
++ Request (application/json)
+    + Body
+    
+            {
+                "Context": {
+                    "ContextID": 30730
+                }
+            }
+
++ Response 200 (application/json)
+    + Attributes(Context)
+
++ Response 400 (application/json)
+
+## Autoinloggning [/api/authentication/login]
+
+### Genomför automatisk inloggning [GET]
+
+Genomför automatisk inloggning.
+
+Vid status 400 gäller:
+<table>
+<tr><th>"code"</th><th>"message"</th><th>förklaring</th></tr>
+<tr><td>1</td><td>null</td><td>Ogiltig kontext (???)</td></tr>
+<tr><td>9</td><td>null</td><td>Autentiserad session saknas</td></tr>
+</table>
+
++ Response 200 (application/json)
+    + Attributes(Context)
+
++ Response 400 (application/json)
+
+## Återstående sessionstid [/api/authentication/timeleft]
+
+### Tid som återstår av session [GET]
+
+Returnerar den tid som återstår innan aktuell session löper ut. Kan användas av en klient för att implementera utloggning på grund 
+av inaktivitet. Räknaren nollställs på varje anrop till Stratum som kräver autentisering.
+
++ Response 200 (application/json)
+    + Attributes(Context)
+
+## Mobilt BankID [/api/authenticate/bid]
+
+### Autentiseringsbegäran [/api/authentication/bid/order/{NIN}]
+
++ Parameters
+    + NIN: `194103219202` (string) - Svenskt personnummer utan bindestreck och med sekel.
+
+### Initiera en autentiseringorder [GET]
+
+Teknisk dokumentation finns hos [BankID](https://www.bankid.com/bankid_i_dina_tjanster/rp_info).
+
++ Response 200 (application/json)
+    + Attributes(OrderResponse)
+
+### Statuskontroll [/api/authentication/bid/collect/{OrderRef}]
+
+ + Parameters
+    + OrderRef: `4f748f5b-fb02-4529-c242-ddf651f964c9` (string) - Orderreferens.
+
+### Hämta aktuell status för en utestående autentiseringsorder [GET]
+
+När returnerat status är "COMPLETED" kommer en sessionscookie med spårningsnyckel att sättas på klienten. För att inloggningen skall fungera
+optimalt är det därför nödvändigt att klienten tillåter sessionscookies. I annat fall kommer användaren att behöva logga in varje gång
+sidan laddas om.
+
++ Response 200 (application/json)
+    + Attributes(CollectResponse)
+    
++ Response 400 (application/json)
+
+# Group Metadata
+Metadata i Stratum utgörs av entiteter som beskriver våra register, till exempel formulär, frågor och svarsalternativ, men även användare, roller och 
+vårdenheter &mdash; själva byggstenarna i en registerbeskrivning. 
+
+Det är skillnad mellan hur en instans och en samling av metadata-entiteter exponeras i JSON-resultatet. En instans innehåller alltid
+samtliga attribut men attribut som utgör en annan entitet är realiserad enbart till första nivån. För en samling av entiteter är varje 
+attribut av atomär typ realiserat med inte relaterade entiteter. Detta för att minska storleken och komplexiteten på resultatet.
+
+I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata via api-nycklar.
+
+## Användare [/api/metadata/users/{aUserID}?query={aQueryString}]
+
++ Attributes(User)
+
++ Parameters
+    + aUserID: `90000` (optional, number) - Unik identifierare för en användare.
+    + aQueryString: `SE23 Robert` (optional, string) - Söksträng (ett eller flera ord separerade med blanktecken).
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes(User)
+
+### Skapa [POST]
++ Response 200 (application/json)
+    + Attributes(User)
+
+### Uppdatera [PUT]
++ Response 200 (application/json)
+    + Attributes(User)
+
+## Kontext [/api/metadata/contexts/{ContextID}?contextid={CallerContextID}]
+
++ Attributes(Context)
+
++ Parameters
+    + CallerContextID: `30730` (required, number) - Kontextidentifierare hos brukare.
+    + ContextID: `20000` (optional, number) - Unik identifierare för en kontext.
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes(Context)
+
+### Skapa [POST]
++ Response 200 (application/json)
+    + Attributes(Context)
+
+### Uppdatera [PUT]
++ Response 200 (application/json)
+    + Attributes(Context)
+
+## Vårdenhet [/api/metadata/units/{UnitID}?apikey={APIKey}]
+En vårdenhet kan vara inom primär- eller slutenvård, privat eller offentlig och identifierar en lokalisering där behandling utförs. 
+Ett register avgör självt vilka vårdenheter som skall finnas och vad de skall kallas i sitt register. I en vidare bemärkelse kan också andra 
+lokaliseringar vara enheter, till exempel registerorganisationer, företag, med flera.
+
++ Attributes(Unit)
+
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + UnitID: `2000` (optional, number) - Unik identifierare för en vårdenhet.
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes(Unit)
+
+### Skapa [POST /api/metadata/units?apikey={APIKey}]
++ Response 200 (application/json)
+    + Attributes(Unit)
+
+### Uppdatera [PUT]
++ Response 200 (application/json)
+    + Attributes(Unit)
+
+## Domän [/api/metadata/domains/{DomainID}?apikey={APIKey}]
+`TODO: beskrivning`
+
++ Attributes(Domain)
+
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + DomainID: `4000` (optional, number) - Identifierare för en domän.
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes(Domain)
+
+### Hämta alla gemensamma [GET /api/metadata/domains/common?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+    + Attributes(array[Domain])
+
+#### Hämta alla gemensamma som avbildning [GET /api/metadata/domains/map/common?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+    + Attributes(array[Domain])
+
+### Hämta alla som tillhör ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+
++ Response 200 (application/json)
+    + Attributes(array[Domain])
+
+#### Hämta alla som tillhör ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+
++ Response 200 (application/json)
+    + Attributes(array[Domain])
+
+### Skapa [POST /api/metadata/units?apikey={APIKey}]
++ Response 200 (application/json)
+    + Attributes(Domain)
+
+### Uppdatera [PUT]
++ Response 200 (application/json)
+    + Attributes(Domain)
+
+
+# Group Registreringar
+`TODO Allmän beskrivning`
+
+## Instanser och kollektioner [/api/registrations]
+`TODO Allmän beskrivning`
+
+### Hämta instans via händelseidentifierare [GET /api/registrations/?apikey={anAPIKey}]
++ Parameters
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+
+        {
+        }
+
+## Specialiserade kollektioner [/api/overview]
+`TODO Allmän beskrivning`
+
+### Hämta [GET /api/overview/?apikey={anAPIKey}]
++ Parameters
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+
+        {
+        }
+
+
+# Group Statistik
+
+`TODO Allmän beskrivning`
+
+## Fördefinierad aggregatstatistik [/api/aggregate]
+
+> _Obs! Denna sektion är bara påbörjad._
+
+`TODO Fördelar och nackdelar`
+- komplext att göra optimeringar för generella databasfrågor
+- saknat stöd för mer avancerade beräkningar på databasnivå
+- svårighet att anrop begripliga och pedagogiska på grund av komplexitet
+
+`TODO Snabbt få ut resultat i nystartade register och vid varibelförändringar`
+
+`TODO Experimentell datanalys`
+
+### Hämta [GET /api/aggregate/{aShortName}/{aFormName}?apikey={APIKey}]
++ Parameters
+    + aShortName: `LVR` (string) - Registrets kortnamn.
+    + aFormName: `Visit` (string) - Formulär att utgå från (variabler från överliggande formulär finns också tillgängliga).
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+
+        {
+        }
+
+## Skräddarsydd statistik via R [/api/statistics]
+
+För mer avancerad statistik än den som går att ta fram via [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) 
+finns stöd för att returnera resultat från R-skript. 
+Likt övriga anrop retuneras endast resultat i JSON-format, inte bilder eller 
+andra typer av resurser. Detta för att få så generellt användningsområde och hög återanvändbarhet som möjligt.
+
+Exempel på R-skript:
+
+```R
+# En funktion som heter "Run" är ett krav (kan ta parametrar).
+Run <- function() { 
+
+  # Ladda in datalager och gemensamma funktioner.
+  Load("LVR/.RData")
+
+  # Ange resultatets målgrupp (se förklaring nedan).
+  Scope <<- 1
+
+  # Själva koden för resultatet ...
+  table(Map(datafinal$SmokingVisit)) 
+
+}
+```
+
+Notera att:
+- Skript måste sparas som UTF-8. Detsamma gäller även strängliteraler. Allting i textform som överförs från Stratum är redan i UTF-8, till exmpel varibel- och värdeetiketter.
+- Namn på R-skript kan enbart bestå av gemener. Lämpligt är att använda den syntax som är vanligast för webbapplikationer, det vill enbart gemener med streck (minustecken) mellan ord, till exempel `number-of-registrations.R`.
+- Filändelsen på ett R-skriptet skall vara `.R`, __inte__ `.r`.
+- Eventuella parametrar alltid överförs som strängar (en följd av att de överförs från adressen till api-anropet).
+
+För något resultat skall levereras ut _måste_ målgrupp specificeras, vilket görs genom att tilldela den globala 
+variabeln `Scope` ett värde (notera att `<<-` används, inte `<-` i exemplet ovan). `Scope` skall tilldelas ett av nedanstående värden:
+<table>
+<tr><th>Scope</th><th>Förklaring</th></tr>
+<tr><td>1</td><td>Anonyma data, tillgängliga för alla.</td></tr>
+<tr><td>2</td><td>Personidentifierbara data inom en vårdgivare.</td></tr>
+<tr><td>3</td><td>Personidentifierbara data för flera vårdgivare.</td></tr>
+</table>
+
+> Observera att det är mycket viktigt att ansvarig statistiker tilldelar __rätt värde__ för `Scope` eftersom risk annars finns att personidentifierbar data 
+visas för obehöriga användare.
+
+I själva api-anropet finns också stöd för att skicka med parametrar, till exempel `/api/statistics/brimp/test?diagnos=M16.1`. 
+Dessa hamnar då som argument till anropet av R-skriptet, det vill säga som `Run(diagnos="M16.1")`. 
+Parametrar som överförs är versalkänsliga, till exempel om Run-funktionen i skriptet `test.R` är deklarerad som `Run(diagnos)` 
+fungerar det inte att göra anrop med `/api/statistics/brimp/test?Diagnos=M16.1`.
+Alla parametrar överförs som textsträngar.
+
+### Exempel från LVR, senaste version [GET /api/statistics/{aShortName}/{aScriptName}?apikey={anAPIKey}&rinvoke=1]
++ Parameters
+    + aShortName: `LVR` (string) - Registrets kortnamn.
+    + aScriptName: `test` (string) - R-skript att exekvera (utan .R i slutet).
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+
+        {
+            "Aldrig varit rökare": 8039,
+            "Slutat röka för >6 månader sedan": 18215,
+            "Slutat röka för <6 månader sedan": 2084,
+            "Röker, men inte dagligen": 784,
+            "Röker dagligen 1-9 cigaretter/dag": 6252,
+            "Röker dagligen 10-19 cigaretter/dag": 4947,
+            "Röker dagligen >20 cigaretter/dag": 1459
+        }
+        
+### Exempel från BOA, specifik version [GET /api/statistics/{aShortName}/{aScriptName}/{aVersion}?apikey={anAPIKey}&rinvoke=1]
++ Parameters
+    + aShortName: `BOA` (string) - Registrets kortnamn.
+    + aScriptName: `test` (string) - R-skript att exekvera (utan .R i slutet).
+    + aVersion: `492` (optional, number) - Version av R-skript (senasta versionen om den utelämnas).
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "k": "Höft",
+                "v": [
+                    {
+                        "k": "Man",
+                        "v": 4735
+                    },
+                    {
+                        "k": "Kvinna",
+                        "v": 10051
+                    }
+                ]
+            },
+            {
+                "k": "Knä",
+                "v": [
+                    {
+                        "k": "Man",
+                        "v": 10144
+                    },
+                    {
+                        "k": "Kvinna",
+                        "v": 22157
+                    }
+                ]
+            },
+            {
+                "k": "Hand",
+                "v": [
+                    {
+                        "k": "Man",
+                        "v": 149
+                    },
+                    {
+                        "k": "Kvinna",
+                        "v": 885
+                    }
+                ]
+            }
+        ]
+
+
+# Group Konfigurationer
+
+## Generiska funktioner [/api/configurations/globals]
+En uppsättning funktioner av generisk karaktär i Stratum, till exempel datumkonvertering, ålders-/könsberäkning, ägarregistrering, underregistreringar. 
+Även användbara attribut såsom Stratumversion och aktuellt produktionsläge är inkluderade. API-nyckel behöves inte för detta anrop.
+
+### Hämta [GET]
++ Response 200 (application/json)
+
+        {
+            "StratumVersion": "2.78.3708",
+            "DeploymentMode": "PROD",
+            "Methods": [...]
+        }
+
+## Huvudnavigation [/api/configurations/navigation/{aSiteID}?apikey={anAPIKey}]
+Hierarkisk navigation för ett registers webbplats. 
+
+### Hämta[GET]
++ Parameters
+    + aSiteID: `100` (number) - Webbplatsens identifierare.
+    + anAPIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "leaf": true,
+                "id": 1001,
+                "level": 0,
+                "text": "Om Stratum",
+                "children": null
+            },
+            {
+                "leaf": true,
+                "id": 1097,
+                "level": 0,
+                "text": "Kontakta oss",
+                "children": null
+            },
+            {
+                "leaf": true,
+                "id": 1863,
+                "level": 0,
+                "text": "Registerförteckning",
+                "children": null
+            },
+            {
+                "leaf": false,
+                "id": 1661,
+                "level": 0,
+                "text": "Dokumentation",
+                "children": [...]
+            },
+            {
+                "leaf": false,
+                "id": 1856,
+                "level": 0,
+                "text": "Administration",
+                "children": [
+                    {
+                        "leaf": true,
+                        "id": 1336,
+                        "level": 1,
+                        "text": "Dina resurser",
+                        "children": null
+                    },
+                    {
+                        "leaf": true,
+                        "id": 2126,
+                        "level": 1,
+                        "text": "Registerutdrag",
+                        "children": null
+                    }
+                ]
+            },
+            {
+                "leaf": false,
+                "id": 1743,
+                "level": 0,
+                "text": "Internt",
+                "children": [...]
+            }
+        ]
+
+## Applikationsnavigation [/api/configurations/navigation/scoped/{aSiteID}]
+> ___Stark autentisering krävs___
+
+Navigation för registreringsapplikationen. Se avsnittet om [sidadressering](#reference/sidadressering) för en förklaring till attributet `PageScope`.
+Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt när man startar registrerinsapplikationen. Denna navigation  
+är en flat struktur till skillnad från [huvudnavigationen](#reference/ovrigt/huvudnavigation) som kan vara hierarkisk.
+
+### Hämta[GET]
++ Parameters
+    + aSiteID: `100` (number) - Webbplatsens identifierare.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "PageID": 1797,
+                "PageTitle": "Vår sida",
+                "PageScope": 1
+            },
+            {
+                "PageID": 2057,
+                "PageTitle": "Information",
+                "PageScope": 2
+            }
+        ]
+
+# Group Komponenter
+> _Obs! Denna sektion är bara påbörjad._
+
+`TODO beskrivning av widgets`
+
+## Komponenter [/api/widgets]
+> _Obs! Denna sektion är bara påbörjad._
+
+`TODO Komponenter`
+
+### Hämta[GET]
++ Response 200 (application/json)
+
+        {
+        }
+
+# Group Bjudningar
+> _Obs! Denna sektion är bara påbörjad._
+
+`TODO beskrivning av proxies`
+
+## Bjudningar [/api/proxies]
+> _Obs! Denna sektion är bara påbörjad._
+
+`TODO Bjudningar`
+
+### Hämta[GET]
++ Response 200 (application/json)
+
+        {
+        }
+
+# Group Sidadressering
+Det finns olika sätt att adressera innehåll i Stratum. Med innehåll menas här ett HTML-innehåll på en av Stratums webbplatser (inte api:er, filtjänster eller webbtjänster). 
+Innehållet kan vara sidor (med eller utan komponenter - "widgets"), registreringsapplikationens startsida, formulär eller befintliga registreringar.
+Vad gäller sidor hör dessa till ett av tre möjliga `PageScope` som beskriver i vilket sammanhang sidan och dess tillhörande navigation visas:
+<table>
+<tr><th>PageScope</th><th>Funktion</th></tr>
+<tr><td>0</td><td>Sidor som finns i den yttre navigationen, det vill säga sidor som normalt sett alla användare ser (om det inte finns behörigheter som spärrar). På denna nivå finns vanliga sidor, med eller utan dynamiskt innehåll (widgets).</td></tr>
+<tr><td>1</td><td>Sidor som syns i navigationen när man gått in i registreringsapplikationen (normalt genom att klicka på "Registrera"). Vanligt tillämpningsområde för dessa sidor är enhetsspecifika resultat.</td></tr>
+<tr><td>2</td><td>Sidor som syns i navigationen när man är inne i registreringsappliaktionen och har sökt upp en patient. För dessa behöver man också skicka med parametern aSubjectKey för att peka ut vilket subjekt som avses. Vanligt tillämpningsområde är subjektspecifika resultat, till exempel en patientprofil.</td></tr>
+</table>
+
+Alla sidtyperna kan direktadresseras ("link-in") och tillhörande Stratum-funktioner kommer laddas in automatiskt om de inte redan är inladdade. Utöver sidinnehåll kan även tomma 
+registreringsformulär och befintliga registreringar adresseras för både patientbundna och enhetsbundna registreringar. Generellt gäller 
+att om efterfrågad resurs kräver auktorisering, och denna inte finns, så visas en 404-sida ("Oops!").
+
+## Sida [/#!page?id={aPageID}?key={aSubjectKey}]
+`/#!page?id=<aPageID>?key=<aSubjectKey>`
+
+Visar sidinnehållet som idetifieras av `aPageID` och kan peka på en sida som finns i vilket `PageScope` (se [förklaring](#reference/sidadressering) ovan) som helst. 
+Om en sida finns på en annan webbplats så laddas webbplatsen först. Om sidans `PageScope` är 2 så är parametern `aSubjectKey` obligatorisk.
+
+___Stark autentisering krävs om sidans `PageScope` är 1 eller 2.___
+
+### Hämta[GET]
++ Parameters
+    + aPageID: `1001` (number) - Sidans identifierare.
+    + aSubjectKey: `19121212-1212` (optional, string) - Personnummer (subjektnyckel).
++ Response 200 (text/html)
+
+## Subjekt [/#!subject?key={aSubjectKey}]
+`/#!subject?key=<aSubjectKey>`
+
+Visar registreringshistoriken i registrerinsapplikationen för det subjekt som identifieras av `aSubjectKey`. Vyn är densamma som om användaren 
+sökt upp ett subjekt.
+
+___Stark autentisering krävs.___
+
+### Hämta[GET]
++ Parameters
+    + aSubjectKey: `19121212-1212` (optional, string) - Personnummer (subjektnyckel).
++ Response 200 (text/html)
+
+## Nytt huvudformulär [/#!form?id={aFormID}?key={aSubjectKey}]
+`/#!form?id=<aFormID>?key=<aSubjectKey>`
+
+Öppnar ett nytt huvudformulär som identifieras av `aFormID`, för det subjekt som identifieras av `aSubjectKey`. 
+För enhetsbudna formulär utelämnas `aSubjectKey`.
+
+___Stark autentisering krävs (för patientbundna formulär).___
+
+### Hämta[GET]
++ Parameters
+    + aFormID: `1005` (number) - Formulärets identifierare.
+    + aSubjectKey: `19121212-1212` (optional, string) - Personnummer (subjektnyckel).
++ Response 200 (text/html)
+
+## Nytt underformulär [/#!form?id={aFormID}?parent={anEventID}]
+`/#!form?id=<aFormID>?parent=<anEventID>`
+
+Öppnar ett nytt underformulär som identifieras av `aFormID`, för den registrering som identifieras av `anEventID`. 
+
+___Stark autentisering krävs.___
+
+### Hämta[GET]
++ Parameters
+    + aFormID: `1005` (number) - Underformulärets identifierare.
+    + anEventID: `11244670` (number) - Registreringsidentifierare.
++ Response 200 (text/html)
+
+## Registrering [/#!event?id={anEventID}]
+`/#!event?id=<anEventID>`
+
+Visar den registrering som identifieras av `anEventID` i sitt formulär, precis som om användaren klickat 
+på en registrering i registreringapplikationen. Detta gäller oberoende av om `anEventID` pekar ut en subjekt- eller enhetsbunden registrering.
+
+___Stark autentisering krävs för patientbundna registreringar.___
+
+### Hämta[GET]
++ Parameters
+    + anEventID: `1001` (number) - Registreringsidentifierare.
++ Response 200 (text/html)
+
+## Enhetsbundna registreringar [/#!profile]
+`/#!profile`
+
+Vid denna adressering startas registreringsapplikationen och visar registrets enhetsbundna registreringar, till exempel teknikprofil, vårdenhetspraxis och liknande.
+### Hämta[GET]
++ Response 200 (text/html)
+
+
+# Data Structures
+
+## Stratums entiteter
+
+## Wrapper (object)
++ data: `{ ... }` (string) - Returvärde från anropet.
++ success: `true` (boolean) - Om anropet lyckades.
++ message: `null` (string) - Eventuellt felmeddelande (null annars).
++ code: `0` (number) - Eventuell felkod (0 annars).
+
+## Register (object)
++ RegisterID: `100` (number, required) - Unik identifierare.
+
+## User (object)
++ UserID: `90000` (required, number) - Unik identifierare.
++ Username: `roger@medicor.se` (required, string) - Unikt användarnamn (helst e-post).
++ Email: `roger@medicor.se` (optional, string) - E-postadress.
+
+## Context (object)
++ ContextID: `30730` (number, required) - Unik identifierare.
++ IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
++ Role (required, Role) - Tillhörande roll.
++ Unit (required, Unit) - Tillhörande vårdenhet.
++ User (required, User) - Tillhörande anändare.
+
+## Role (object)
++ RoleID: `201` (required, number) - Unik identifierare.
++ RoleName: `"API–brukare"` (optional, string) - Namn.
++ IsPermittedToLogin: `false` (optional, boolean) - Om inloggning är tillåten.
++ IsPermittedToRegister: `false` (optional, boolean) - Om registrering i register är tillåten.
++ IsPermittedToViewHistory: `false` (optional, boolean) - Om registreringshistorik får visas.
++ IsPermittedToAdminister: `false` (optional, boolean) - Om administration av register 'r tillåten.
++ IsPermittedToCrossBorder: `false` (optional, boolean) - Om överbryggning av vårdenhetsgränser är tillåten.
+
+## Unit (object)
++ UnitID: `2000` (required, number) - Unik identifierare.
++ UnitCode: `26` (required, number) - Registrets egna vårdenhetskod.
++ UnitName: `Testkliniken` (required, string) - Registrets egna vårdenhetsnamn.
++ IsActive: `true` (optional, boolean) - Om aktiv.
++ HSAID: `SE2321000131-E000000002241` (optional, string) - HSAID (om registret angett denna).
++ PARID: `null` (optional, string) - ID i Patientregistret (om registret angett denna).
++ Register (required, Register) - Registertillhörighet.
++ Bindings (optional, array[UnitBinding]) - Lista av egenskaper, till exempel landsting eller vårdnivå.
+
+## ShallowUnit (object)
++ UnitID: `2000` (required, number) - Unik identifierare.
++ UnitCode: `26` (required, number) - Registrets egna kod.
++ UnitName: `Testkliniken` (required, string) - Registrets egna namn.
++ IsActive: `true` (boolean) - Om aktiv.
++ HSAID: `SE2321000131-E000000002241` (string) - HSAID (om registret angett denna).
++ PARID: `null` (string) - ID i Patientregistret (om registret angett denna).
+
+## UnitBinding (object)
++ UnitID: `2000` (required, number) - Unik identifierare.
++ DomainValueID: `54907` (required, number) - Identifierare för egenskapsvärde (domänvärde).
+
+## Domain (object)
++ DomainID: `4000` (required, number) - Identifierare.
+
+## Externa entiteter
+
+## OrderResponse (object)
++ orderRef: `4f748f5b-fb02-4529-b242-ddf651f954c9` (string) - Referens till autentiserinsgorder.
++ autoStartToken: `f5e25e9a-0fc6-4209-81e2-4b38eb5fa175` (string) - För autentisering inom en och samma mobila enhet (reserverad).
+
+## CollectResponse (string)
+    "OUTSTANDING_TRANSACTION", "NO_CLIENT", "STARTED", "USER_SIGN", "COMPLETE", "USER_CANCEL", "EXPIRED_TRANSACTION" (string) - Aktuell statust.
