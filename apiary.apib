@@ -632,6 +632,22 @@ Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt nä
 
 `TODO beskrivning av proxies`
 
+Tabellen nedan visar de statusvärden en bjudning kan anta:
+
+__(domän ReplyStatus, 3101)__
+
+<table>
+<tr><th>Värde</th><th>Förklaring</th></tr>
+<tr><td>0</td><td>Upplagd</td></tr>
+<tr><td>1</td><td>Skickad elektroniskt</td></tr>
+<tr><td>2</td><td>Skickad via post</td></tr>
+<tr><td>11</td><td>1:a påminnelse skickad</td></tr>
+<tr><td>12</td><td>2:a påminnelse skickad</td></tr>
+<tr><td>99</td><td>Utgår</td></tr>
+<tr><td>100</td><td>Besvarad</td></tr>
+<tr><td>110</td><td>Avbruten</td></tr>
+</table>
+
 ## Bjudningar [/api/proxies]
 > _Obs! Denna sektion är bara påbörjad._
 
