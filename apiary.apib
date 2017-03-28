@@ -66,7 +66,8 @@ All retur från api-anrop är inkapslade enligt:
         "message": null,    // Felmeddelande om anropet inte lyckades, annars null.
         "code": 0           // Felkod om anropet inte lyckades, annars noll.
     }
-```    
+```
+
 För att undvika upprepning är det endast returvärdet från anropet, det vill säga "data"-attributet som beskrivs som resultat från anropen i 
 api-beskrivningarna i [referensdelen](#reference/andpunkter).
 
@@ -844,4 +845,4 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + autoStartToken: `f5e25e9a-0fc6-4209-81e2-4b38eb5fa175` (string) - För autentisering inom en och samma mobila enhet (reserverad).
 
 ## CollectResponse (string)
-    "OUTSTANDING_TRANSACTION", "NO_CLIENT", "STARTED", "USER_SIGN", "COMPLETE", "USER_CANCEL", "EXPIRED_TRANSACTION" (string) - Aktuell statust.
+    "OUTSTANDING_TRANSACTION", "NO_CLIENT", "STARTED", "USER_SIGN", "COMPLETE", "USER_CANCEL", "EXPIRED_TRANSACTION" (string) - Aktuell status.
