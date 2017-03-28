@@ -3,32 +3,35 @@ HOST: https://stratum.registercentrum.se/
 
 # Öppna data från Stratum
 
-> ___Detta är en levande dokumentation som till och från kan innehålla fel eller sakna väsentlig information. 
-Frågor besvaras gladeligen av [Roger Salomonsson](mailto:roger.salomonsson@registercentrum.se), Stratum-arkitekt.___
+> ___Detta är en levande dokumentation som till och från kan innehålla fel eller sakna väsentlig information.___
 
 ## Vad är Stratum?
-Stratum är en teknisk plattform för att beskriva, samla in, analysera och presentera data från kvalitetsregister inom hälso- och sjukvård. 
-I Stratum ingår en avancerad formulärapplikation, integrationsfunktioner, PROM-stöd och en uppsättning programkomponenter för 
-visualisering och interaktion. Komponenter specifika för ett register, till exempel för visualisering kan utvecklas via ett tillägg i Chrome som vi kallar 
-[SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension). 
-Stratum kan också automatiskt generera datalager av registerdata som är optimalt utformade för att vara underlag till statistiker 
-för forskningsändamål och förbättringsarbete.
+Stratum är en teknisk plattform för att beskriva, samla in och presentera data från kvalitetsregister inom hälso- och sjukvård och 
+förser registret och dess användare med bland annat en avancerad formulärapplikation och verktyg för att administrera registreringar. 
+Visualisering av registerdata utvecklas (av oss eller tredje part) via ett tillägg till Chrome Devtools som vi kallar 
+[SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension)
+och skjuts in direkt på webbplatsen. 
+Statistiker kan ta fram skript som exekveras via vår R-server och levererar tillbaka data genom Stratum i JSON-format.
+Stratum kan också automatiskt generera datalager från registerdata, särskilt utformade för att vara underlag till statistiska analyser
+och annan dataleverans. 
+Det mesta av både data och metadata är åtkomligt via våra öppna api:er och denna dokumentation beskriver i första hand dessa.
 
 Mer information om Nationella Kvalitetsregister finns på [SKL:s webbplats för kvalitetsregister](http://www.kvalitetsregister.se/). 
 
 ## Stratums API
-De flesta api-anrop kräver api-nyckel och kan fås på begäran via mejl till [mig](mailto:roger.salomonsson@registercentrum.se). 
+De flesta api-anrop kräver en api-nyckel och kan fås på begäran via mejl till [oss i Stratum-gruppen](mailto:stratum@registercentrum.se). 
 En del anrop kräver stark autentisering och det framgår i så fall av respektive anropsexempel. 
-En del anrop fungerar endast med https, andra över både http och https. 
+En del anrop fungerar endast med https, andra över både http och https. Vid stark autentisering används alltid https.
 
-Vissa api-grenar är mer REST-orienterade än andra, framför allt för att de inte är bundna till "statiska"
-resurser, till exempel api-grenen för [aggregat](#reference/statistik/fordefinierad-aggregatstatistik), som är ett api för registerstatistik på aggregerad nivå. 
-[Metadata](#reference/metadata), som är ett api för beskrivande information, följer mer REST då det avspeglar "statiska" resurser
-som register, formulär, frågor och svarsalternativ som är entydigt definerade entiteter i Stratum.
+Vissa api:er är mer REST-orienterade än andra. Vissa api:er inte är bundna till "statiska"
+resurser, som till exempel [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) (registerstatistik på aggregerad nivå), är dessa
+mer dynamiska i strukturen och URI-schemat bestäms av hur ett register är konfigurerat. 
+[Metadata](#reference/metadata) å andra sidan, som är ett api för beskrivande information, följer mer REST då det avspeglar "statiska" resurser
+som register, formulär, frågor och svarsalternativ, som alla är entydigt definerade entiteter i Stratum.
 
 Våra api:er kan anropas med api-nyckel och/eller så kallad inloggningskontext. En inloggningskontext fås efter stark [autentisering](#reference/autentisering)
 och skickas automatiskt med vid varje anrop till Stratum.
-I de fall både båda existerar, det vill säga api-anrop görs med api-nyckel i ett scenario där användaren är starkt autentiserad, 
+I de fall båda existerar, det vill säga api-anrop görs med api-nyckel i ett scenario där användaren är starkt autentiserad, 
 är det oftast inloggningskontexten som har högre prioritet men det finns
 enstaka fall då det motsatta gäller. Detta är i så fall noterat under respektive anrop.
 
@@ -54,7 +57,7 @@ Använda HTTP-metoder:
 </table>
 
 All retur från api-anrop är inkapslade enligt:
-
+```
     {
         "data": {           // Returvärde från anropet.
             ...
@@ -63,7 +66,7 @@ All retur från api-anrop är inkapslade enligt:
         "message": null,    // Felmeddelande om anropet inte lyckades, annars null.
         "code": 0           // Felkod om anropet inte lyckades, annars noll.
     }
-    
+```    
 För att undvika upprepning är det endast returvärdet från anropet, det vill säga "data"-attributet som beskrivs som resultat från anropen i 
 api-beskrivningarna i [referensdelen](#reference/andpunkter).
 
@@ -422,6 +425,35 @@ variabeln `Scope` ett värde (notera att `<<-` används, inte `<-` i exemplet ov
 
 > Observera att det är mycket viktigt att ansvarig statistiker tilldelar __rätt värde__ för `Scope` eftersom risk annars finns att personidentifierbar data 
 visas för obehöriga användare.
+
+R-skript har tre variabler tillgängliga, som håller information om anropande part:
+
+__Scope.Unit__
+
+Identifierare (UnitCode) för anropande vårdenhet. Observera att det som skickas över är _registrets kod för vårdenheten_ (UnitCode), __inte__ Stratums globalt unika identifierare för vårdenhet (UnitID). 
+Kan till exempel användas för att anpassa resultat för specifika vårdenheter i ett register.
+
+__Scope.User__
+
+Identifierare (UnitID) för anropande användare. 
+Kan till exempel användas för att avgränsa resultat till endast en användare.
+
+__Scope.Role__
+
+Identifierare (RoleID) med anroparens roll.
+Kan till exempel användas för att leverera resultat inom eller tvärsöver vårdgivargränser beroende på roll.
+Möjliga värden:
+
+<table>
+<tr><th></th><th>Roll</th><th>Syfte</th><th>Läsa/Skriva</th><th>Inloggning</th></tr>
+<tr><td>101</td><td>Dataleverantör</td><td>Leverera data till Stratum, till exempel via webbtjänst eller api.</td><td>Skriva</td><td>Nej</td></tr>
+<tr><td>201</td><td>API-klient</td><td>Hämta öppna data.</td><td>Läsa</td><td>Nej</td></tr>
+<tr><td>301</td><td>Integratör</td><td>Hämta registreringar tvärs över vårdgivargränser i syfte att integrera system.</td><td>Läsa</td><td>Nej</td></tr>
+<tr><td>901</td><td>Registrerare</td><td>Registrera och hämta data för vårdenheten (vårdpersonal).</td><td>Läsa och skriva</td><td>Ja</td></tr>
+<tr><td>902</td><td>Plusregistrerare</td><td>Registrerare med något större befogenheter (vårdpersonal).</td><td>Läsa och skriva</td><td>Ja</td></tr>
+<tr><td>903</td><td>Koordinator</td><td>Registrera och hämta data  över vårdgivargränser. Kan administrera register (registerpersonal)</td><td>Läsa och skriva</td><td>Ja</td></tr>
+<tr><td>906</td><td>Systemutvecklare</td><td>Kan spara programkomponenter och skapa/administrera register (registercentrumpersonal)</td><td>Läsa och skriva</td><td>Nej</td></tr>
+</table>
 
 I själva api-anropet finns också stöd för att skicka med parametrar, till exempel `/api/statistics/brimp/test?diagnos=M16.1`. 
 Dessa hamnar då som argument till anropet av R-skriptet, det vill säga som `Run(diagnos="M16.1")`. 
