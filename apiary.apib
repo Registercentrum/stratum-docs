@@ -7,7 +7,7 @@ HOST: https://stratum.registercentrum.se/
 
 ## Vad är Stratum?
 Stratum är en teknisk plattform för att beskriva, samla in och presentera data från kvalitetsregister inom hälso- och sjukvård och 
-förser registret och dess användare med bland annat en avancerad formulärapplikation och verktyg för att administrera registreringar. 
+förser ett register och dess användare med bland annat en avancerad formulärapplikation och verktyg för att administrera registreringar. 
 Visualisering av registerdata utvecklas (av oss eller tredje part) via ett tillägg till Chrome Devtools som vi kallar 
 [SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension)
 och skjuts in direkt på webbplatsen. 
@@ -23,11 +23,11 @@ De flesta api-anrop kräver en api-nyckel och kan fås på begäran via mejl til
 En del anrop kräver stark autentisering och det framgår i så fall av respektive anropsexempel. 
 En del anrop fungerar endast med https, andra över både http och https. Vid stark autentisering används alltid https.
 
-Vissa api:er är mer REST-orienterade än andra. Vissa api:er inte är bundna till "statiska"
+Vissa api:er är mer REST-orienterade än andra. Eftersom alla api:er inte är bundna till "statiska"
 resurser, som till exempel [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) (registerstatistik på aggregerad nivå), är dessa
-mer dynamiska i strukturen och URI-schemat bestäms av hur ett register är konfigurerat. 
+mer dynamiska i strukturen och URI-schemat för dessa anrop är beroende av hur ett register är konfigurerat. 
 [Metadata](#reference/metadata) å andra sidan, som är ett api för beskrivande information, följer mer REST då det avspeglar "statiska" resurser
-som register, formulär, frågor och svarsalternativ, som alla är entydigt definerade entiteter i Stratum.
+som register, formulär, frågor och svarsalternativ, som alla är statiska, entydigt definerade entiteter i Stratum.
 
 Våra api:er kan anropas med api-nyckel och/eller så kallad inloggningskontext. En inloggningskontext fås efter stark [autentisering](#reference/autentisering)
 och skickas automatiskt med vid varje anrop till Stratum.
@@ -68,9 +68,6 @@ All retur från api-anrop är inkapslade enligt:
     }
 ```
 
-För att undvika upprepning är det endast returvärdet från anropet, det vill säga "data"-attributet som beskrivs som resultat från anropen i 
-api-beskrivningarna i [referensdelen](#reference/andpunkter).
-
 Resultat från anrop är i JSON (endast). 
 
 ## Group Ändpunkter
@@ -109,7 +106,134 @@ För att se data från kvalitetsregister krävs tvåfaktorautentisering. Inloggn
 
 Autentisering med "mjuka" SITHS-certifikat eller med våra egna RC-certifikat kan också användas men är bara tillåtna för dator-dator-kommunikation då de inte är av tvåfaktortyp.
 
-_Dessa anrop kan endast göras över https._
+_Samtliga anrop nedan kan endast göras över https._
+
+## Inloggning [/api/authentication/login]
+
+### Begär inloggning [GET]
+
+Begär inloggning genom medskickat certifikat (SITHS eller RC).
+Efter godkänd autentisering returneras även begäran om tilldelning av sessioncookie.
+
+Vid status 400 returneras i attribut `code`:
+<table>
+<tr><th>Kod</th><th>Förklaring</th></tr>
+<tr><td>1</td><td>Giltigt certifikt saknas</td></tr>
+<tr><td>5</td><td>Konto saknas inloggningsbar kontext</td></tr>
+<tr><td>6</td><td>Ogiltigt konto för kontext</td></tr>
+<tr><td>9</td><td>Autentiserad session saknas</td></tr>
+</table>
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+    
+
++ Response 400 (application/json)
+
+### Begär inloggning och bind till konto [POST]
+
+Genomför inloggning med medskickat SITHS-certifikat och knyter användarkonto till certifikatinformation. 
+Efter godkänd autentisering returneras även begäran om tilldelning av  sessioncookie på klienten.
+
+Vid status 400 returneras i attribut `code`:
+<table>
+<tr><th>Kod</th><th>Förklaring</th></tr>
+<tr><td>1</td><td>Giltigt certifikt saknas</td></tr>
+<tr><td>5</td><td>Konto saknas inloggningsbar kontext</td></tr>
+<tr><td>6</td><td>Ogiltigt konto för kontext</td></tr>
+<tr><td>9</td><td>Autentiserad session saknas</td></tr>
+</table>
+
+Detta anrop finns även tillgängligt i GET-version via `GET /api/authentication/assign?username=<aUsername>&password=<aPassword>`. 
+
++ Request (application/x-www-form-urlencoded)
+    + Body
+    
+            username=<aUsername>&password=<aPassword>
+        
++ Response 200 (application/json)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
++ Response 400 (application/json)
+
+## Utloggning [/api/authentication/logout]
+
+### Begär utloggning [GET]
+
+Genomför utloggning genom att returnera begäran om att ta bort sessioncookie på klienten.
+
++ Response 200 (application/json)
+
+        null
+
+## Sessionstid [/api/authentication/timeleft]
+
+### Tid som återstår av session [GET]
+
+Returnerar den tid som återstår innan aktuell session löper ut. Kan användas av en klient för att implementera utloggning på grund 
+av inaktivitet. Räknaren nollställs på varje anrop till Stratum som kräver autentisering.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+## Mobilt BankID [/api/authentication/bid]
+
+### Autentiseringsbegäran [GET /api/authentication/bid/order/{NIN}]
+
+Initierar en begäran om autentisering via BID. Teknisk dokumentation finns hos [BankID](https://www.bankid.com/bankid_i_dina_tjanster/rp_info).
+
++ Parameters
+    + NIN: `194103219202` (string) - Svenskt personnummer utan bindestreck och med sekel.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (OrderResponse)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Statuskontroll [GET /api/authentication/bid/collect/{OrderRef}]
+
+Hämtar aktuell status för en utestående autentiseringsbegäran. 
+När returnerat status är "COMPLETED" kommer en sessionscookie med spårningsnyckel att sättas på klienten. För att inloggningen skall fungera
+optimalt är det därför nödvändigt att klienten tillåter sessionscookies. I annat fall kommer användaren att behöva logga in varje gång
+sidan laddas om.
+
+Vid status 400 returneras i attribut `code`:
+<table>
+<tr><th>Kod</th><th>Förklaring</th></tr>
+<tr><td>-1</td><td>Felmeddelande från BID (faultString) returneras i `message`</td></tr>
+</table>
+
++ Parameters
+    + OrderRef: `4f748f5b-fb02-4529-c242-ddf651f964c9` (string) - Unik orderreferens från BID.
+
++ Response 200 (application/json)
+    + Attributes
+        + data: `COMPLETE` (enum[string])
+            + Members 
+                + `OUTSTANDING_TRANSACTION`
+                + `NO_CLIENT`
+                + `STARTED`
+                + `USER_SIGN`
+                + `COMPLETE`
+                + `USER_CANCEL`
+                + `EXPIRED_TRANSACTION`
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ## Aktuell kontext [/api/authentication/context]
 
@@ -118,17 +242,21 @@ _Dessa anrop kan endast göras över https._
 Returnerar aktuell kontext för den som begär anropet. Kan användas för att kontrollera om anroparen är starkt autentiserad.
 
 + Response 200 (application/json)
-    + Attributes(Context)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Byt [PUT]
 
 Genomför ett kontextbyte.
 
-Vid status 400 gäller:
+Vid status 400 returneras i attribut `code`:
 <table>
-<tr><th>"code"</th><th>"message"</th><th>förklaring</th></tr>
-<tr><td>1</td><td>null</td><td>Ogiltig kontextidentifierare</td></tr>
-<tr><td>9</td><td>null</td><td>Autentiserad session saknas</td></tr>
+<tr><th>Kod</th><th>Förklaring</th></tr>
+<tr><td>1</td><td>Ogiltig kontextidentifierare</td></tr>
+<tr><td>9</td><td>Autentiserad session saknas</td></tr>
 </table>
 
 + Request (application/json)
@@ -141,66 +269,12 @@ Vid status 400 gäller:
             }
 
 + Response 200 (application/json)
-    + Attributes(Context)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
-+ Response 400 (application/json)
-
-## Autoinloggning [/api/authentication/login]
-
-### Genomför automatisk inloggning [GET]
-
-Genomför automatisk inloggning.
-
-Vid status 400 gäller:
-<table>
-<tr><th>"code"</th><th>"message"</th><th>förklaring</th></tr>
-<tr><td>1</td><td>null</td><td>Ogiltig kontext (???)</td></tr>
-<tr><td>9</td><td>null</td><td>Autentiserad session saknas</td></tr>
-</table>
-
-+ Response 200 (application/json)
-    + Attributes(Context)
-
-+ Response 400 (application/json)
-
-## Återstående sessionstid [/api/authentication/timeleft]
-
-### Tid som återstår av session [GET]
-
-Returnerar den tid som återstår innan aktuell session löper ut. Kan användas av en klient för att implementera utloggning på grund 
-av inaktivitet. Räknaren nollställs på varje anrop till Stratum som kräver autentisering.
-
-+ Response 200 (application/json)
-    + Attributes(Context)
-
-## Mobilt BankID [/api/authenticate/bid]
-
-### Autentiseringsbegäran [/api/authentication/bid/order/{NIN}]
-
-+ Parameters
-    + NIN: `194103219202` (string) - Svenskt personnummer utan bindestreck och med sekel.
-
-### Initiera en autentiseringorder [GET]
-
-Teknisk dokumentation finns hos [BankID](https://www.bankid.com/bankid_i_dina_tjanster/rp_info).
-
-+ Response 200 (application/json)
-    + Attributes(OrderResponse)
-
-### Statuskontroll [/api/authentication/bid/collect/{OrderRef}]
-
- + Parameters
-    + OrderRef: `4f748f5b-fb02-4529-c242-ddf651f964c9` (string) - Orderreferens.
-
-### Hämta aktuell status för en utestående autentiseringsorder [GET]
-
-När returnerat status är "COMPLETED" kommer en sessionscookie med spårningsnyckel att sättas på klienten. För att inloggningen skall fungera
-optimalt är det därför nödvändigt att klienten tillåter sessionscookies. I annat fall kommer användaren att behöva logga in varje gång
-sidan laddas om.
-
-+ Response 200 (application/json)
-    + Attributes(CollectResponse)
-    
 + Response 400 (application/json)
 
 # Group Metadata
@@ -223,15 +297,27 @@ I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata v
 
 ### Hämta [GET]
 + Response 200 (application/json)
-    + Attributes(User)
+    + Attributes
+        + data (User)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Skapa [POST]
 + Response 200 (application/json)
-    + Attributes(User)
+    + Attributes
+        + data (User)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Uppdatera [PUT]
 + Response 200 (application/json)
-    + Attributes(User)
+    + Attributes
+        + data (User)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ## Kontext [/api/metadata/contexts/{ContextID}?contextid={CallerContextID}]
 
@@ -243,15 +329,27 @@ I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata v
 
 ### Hämta [GET]
 + Response 200 (application/json)
-    + Attributes(Context)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Skapa [POST]
 + Response 200 (application/json)
-    + Attributes(Context)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Uppdatera [PUT]
 + Response 200 (application/json)
-    + Attributes(Context)
+    + Attributes
+        + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ## Vårdenhet [/api/metadata/units/{UnitID}?apikey={APIKey}]
 En vårdenhet kan vara inom primär- eller slutenvård, privat eller offentlig och identifierar en lokalisering där behandling utförs. 
@@ -266,15 +364,27 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta [GET]
 + Response 200 (application/json)
-    + Attributes(Unit)
+    + Attributes
+        + data (Unit)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Skapa [POST /api/metadata/units?apikey={APIKey}]
 + Response 200 (application/json)
-    + Attributes(Unit)
+    + Attributes
+        + data (Unit)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Uppdatera [PUT]
 + Response 200 (application/json)
-    + Attributes(Unit)
+    + Attributes
+        + data (Unit)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ## Domän [/api/metadata/domains/{DomainID}?apikey={APIKey}]
 `TODO: beskrivning`
@@ -287,21 +397,33 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta [GET]
 + Response 200 (application/json)
-    + Attributes(Domain)
+    + Attributes
+        + data (Domain)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Hämta alla gemensamma [GET /api/metadata/domains/common?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 
 + Response 200 (application/json)
-    + Attributes(array[Domain])
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 #### Hämta alla gemensamma som avbildning [GET /api/metadata/domains/map/common?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 
 + Response 200 (application/json)
-    + Attributes(array[Domain])
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Hämta alla som tillhör ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
 + Parameters
@@ -309,7 +431,11 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
     + RegisterID: `100` (optional, number) - Identifierare för ett register.
 
 + Response 200 (application/json)
-    + Attributes(array[Domain])
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 #### Hämta alla som tillhör ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
 + Parameters
@@ -317,11 +443,19 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
     + RegisterID: `100` (optional, number) - Identifierare för ett register.
 
 + Response 200 (application/json)
-    + Attributes(array[Domain])
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Skapa [POST /api/metadata/units?apikey={APIKey}]
 + Response 200 (application/json)
-    + Attributes(Domain)
+    + Attributes
+        + data (Domain)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 ### Uppdatera [PUT]
 + Response 200 (application/json)
@@ -844,5 +978,12 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + orderRef: `4f748f5b-fb02-4529-b242-ddf651f954c9` (string) - Referens till autentiserinsgorder.
 + autoStartToken: `f5e25e9a-0fc6-4209-81e2-4b38eb5fa175` (string) - För autentisering inom en och samma mobila enhet (reserverad).
 
-## CollectResponse (string)
-    "OUTSTANDING_TRANSACTION", "NO_CLIENT", "STARTED", "USER_SIGN", "COMPLETE", "USER_CANCEL", "EXPIRED_TRANSACTION" (string) - Aktuell status.
+## CollectResponse (enum[string])
+    + Members 
+        + `OUTSTANDING_TRANSACTION`
+        + `NO_CLIENT`
+        + `STARTED`
+        + `USER_SIGN`
+        + `COMPLETE`
+        + `USER_CANCEL`
+        + `EXPIRED_TRANSACTION`
