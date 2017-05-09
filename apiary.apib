@@ -925,52 +925,90 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 
 ## Register (object)
 + RegisterID: `100` (number, required) - Unik identifierare.
++ RegisterName: `Testregistret` (string, required) - Namn på registret (svenska).
++ RegisterNameInEnglish: `Test register` (string) - Namn på registret (engelska).
++ ShortName: `RC` (string, required) - Registrets förkortade namn.
++ ResourceScript: `return '<p>Intressant information</p>'` (string) - Skript för att visa information överst i händelsepanelen (HTML kan returneras).
++ GenericScript: `{}` (string) - JSON-objekt för registerspecifika beräkningar och andra gemensamma funktioner (för både server och klient).
++ WidgetScript: `{}` (string) - JSON-objekt med stödfunktioner för programkomponenter (endast klient).
++ IsLookupBound: `true` (boolean, required) - Om personnummerkontroll är ett krav eller kan kringgås.
++ IsUnderDevelopment: `false` (boolean, required) - Om registret är under utveckling (döljs i vissa api-anrop).
++ Site (Site, required) - Tillhörande Site-entitet.
 
-## User (object)
-+ UserID: `90000` (required, number) - Unik identifierare.
-+ Username: `roger@medicor.se` (required, string) - Unikt användarnamn (helst e-post).
-+ Email: `roger@medicor.se` (optional, string) - E-postadress.
+## Site (object)
++ SiteID: `100` (number, required) - Unik identifierare.
++ SiteName: `Registercentrum Västra Götaland` (string, required) - Titel på webbplatsen.
++ ThemeSettings: `{}` (string, required) - JSON-objekt med temainställningar.
++ LanguageID: `sv` (string, required) - Språkkod (ISO 639).
++ CountryID: `SE` (string, required) - Landskod (ISO 3166).
 
 ## Context (object)
 + ContextID: `30730` (number, required) - Unik identifierare.
 + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
-+ Role (required, Role) - Tillhörande roll.
-+ Unit (required, Unit) - Tillhörande vårdenhet.
-+ User (required, User) - Tillhörande anändare.
++ Role (Role, required) - Tillhörande roll.
++ Unit (Unit, required) - Tillhörande vårdenhet.
++ User (User, required) - Tillhörande anändare.
 
-## Role (object)
-+ RoleID: `201` (required, number) - Unik identifierare.
-+ RoleName: `"API–brukare"` (optional, string) - Namn.
-+ IsPermittedToLogin: `false` (optional, boolean) - Om inloggning är tillåten.
-+ IsPermittedToRegister: `false` (optional, boolean) - Om registrering i register är tillåten.
-+ IsPermittedToViewHistory: `false` (optional, boolean) - Om registreringshistorik får visas.
-+ IsPermittedToAdminister: `false` (optional, boolean) - Om administration av register 'r tillåten.
-+ IsPermittedToCrossBorder: `false` (optional, boolean) - Om överbryggning av vårdenhetsgränser är tillåten.
+## User (object)
++ UserID: `90000` (number, required) - Unik identifierare.
++ Username: `roger@medicor.se` (string, required) - Unikt användarnamn (helst e-post).
++ HSAID: `SE2321000131-E000000007501` (string) - ID för kopplas autentisering (HSAID, namn eller personnummer).
++ FirstName: `Roger` (string) - Förnamn.
++ LastName: `Salomonsson` (string) - Efternamn.
++ WorkTitle: `Systemutvecklare` (string) - Tjänstetitel.
++ Organization: `Registercentrum` (string) - Namn på arbetsplats.
++ StreetAdress: `Medicinaregatan 18G` (string) - Arbetsplatsens gatuadress.
++ PostalNumber: `413 45` (string) - Arbetsplatsens postnummer.
++ PostalOffice: `Göteborg` (string) - Arbetsplatsens postort.
++ Email: `roger@medicor.se` (string) - E-postadress.
++ DefaultContextID (Context) - Kontext vid senaste inloggningen.
 
 ## Unit (object)
 + UnitID: `2000` (required, number) - Unik identifierare.
 + UnitCode: `26` (required, number) - Registrets egna vårdenhetskod.
 + UnitName: `Testkliniken` (required, string) - Registrets egna vårdenhetsnamn.
 + IsActive: `true` (optional, boolean) - Om aktiv.
-+ HSAID: `SE2321000131-E000000002241` (optional, string) - HSAID (om registret angett denna).
++ HSAID: `SE2321000131-E000000002241` (optional, string) - ID i Hälso- och Sjukvårdens Adressregister (om registret angett denna).
 + PARID: `null` (optional, string) - ID i Patientregistret (om registret angett denna).
-+ Register (required, Register) - Registertillhörighet.
-+ Bindings (optional, array[UnitBinding]) - Lista av egenskaper, till exempel landsting eller vårdnivå.
++ Register (Register, required) - Registertillhörighet.
++ Bindings (array[UnitBinding], optional) - Lista av egenskaper, till exempel landsting eller vårdnivå.
 
 ## ShallowUnit (object)
-+ UnitID: `2000` (required, number) - Unik identifierare.
-+ UnitCode: `26` (required, number) - Registrets egna kod.
-+ UnitName: `Testkliniken` (required, string) - Registrets egna namn.
++ UnitID: `2000` (number, required) - Unik identifierare.
++ UnitCode: `26` (number, required) - Registrets egna kod.
++ UnitName: `Testkliniken` (string, required) - Registrets egna namn.
 + IsActive: `true` (boolean) - Om aktiv.
-+ HSAID: `SE2321000131-E000000002241` (string) - HSAID (om registret angett denna).
++ HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (om registret angett denna).
 + PARID: `null` (string) - ID i Patientregistret (om registret angett denna).
+
+## Role (object)
++ RoleID: `201` (number, required) - Unik identifierare.
++ RoleName: `API–brukare` (string) - Rollens namn.
++ IsPermittedToLogin: `false` (boolean) - Om inloggning är tillåten (endast läsning).
++ IsPermittedToRegister: `false` (boolean) - Om registrering i register är tillåten.
++ IsPermittedToViewHistory: `false` (boolean) - Om registreringshistorik får visas.
++ IsPermittedToAdminister: `false` (boolean) - Om administration av register 'r tillåten.
++ IsPermittedToCrossBorder: `false` (boolean) - Om överbryggning av vårdenhetsgränser är tillåten.
 
 ## UnitBinding (object)
 + UnitID: `2000` (required, number) - Unik identifierare.
 + DomainValueID: `54907` (required, number) - Identifierare för egenskapsvärde (domänvärde).
 
 ## Domain (object)
-+ DomainID: `4000` (required, number) - Identifierare.
++ DomainID: `4000` (number, required) - Identifierare.
++ DomainName: `TypeOfProject` (string) - Giltig identifierare i strängform.
++ DomainTitle: `Projektdatabasen: typ av projekt` (string) - Titel.
++ IsInteger: `true` (boolean) - Om domänens tillhörande värden begränsas till heltal.
++ Register (Register) - Tillhörande register (saknas om generisk domän).
+
+## DomainValue (object)
++ DomainValueID: `50018` (number, required) - Identifierare.
++ ValueName: `Jag går utan svårigheter` (string, required) - Värdebeskrivning.
++ ValueCode: `1` (string, required) - Värdekod.
++ IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
++ Sequence: `13` (number, required) - Ordningstal för sortering.
++ Domain (Domain, required) - Tillhörande domän.
+
 
 ## Externa entiteter
 
