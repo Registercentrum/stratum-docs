@@ -461,6 +461,23 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 + Response 200 (application/json)
     + Attributes(Domain)
 
+## Formulär [/api/metadata/forms/{FormID}?apikey={APIKey}]
+`TODO: beskrivning`
+
++ Attributes(Form)
+
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + FormID: `4000` (optional, number) - Identifierare för aktuell formulär.
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes
+        + data (Form)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 
 # Group Registreringar
 `TODO Allmän beskrivning`
@@ -1008,6 +1025,20 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
 + Sequence: `13` (number, required) - Ordningstal för sortering.
 + Domain (Domain, required) - Tillhörande domän.
+
+## Form (object)
++ FormID: `1001` (number, required) - Identifierare.
++ FormName: `TestForm` (string, required) - Giltig identifierare i strängform.
++ FormTitle: `Testformulär` (string, required) - Titel.
++ TableName: `x1005` (string, required) - Namn på tabell i databas.
++ FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde.
+    
+    0 = 
+    1 =
+    
+
++ Register (Register, required) - Tillhörande register.
++ ParentForm (Form) - Överliggande, ägande formulär.
 
 
 ## Externa entiteter
