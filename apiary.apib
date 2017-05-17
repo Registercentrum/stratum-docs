@@ -253,11 +253,10 @@ Returnerar aktuell kontext för den som begär anropet. Kan användas för att k
 Genomför ett kontextbyte.
 
 Vid status 400 returneras i attribut `code`:
-<table>
-<tr><th>Kod</th><th>Förklaring</th></tr>
-<tr><td>1</td><td>Ogiltig kontextidentifierare</td></tr>
-<tr><td>9</td><td>Autentiserad session saknas</td></tr>
-</table>
+|Kod    |Förklaring
+|-      |-
+|1      |Ogiltig kontextidentifierare
+|9      |Autentiserad session saknas
 
 + Request (application/json)
     + Body
@@ -462,15 +461,24 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
     + Attributes(Domain)
 
 ## Formulär [/api/metadata/forms/{FormID}?apikey={APIKey}]
-`TODO: beskrivning`
+
+<a name="FormScope"></a>
+`FormScope` anger formulärets användningsområde:
+| |Registreras av   |Förklaring
+|-|-                |-
+|0|Registrerare     |Subjektbunden registrering.
+|1|Registrerare     |Enhetsbunden registrering.
+|2|Registrerare     |Subjektbunden registrering över vårdgivargränser ("cross border").
+|3|Patient          |Subjektbunden registrering utförd direkt av patient ("proxy reported").
+|4|Registrerare     |Enhetsbunden registrering som delas av flera register ("cross register").
 
 + Attributes(Form)
 
+### Hämta [GET]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + FormID: `4000` (optional, number) - Identifierare för aktuell formulär.
 
-### Hämta [GET]
 + Response 200 (application/json)
     + Attributes
         + data (Form)
@@ -1031,12 +1039,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + FormName: `TestForm` (string, required) - Giltig identifierare i strängform.
 + FormTitle: `Testformulär` (string, required) - Titel.
 + TableName: `x1005` (string, required) - Namn på tabell i databas.
-+ FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde.
-    
-    0 = 
-    1 =
-    
-
++ FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
 + Register (Register, required) - Tillhörande register.
 + ParentForm (Form) - Överliggande, ägande formulär.
 
