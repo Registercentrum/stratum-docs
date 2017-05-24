@@ -36,25 +36,23 @@ I de fall båda existerar, det vill säga api-anrop görs med api-nyckel i ett s
 enstaka fall då det motsatta gäller. Detta är i så fall noterat under respektive anrop.
 
 HTTP-statuskoder som används:
-<table>
-<tr><th>Statuskod</th><th>Förklaring</th></tr>
-<tr><td>200</td><td>OK.</td></tr>
-<tr><td>400</td><td>Syntaktiskt eller semantiskt fel (till exempel i URI eller parametrar).</td></tr>
-<tr><td>401</td><td>Api-nyckel eller giltig session saknas (autentiseringsproblem).</td></tr>
-<tr><td>403</td><td>Behörighet saknas (auktoriseringsproblem).</td></tr>
-<tr><td>404</td><td>Efterfrågad resurs finns inte.</td></tr>
-<tr><td>405</td><td>Otillåten anropsmetod (till exempel POST där endast GET är tillåtet).</td></tr>
-<tr><td>500</td><td>Funktionen saknas.</td></tr>
-</table>
+|Statuskod  |Förklaring
+|-          |-
+|200        |OK.
+|400        |Syntaktiskt eller semantiskt fel (till exempel i URI eller parametrar).
+|401        |Api-nyckel eller giltig session saknas (autentiseringsproblem).
+|403        |Behörighet saknas (auktoriseringsproblem).
+|404        |Efterfrågad resurs finns inte.
+|405        |Otillåten anropsmetod (till exempel POST där endast GET är tillåtet).
+|500        |Funktionen saknas.
 
 Använda HTTP-metoder:
-<table>
-<tr><th>Metod</th><th>Avser</th></tr>
-<tr><td>GET</td><td>Hämtar resurs.</td></tr>
-<tr><td>PUT</td><td>Uppdaterar resurs (ger fel om resurs inte finns).</td></tr>
-<tr><td>POST</td><td>Skapar resurs (ger fel om resurs redan finns).</td></tr>
-<tr><td>DELETE</td><td>Tar bort resurs.</td></tr>
-</table>
+|Metod  |Avser
+|-      |-
+|GET    |Hämta resurs.
+|PUT    |Uppdatera resurs (ger fel om resurs inte finns).
+|POST   |Skapa resurs (ger fel om resurs redan finns).
+|DELETE |Ta bort resurs.
 
 All retur från api-anrop är inkapslade enligt:
 ```
@@ -116,13 +114,12 @@ Begär inloggning genom medskickat certifikat (SITHS eller RC).
 Efter godkänd autentisering returneras även begäran om tilldelning av sessioncookie.
 
 Vid status 400 returneras i attribut `code`:
-<table>
-<tr><th>Kod</th><th>Förklaring</th></tr>
-<tr><td>1</td><td>Giltigt certifikt saknas</td></tr>
-<tr><td>5</td><td>Konto saknas inloggningsbar kontext</td></tr>
-<tr><td>6</td><td>Ogiltigt konto för kontext</td></tr>
-<tr><td>9</td><td>Autentiserad session saknas</td></tr>
-</table>
+|Kod    |Förklaring.
+|-      |-
+|1      |Giltigt certifikt saknas.
+|5      |Konto saknas inloggningsbar kontext.
+|6      |Ogiltigt konto för kontext.
+|9      |Autentiserad session saknas.
 
 + Response 200 (application/json)
     + Attributes
@@ -140,13 +137,12 @@ Genomför inloggning med medskickat SITHS-certifikat och knyter användarkonto t
 Efter godkänd autentisering returneras även begäran om tilldelning av  sessioncookie på klienten.
 
 Vid status 400 returneras i attribut `code`:
-<table>
-<tr><th>Kod</th><th>Förklaring</th></tr>
-<tr><td>1</td><td>Giltigt certifikt saknas</td></tr>
-<tr><td>5</td><td>Konto saknas inloggningsbar kontext</td></tr>
-<tr><td>6</td><td>Ogiltigt konto för kontext</td></tr>
-<tr><td>9</td><td>Autentiserad session saknas</td></tr>
-</table>
+|Kod    |Förklaring.
+|-      |-
+|1      |Giltigt certifikt saknas.
+|5      |Konto saknas inloggningsbar kontext.
+|6      |Ogiltigt konto för kontext.
+|9      |Autentiserad session saknas.
 
 Detta anrop finns även tillgängligt i GET-version via `GET /api/authentication/assign?username=<aUsername>&password=<aPassword>`. 
 
@@ -212,10 +208,9 @@ optimalt är det därför nödvändigt att klienten tillåter sessionscookies. I
 sidan laddas om.
 
 Vid status 400 returneras i attribut `code`:
-<table>
-<tr><th>Kod</th><th>Förklaring</th></tr>
-<tr><td>-1</td><td>Felmeddelande från BID (faultString) returneras i `message`</td></tr>
-</table>
+|Kod    |Förklaring.
+|-      |-
+|-1     |Felmeddelande från BID (faultString) returneras i `message`
 
 + Parameters
     + OrderRef: `4f748f5b-fb02-4529-c242-ddf651f964c9` (string) - Unik orderreferens från BID.
@@ -287,14 +282,15 @@ attribut av atomär typ realiserat med inte relaterade entiteter. Detta för att
 I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata via api-nycklar.
 
 ## Användare [/api/metadata/users/{aUserID}?query={aQueryString}]
+Vårdpersonal som registrerar, registerkoordinatorer, api-brukare, dataleverantörer och integratörer är alla upplagda som användare, 
+dock är det [kontexten](#reference/metadata/kontext) som är den huvudsakliga entiteten som beskriver vad en användare kan göra i systemet vid ett givet tillfälle.
+En användare måste ha minst en kontext men kan ha flera.
+Användare läggs upp och administreras av koordinatorer via komponenten "Användarhanteraren". 
 
-+ Attributes(User)
-
+### Hämta [GET /api/metadata/users/{aUserID}]
 + Parameters
     + aUserID: `90000` (optional, number) - Unik identifierare för en användare.
-    + aQueryString: `SE23 Robert` (optional, string) - Söksträng (ett eller flera ord separerade med blanktecken).
 
-### Hämta [GET]
 + Response 200 (application/json)
     + Attributes
         + data (User)
@@ -302,7 +298,18 @@ I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata v
         + message: `null` (string)
         + code: `0` (number)
 
-### Skapa [POST]
+### Sök [GET /api/metadata/users?query={aQueryString}]
++ Parameters
+    + aQueryString: `SE23 Robert` (string) - Ett eller flera ord separerade med blanktecken. Sökning görs med OCH-villkor mellan alla ord i alla attribut.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[User])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/users/]
 + Response 200 (application/json)
     + Attributes
         + data (User)
@@ -310,7 +317,9 @@ I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata v
         + message: `null` (string)
         + code: `0` (number)
 
-### Uppdatera [PUT]
+### Uppdatera [PUT /api/metadata/users/{aUserID}]
++ Parameters
+    + aUserID: `90000` (optional, number) - Unik identifierare för en användare.
 + Response 200 (application/json)
     + Attributes
         + data (User)
@@ -463,6 +472,14 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 ## Formulär [/api/metadata/forms/{FormID}?apikey={APIKey}]
 
 <a name="FormScope"></a>
+Formulär kan ses som en gruppering av [frågor](#reference/metadata/fraga) som är relevanta att ställa till en patient (subjekt) vid en given tidpunkt i en (vård)process.
+Alla registreringar i Stratum är knutna till ett formulär. Ett formulär kan antingen vara bundet till ett subjekt (oftast en patient) eller en vårdenhet. 
+En subjektbunden registrering är vanligtvis en registrering som utförs av vårdpersonal om en patients behandling eller besök, vid ett givet tillfälle men kan också vara en att en patient 
+själv besvarar frågor om upplevda resultat av behandlingen (så kallat PROM - "Patient Reported Outcome Measures").
+
+Enhetsbundna registreringar används för till exempel teknikprofiler, praxisregistreringar och liknande, där man samlar in information en vårdenhet vid en given tidpunkt.
+I dessa registreringar förekommer inte personnummer eller annat som kan identifiera enskilda individer ocg därför är registreringar i dessa formulär öppna data.
+
 `FormScope` anger formulärets användningsområde:
 | |Registreras av   |Förklaring
 |-|-                |-
@@ -471,8 +488,6 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 |2|Registrerare     |Subjektbunden registrering över vårdgivargränser ("cross border").
 |3|Patient          |Subjektbunden registrering utförd direkt av patient ("proxy reported").
 |4|Registrerare     |Enhetsbunden registrering som delas av flera register ("cross register").
-
-+ Attributes(Form)
 
 ### Hämta [GET]
 + Parameters
@@ -576,12 +591,12 @@ Notera att:
 
 För något resultat skall levereras ut _måste_ målgrupp specificeras, vilket görs genom att tilldela den globala 
 variabeln `Scope` ett värde (notera att `<<-` används, inte `<-` i exemplet ovan). `Scope` skall tilldelas ett av nedanstående värden:
-<table>
-<tr><th>Scope</th><th>Förklaring</th></tr>
-<tr><td>1</td><td>Anonyma data, tillgängliga för alla.</td></tr>
-<tr><td>2</td><td>Personidentifierbara data inom en vårdgivare.</td></tr>
-<tr><td>3</td><td>Personidentifierbara data för flera vårdgivare.</td></tr>
-</table>
+
+|Scope      |Förklaring
+|-          |-
+|1          |Anonyma data, tillgängliga för alla.
+|2          |Personidentifierbara data inom en vårdgivare.
+|3          |Personidentifierbara data för flera vårdgivare.
 
 > Observera att det är mycket viktigt att ansvarig statistiker tilldelar __rätt värde__ för `Scope` eftersom risk annars finns att personidentifierbar data 
 visas för obehöriga användare.
@@ -604,16 +619,15 @@ Identifierare (RoleID) med anroparens roll.
 Kan till exempel användas för att leverera resultat inom eller tvärsöver vårdgivargränser beroende på roll.
 Möjliga värden:
 
-<table>
-<tr><th></th><th>Roll</th><th>Syfte</th><th>Läsa/Skriva</th><th>Inloggning</th></tr>
-<tr><td>101</td><td>Dataleverantör</td><td>Leverera data till Stratum, till exempel via webbtjänst eller api.</td><td>Skriva</td><td>Nej</td></tr>
-<tr><td>201</td><td>API-klient</td><td>Hämta öppna data.</td><td>Läsa</td><td>Nej</td></tr>
-<tr><td>301</td><td>Integratör</td><td>Hämta registreringar tvärs över vårdgivargränser i syfte att integrera system.</td><td>Läsa</td><td>Nej</td></tr>
-<tr><td>901</td><td>Registrerare</td><td>Registrera och hämta data för vårdenheten (vårdpersonal).</td><td>Läsa och skriva</td><td>Ja</td></tr>
-<tr><td>902</td><td>Plusregistrerare</td><td>Registrerare med något större befogenheter (vårdpersonal).</td><td>Läsa och skriva</td><td>Ja</td></tr>
-<tr><td>903</td><td>Koordinator</td><td>Registrera och hämta data  över vårdgivargränser. Kan administrera register (registerpersonal)</td><td>Läsa och skriva</td><td>Ja</td></tr>
-<tr><td>906</td><td>Systemutvecklare</td><td>Kan spara programkomponenter och skapa/administrera register (registercentrumpersonal)</td><td>Läsa och skriva</td><td>Nej</td></tr>
-</table>
+|       |Roll               |Syfte                                                                                          |Läsa/Skriva        |Inloggning
+|-      |-                  |-                                                                                              |-                  |-
+|101    |Dataleverantör     |Leverera data till Stratum, till exempel via webbtjänst eller api.                             |Skriva             |Nej
+|201    |API-klient         |Hämta öppna data.                                                                              |Läsa               |Nej
+|301    |Integratör         |Hämta registreringar tvärs över vårdgivargränser i syfte att integrera system.                 |Läsa               |Nej
+|901    |Registrerare       |Registrera och hämta data för vårdenheten (vårdpersonal).                                      |Läsa och skriva    |Ja
+|902    |Plusregistrerare   |Registrerare med något större befogenheter (vårdpersonal)                                      |Läsa och skriva    |Ja
+|903    |Koordinator        |Registrera och hämta data över vårdgivargränser. Kan administrera register (registerpersonal)  |Läsa och skriva    |Ja
+|906    |Systemutvecklare   |Kan spara programkomponenter och skapa/administrera register (registercentrumpersonal)         |Läsa och skriva    |Nej
 
 I själva api-anropet finns också stöd för att skicka med parametrar, till exempel `/api/statistics/brimp/test?diagnos=M16.1`. 
 Dessa hamnar då som argument till anropet av R-skriptet, det vill säga som `Run(diagnos="M16.1")`. 
@@ -825,17 +839,16 @@ Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt nä
 
 Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - "ReplyStatus"):
 
-<table>
-<tr><th>Värde</th><th>Förklaring</th></tr>
-<tr><td>0</td><td>Upplagd</td></tr>
-<tr><td>1</td><td>Skickad elektroniskt</td></tr>
-<tr><td>2</td><td>Skickad via post</td></tr>
-<tr><td>11</td><td>1:a påminnelse skickad</td></tr>
-<tr><td>12</td><td>2:a påminnelse skickad</td></tr>
-<tr><td>99</td><td>Utgår</td></tr>
-<tr><td>100</td><td>Besvarad</td></tr>
-<tr><td>110</td><td>Avbruten</td></tr>
-</table>
+|Värde  |Betydelse
+|-      |-
+|0      |Upplagd
+|1      |Skickad elektroniskt
+|2      |Skickad via post
+|11     |1:a påminnelse skickad
+|12     |2:a påminnelse skickad
+|99     |Utgår
+|100    |Besvarad
+|110    |Avbruten
 
 ## Bjudningar [/api/proxies]
 > _Obs! Denna sektion är bara påbörjad._
@@ -852,12 +865,11 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - "Reply
 Det finns olika sätt att adressera innehåll i Stratum. Med innehåll menas här ett HTML-innehåll på en av Stratums webbplatser (inte api:er, filtjänster eller webbtjänster). 
 Innehållet kan vara sidor (med eller utan komponenter - "widgets"), registreringsapplikationens startsida, formulär eller befintliga registreringar.
 Vad gäller sidor hör dessa till ett av tre möjliga `PageScope` som beskriver i vilket sammanhang sidan och dess tillhörande navigation visas:
-<table>
-<tr><th>PageScope</th><th>Funktion</th></tr>
-<tr><td>0</td><td>Sidor som finns i den yttre navigationen, det vill säga sidor som normalt sett alla användare ser (om det inte finns behörigheter som spärrar). På denna nivå finns vanliga sidor, med eller utan dynamiskt innehåll (widgets).</td></tr>
-<tr><td>1</td><td>Sidor som syns i navigationen när man gått in i registreringsapplikationen (normalt genom att klicka på "Registrera"). Vanligt tillämpningsområde för dessa sidor är enhetsspecifika resultat.</td></tr>
-<tr><td>2</td><td>Sidor som syns i navigationen när man är inne i registreringsappliaktionen och har sökt upp en patient. För dessa behöver man också skicka med parametern aSubjectKey för att peka ut vilket subjekt som avses. Vanligt tillämpningsområde är subjektspecifika resultat, till exempel en patientprofil.</td></tr>
-</table>
+|PageScope  |Funktion
+|-          |-
+|0          |Sidor som finns i den yttre navigationen, det vill säga sidor som normalt sett alla användare ser (om det inte finns behörigheter som spärrar). På denna nivå finns vanliga sidor, med eller utan dynamiskt innehåll (widgets).
+|1          |Sidor som syns i navigationen när man gått in i registreringsapplikationen (normalt genom att klicka på "Registrera"). Vanligt tillämpningsområde för dessa sidor är enhetsspecifika resultat.
+|2          |Sidor som syns i navigationen när man är inne i registreringsappliaktionen och har sökt upp en patient. För dessa behöver man också skicka med parametern aSubjectKey för att peka ut vilket subjekt som avses. Vanligt tillämpningsområde är subjektspecifika resultat, till exempel en patientprofil.
 
 Alla sidtyperna kan direktadresseras ("link-in") och tillhörande Stratum-funktioner kommer laddas in automatiskt om de inte redan är inladdade. Utöver sidinnehåll kan även tomma 
 registreringsformulär och befintliga registreringar adresseras för både patientbundna och enhetsbundna registreringar. Generellt gäller 
@@ -1041,7 +1053,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + TableName: `x1005` (string, required) - Namn på tabell i databas.
 + FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
 + Register (Register, required) - Tillhörande register.
-+ ParentForm (Form) - Överliggande, ägande formulär.
++ ParentForm (Form) - Ägande formulär (saknas för rotformulär).
 
 
 ## Externa entiteter
