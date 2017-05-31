@@ -275,21 +275,25 @@ Vid status 400 returneras i attribut `code`:
 Metadata i Stratum utgörs av entiteter som beskriver våra register, till exempel formulär, frågor och svarsalternativ, men även användare, roller och 
 vårdenheter &mdash; själva byggstenarna i en registerbeskrivning. 
 
-Det är skillnad mellan hur en instans och en samling av metadata-entiteter exponeras i JSON-resultatet. En instans innehåller alltid
-samtliga attribut men attribut som utgör en annan entitet är realiserad enbart till första nivån. För en samling av entiteter är varje 
-attribut av atomär typ realiserat med inte relaterade entiteter. Detta för att minska storleken och komplexiteten på resultatet.
+Vissa regler gäller för hur returnerade entiteter exponeras. Dessa regler är fasta och kan inte förändras genom till exempel parametrar.
+En instans innehåller alltid samtliga attribut men attribut som utgör en annan entitet är realiserad enbart till första nivån. 
+För en samling av entiteter är varje attribut av atomär typ realiserat men inte relaterade entiteter. 
+Detta för att minska storleken och komplexiteten på resultatet.
 
 I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata via api-nycklar.
 
 ## Register­ [/api/metadata/registers]
-`TODO`
+`Register` är sammanhållande för registerrelaterade entiteter till exempel formulär, frågor, svar och svarsalternativ.
+Endast användare med rollen Systemutvecklare kan skapa register. En tillhörande `Site`-entitet skapas automatiskt när ett register skapas.
+Endast användare med rollen Koordinator kan uppdatera attribut för (sitt tillhörande) register.
 
 + Attributes
     + Register (Register)
 
-### Hämta [GET /api/metadata/registers/{RegisterID}]
+### Hämta [GET /api/metadata/registers/{RegisterID}?apikey={APIKey}]
 + Parameters
-    + RegisterID: `4000` (optional, number) - Identifierare för aktuell formulär.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + RegisterID: `100` (optional, number) - Identifierare för aktuellt register.
 
 + Response 200 (application/json)
     + Attributes
@@ -298,13 +302,68 @@ I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata v
         + message: `null` (string)
         + code: `0` (number)
 
-## Formulär [/api/metadata/forms/{FormID}?apikey={APIKey}]
+### Hämta alla [GET /api/metadata/registers?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Register])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/registers]
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + RegisterName: `Testregistret` (string, required) - Namn på registret (svenska).
+        + RegisterNameInEnglish: `Test register` (string) - Namn på registret (engelska).
+        + ShortName: `RC` (string, required) - Registrets förkortade namn.
+        + ResourceScript: `return '<p>Intressant information</p>'` (string) - Skript för att visa information överst i händelsepanelen i registreringsapplikationen (HTML kan returneras).
+        + GenericScript: `{}` (string) - JSON-objekt för registerspecifika beräkningar och andra gemensamma funktioner (för både server och klient).
+        + WidgetScript: `{}` (string) - JSON-objekt med stödfunktioner för programkomponenter (endast för klient).
+        + IsLookupBound: `true` (boolean) - Om personnummerkontroll är ett krav eller kan kringgås.
+        + IsUnderDevelopment: `false` (boolean) - Om registret är under utveckling (döljs i vissa api-anrop).
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Register)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT /api/metadata/registers/{RegisterID}]
++ Parameters
+    + RegisterID: `100` (optional, number) - Identifierare för aktuellt register.
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + RegisterName: `Testregistret` (string) - Namn på registret (svenska).
+        + RegisterNameInEnglish: `Test register` (string) - Namn på registret (engelska).
+        + ShortName: `RC` (string) - Registrets förkortade namn.
+        + ResourceScript: `return '<p>Intressant information</p>'` (string) - Skript för att visa information överst i händelsepanelen i registreringsapplikationen (HTML kan returneras).
+        + GenericScript: `{}` (string) - JSON-objekt för registerspecifika beräkningar och andra gemensamma funktioner (för både server och klient).
+        + WidgetScript: `{}` (string) - JSON-objekt med stödfunktioner för programkomponenter (endast klient).
+        + IsLookupBound: `true` (boolean) - Om personnummerkontroll är ett krav eller kan kringgås.
+        + IsUnderDevelopment: `false` (boolean) - Om registret är under utveckling (döljs i vissa api-anrop).
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Register)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
+## Formulär [/api/metadata/forms]
 
 <a name="FormScope"></a>
-Formulär kan ses som en gruppering av [frågor](#reference/metadata/fraga) som är relevanta att ställa till en patient (subjekt) vid en given tidpunkt i en (vård)process.
-Alla registreringar i Stratum är knutna till ett formulär. Ett formulär kan antingen vara bundet till ett subjekt (oftast en patient) eller en vårdenhet. 
-En subjektbunden registrering är vanligtvis en registrering som utförs av vårdpersonal om en patients behandling eller besök, vid ett givet tillfälle men kan också vara en att en patient 
-själv besvarar frågor om upplevda resultat av behandlingen (så kallat PROM - "Patient Reported Outcome Measures").
+`Form` i Stratum kan ses som en gruppering av [frågor](#reference/metadata/fraga), relevanta att ställa till ett subjekt (oftast en patient)
+vid en given tidpunkt i en process (oftast en vårdprocess). 
+Eftersom Stratum inte är begränsat till patienter använder vi abstraktionen [subjekt](#reference/metadata/subject), i bemärkelsen mätobjekt.
+Alla registreringar i Stratum är knutna till ett formulär. Ett formulär kan antingen vara bundet till ett subjekt eller en vårdenhet. 
+En subjektbunden registrering är vanligtvis en registrering som utförs av vårdpersonal om en patients behandling eller besök 
+men kan också vara en att en patient själv besvarar frågor om upplevda resultat av behandlingen 
+(så kallad [PROM](http://www.kvalitetsregister.se/drivaregister/patientmedverkan/patientrapporteradematt.1988.html)).
 
 Enhetsbundna registreringar används för till exempel teknikprofiler, praxisregistreringar och liknande, där man samlar in information en vårdenhet vid en given tidpunkt.
 I dessa registreringar förekommer inte personnummer eller annat som kan identifiera enskilda individer ocg därför är registreringar i dessa formulär öppna data.
@@ -321,14 +380,213 @@ I dessa registreringar förekommer inte personnummer eller annat som kan identif
 + Attributes
     + Form (Form)
 
-### Hämta [GET]
+### Hämta [GET /api/metadata/forms/{FormID}?apikey={APIKey}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + FormID: `4000` (optional, number) - Identifierare för aktuell formulär.
+    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
+    + FormID: `1001` (number, required) - Identifierare för aktuellt formulär.
 
 + Response 200 (application/json)
     + Attributes
         + data (Form)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla för ett register [GET /api/metadata/forms/register/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
+    + RegisterID: `100` (number, required) - Identifierare för aktuellt register.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Form])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/forms]
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + FormName: `TestForm` (string) - Giltig identifierare i strängform.
+        + FormTitle: `Testformulär` (string, required) - Titel.
+        + TableName: `x1005` (string, required) - Namn på tabell i databas.
+        + FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
+        + Register (object, required) - Register formuläret skall tillhöra.
+            +  RegisterID: `100` (number)
+        + Parent (object, optional) - Ägande formulär (saknas för rotformulär).
+            + FormID: `1001` (number)
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Form)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT /api/metadata/forms/{FormID}]
++ Parameters
+    + FormID: `1001` (number, required) - Identifierare för aktuellt formulär.
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + FormName: `TestForm` (string) - Giltig identifierare i strängform.
+        + FormTitle: `Testformulär` (string) - Titel.
+        + TableName: `x1005` (string) - Namn på tabell i databas.
+        + FormScope: `1` (number) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Form)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
+## Fråga [/api/metadata/questions]
+`TODO: beskrivning`
+
++ Attributes
+    + Question (Question)
+
+### Hämta [GET /api/metadata/questions/{QuestionID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + QuestionID: `24205` (number) - Identifierare för aktuell fråga.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Question)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
+## Domän [/api/metadata/domains/{DomainID}?apikey={APIKey}]
+`TODO: beskrivning`
+
++ Attributes
+    + Domain (Domain)
+
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + DomainID: `4000` (optional, number) - Identifierare för en domän.
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes
+        + data (Domain)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla gemensamma [GET /api/metadata/domains/common?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla gemensamma som avbildning [GET /api/metadata/domains/map/common?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla som tillhör ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla som tillhör ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Domain])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/units]
++ Response 200 (application/json)
+    + Attributes
+        + data (Domain)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT]
++ Response 200 (application/json)
+    + Attributes(Domain)
+
+
+## Domänvärde [/api/metadata/domainvalues]
+`TODO: beskrivning`
+
++ Attributes
+    + DomainValue (DomainValue)
+
+### Hämta [GET /api/metadata/domainvalues/{DomainValueID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + DomainValueID: `55249` (number) - Identifierare för aktuellt domänvärde.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (DomainValue)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+## Vårdenhet [/api/metadata/units/{UnitID}?apikey={APIKey}]
+En vårdenhet kan vara inom primär- eller slutenvård, privat eller offentlig och identifierar en lokalisering där behandling utförs. 
+Ett register avgör självt vilka vårdenheter som skall finnas och vad de skall kallas i sitt register. I en vidare bemärkelse kan också andra 
+lokaliseringar vara enheter, till exempel registerorganisationer, företag, med flera.
+
++ Attributes
+    + Unit (Unit)
+
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + UnitID: `2000` (optional, number) - Unik identifierare för en vårdenhet.
+
+### Hämta [GET]
++ Response 200 (application/json)
+    + Attributes
+        + data (Unit)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/units?apikey={APIKey}]
++ Response 200 (application/json)
+    + Attributes
+        + data (Unit)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT]
++ Response 200 (application/json)
+    + Attributes
+        + data (Unit)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
@@ -452,117 +710,97 @@ aktuella kontexten som gäller. Enda undantaget från denna regel är i särskil
         + message: `null` (string)
         + code: `0` (number)
 
-## Vårdenhet [/api/metadata/units/{UnitID}?apikey={APIKey}]
-En vårdenhet kan vara inom primär- eller slutenvård, privat eller offentlig och identifierar en lokalisering där behandling utförs. 
-Ett register avgör självt vilka vårdenheter som skall finnas och vad de skall kallas i sitt register. I en vidare bemärkelse kan också andra 
-lokaliseringar vara enheter, till exempel registerorganisationer, företag, med flera.
 
-+ Attributes
-    + Unit (Unit)
-
-+ Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + UnitID: `2000` (optional, number) - Unik identifierare för en vårdenhet.
-
-### Hämta [GET]
-+ Response 200 (application/json)
-    + Attributes
-        + data (Unit)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Skapa [POST /api/metadata/units?apikey={APIKey}]
-+ Response 200 (application/json)
-    + Attributes
-        + data (Unit)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Uppdatera [PUT]
-+ Response 200 (application/json)
-    + Attributes
-        + data (Unit)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-## Domän [/api/metadata/domains/{DomainID}?apikey={APIKey}]
+## Resurs [/api/metadata/resources]
 `TODO: beskrivning`
 
 + Attributes
-    + Domain (Domain)
+    + Resource (Resource)
 
+### Hämta [GET /api/metadata/resources/{ResourceID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + DomainID: `4000` (optional, number) - Identifierare för en domän.
+    + ResourceID: `30016` (number) - Identifierare för aktuell resurs.
 
-### Hämta [GET]
 + Response 200 (application/json)
     + Attributes
-        + data (Domain)
+        + data (Resource)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla gemensamma [GET /api/metadata/domains/common?apikey={APIKey}]
+## Webbplats [/api/metadata/sites]
+`TODO: beskrivning`
+
++ Attributes
+    + Site (Site)
+
+### Hämta [GET /api/metadata/sites/{SiteID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + SiteID: `100` (number) - Identifierare för aktuell resurs.
 
 + Response 200 (application/json)
     + Attributes
-        + data (array[Domain])
+        + data (Site)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
 
-#### Hämta alla gemensamma som avbildning [GET /api/metadata/domains/map/common?apikey={APIKey}]
+
+## Webbsida [/api/metadata/pages]
+`TODO: beskrivning`
+
++ Attributes
+    + Page (Page)
+
+### Hämta [GET /api/metadata/pages/{PageID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + PageID: `100` (number) - Identifierare för aktuell webbsida.
 
 + Response 200 (application/json)
     + Attributes
-        + data (array[Domain])
+        + data (Page)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla som tillhör ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
+## Subjekt [/api/metadata/subjects]
+`TODO: beskrivning`
+Eftersom Stratum kan hantera registreringar som inte är knutna till patienter använder vi abstraktionen "subjekt", i bemärkelsen mätobjekt.
+
++ Attributes
+    + Subject (Subject)
+
+### Hämta [GET /api/metadata/subjects/{SubjectID}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+    + SubjectID: `100` (number) - Identifierare för aktuellt subjekt (patient).
 
 + Response 200 (application/json)
     + Attributes
-        + data (array[Domain])
+        + data (Subject)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
 
-#### Hämta alla som tillhör ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
+
+## Loggrad [/api/metadata/logentries]
+`TODO: beskrivning`
+
++ Attributes
+    + LogEntry (LogEntry)
+
+### Hämta [GET /api/metadata/logentries/{LogEntryID}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+    + LogEntryID: `100` (number) - Identifierare för aktuellt subjekt (patient).
 
 + Response 200 (application/json)
     + Attributes
-        + data (array[Domain])
+        + data (LogEntry)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
-
-### Skapa [POST /api/metadata/units?apikey={APIKey}]
-+ Response 200 (application/json)
-    + Attributes
-        + data (Domain)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Uppdatera [PUT]
-+ Response 200 (application/json)
-    + Attributes(Domain)
 
 
 # Group Registreringar
@@ -1045,7 +1283,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + ParentForm (Form) - Ägande formulär (saknas för rotformulär).
 
 ## Question (object)
-+ QuestionID: `1234` (number, required) - Identifierare.
++ QuestionID: `24205` (number, required) - Identifierare.
 
 ## Domain (object)
 + DomainID: `4000` (number, required) - Identifierare.
