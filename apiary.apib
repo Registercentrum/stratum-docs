@@ -285,7 +285,7 @@ I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata v
 ## Register­ [/api/metadata/registers]
 `Register` är sammanhållande för registerrelaterade entiteter till exempel formulär, frågor, svar och svarsalternativ.
 Endast användare med rollen Systemutvecklare kan skapa register. En tillhörande `Site`-entitet skapas automatiskt när ett register skapas.
-Endast användare med rollen Koordinator kan uppdatera attribut för (sitt tillhörande) register.
+Endast användare med rollen Koordinator kan uppdatera attribut (för det register där man är koordinator).
 
 + Attributes
     + Register (Register)
@@ -377,6 +377,8 @@ I dessa registreringar förekommer inte personnummer eller annat som kan identif
 |3|Patient          |Subjektbunden registrering utförd direkt av patient ("proxy reported").
 |4|Registrerare     |Enhetsbunden registrering som delas av flera register ("cross register").
 
+Endast en koordinator kan ändra attribut i sitt registers formulär.
+
 + Attributes
     + Form (Form)
 
@@ -426,6 +428,7 @@ I dessa registreringar förekommer inte personnummer eller annat som kan identif
 ### Uppdatera [PUT /api/metadata/forms/{FormID}]
 + Parameters
     + FormID: `1001` (number, required) - Identifierare för aktuellt formulär.
+
 + Request (application/x-www-form-urlencoded)
     + Attributes
         + FormName: `TestForm` (string) - Giltig identifierare i strängform.
@@ -441,8 +444,54 @@ I dessa registreringar förekommer inte personnummer eller annat som kan identif
         + code: `0` (number)
 
 
-## Fråga [/api/metadata/questions]
-`TODO: beskrivning`
+## Variabel [/api/metadata/questions]
+`Question`-entiteten utgör en beskrivning av en fråga/svar i ett formulär och kan ses som en beskrivning av en registervariabel utifrån ett statistiskt perspektiv.
+Ett formulär kan innehålla ett obegränsat antal variabler men kan bara förekomma i ett formulär.
+Vissa attribut används endast för presentation, till exempel `Span` och `Position`, som kan ses som förslag till hur en variabel bör positioneras på ett formulär. 
+De flesta variabler motsvarar en fråga i ett formulär som besvaras av användare (registrerare eller patient). 
+
+Till varje variabel kan ett valideringsskript anges, till exempel:
+```
+return Current.Height < 250
+```
+
+Till varje variabel kan ett beräkningsskript anges, till exempel:
+```
+return new Date()
+```
+Beroende på attributet `RunOnce` i variabelkonfigurationen fungerar beräkningen på olika sätt. Om den är `true` kommer värdet beräknas initialt men kan ändras. 
+Om den är `false` beräknas värdet då formuläret sparas och kan inte ändras manuellt.
+
+En variabel konfigureras för vissa specialfunktioner. 
+
+**Grupperad variabel**
+
+Denna typ använder en värdegrupp i Stratum för att avbilda ett inmatat värde till ett annat. På så sätt kan man till exempel åstadkomma en gruppering av
+diagnoser i en dignosgrupp. Om en målvariabel kallad `DiaGrp` läggs upp med beräkningsskript enligt nedan, och domän anges till
+en uppräkningsdomän som är grupperad, så kommer automatiskt värden att översättas (grupperas) från `Diagnos` till `DiaGrp` då en registrering sparas. 
+```
+//# target=server
+//# map=Diagnos
+```
+
+**Arkiverad variabel**
+
+Denna variant gör att en variabel inte längre syns i formulär, inte heller beräknas eller valideras på nytt, men är däremot synlig
+i datalager. En arkiverad variabel kan också används i api-sammanhang som en vanlig variabel. Typiskt används detta när 
+ett register bestämmer sig för att slopa en variabel men vill ha alla inmatade värden kvar.
+```
+//# target=server
+//# archived
+```
+
+**Dold beräknad variabel**
+
+Denna typ är densamma som en vanlig beräknad variabel med den enda skillnaden att den inte syns i registreringsformulär. Däremot kommer
+den ut i datalager och kan adresseras via api:er
+```
+//# target=server
+return 42
+```
 
 + Attributes
     + Question (Question)
@@ -450,7 +499,7 @@ I dessa registreringar förekommer inte personnummer eller annat som kan identif
 ### Hämta [GET /api/metadata/questions/{QuestionID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + QuestionID: `24205` (number) - Identifierare för aktuell fråga.
+    + QuestionID: `24205` (number) - Identifierare för aktuell variabel.
 
 + Response 200 (application/json)
     + Attributes
@@ -1284,6 +1333,22 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 
 ## Question (object)
 + QuestionID: `24205` (number, required) - Identifierare.
++ ColumnName
++ MappedTo
++ PrefixText
++ SuffixText
++ RunOnce
++ CalculationScript
++ ValidationScript
++ ControlScript
++ HelpNote
++ Sequence
++ Position
++ Span
++ IsMandatory
++ IsIdentifier
++ Form (Form)
++ Domain (Domain)
 
 ## Domain (object)
 + DomainID: `4000` (number, required) - Identifierare.
