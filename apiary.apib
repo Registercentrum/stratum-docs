@@ -254,8 +254,7 @@ Vid status 400 returneras i attribut `code`:
 |9      |Autentiserad session saknas
 
 + Request (application/json)
-    + Body
-    
+
             {
                 "Context": {
                     "ContextID": 30730
@@ -450,10 +449,11 @@ utifrån ett statistiskt perspektiv. Ett formulär kan innehålla ett obegränsa
 De flesta variabler motsvarar en fråga i ett formulär som besvaras av användare (registrerare eller patient). 
 
 En registrering utgörs av en uppsättning variabelvärden, där det mesta sparas i en databastabell som tillhör registret (kallad ”x-tabell”)
-men det finns också värden som sparas på andra ställen, bland annat systemgemensam information som personnummer och så kallat händelsedatum.
-För varje registrering finns en tillhöranade `Event`-entitet (när vi mäter) och en kopplad `Subject`-entitet (vad vi mäter på). 
-Dessa skapas vid registreringstillfället om de inte finns tidigare. Genom att hålla viss information gemensam kan 
-en hel del gemensamma funktioner finnas i Stratum (registreringsöversikt, slagning mot folkbokföring, hantering av avlidna, med mera).
+men det finns också värden som sparas på andra ställen, bland annat systemgemensam information som personnummer och händelsedatum.
+För varje registrering finns en tillhörande `Event`-entitet (när variabelvärden mättes), en `Subject`-entitet (vem variabelvärden mättes på)
+och en `Context`-entitet (vem som registrerat variabelvärden).
+Genom att hålla viss information gemensam kan 
+en del generella funktioner existera i Stratum, till exempel registreringsöversikt, slagning mot folkbokföring, hantering av avlidna.
 
 <a name="MappedTo"></a>
 Attributet `MappedTo` används generellt för att beskriva värden som *inte* lagras i tillhörande x-tabell. 
@@ -474,8 +474,8 @@ Samma namn i både `ColumnName` och `MappedTo` avser ”variabel” som saknar v
 För variabler vars värdemängd hämtas från ett annat formulär (till exempel implantatkomponenter i SHPR) så anges identifieraren 
 till det formulär värden skall hämtas från.
 
-För att beskriva regler för vilka värden variabler kan anta och eventuellt beräknas används attributen `ValidationScript`respektive `CalculationScript`. 
-Dessa är JavaScript-uttryck. 
+För att beskriva regler för vilka värden variabler kan anta och eventuellt beräknas till, används attributen `ValidationScript`respektive `CalculationScript`. 
+Dessa skrivs som uttryck i JavaScript. 
 
 Exempel på valideringsskript för att endast tillåta värden mindre än 250:
 ```
@@ -488,9 +488,9 @@ return new Date()
 ```
 <a name="RunOnce"></a>
 Beroende på attributet `RunOnce` i variabelkonfigurationen fungerar beräkningen på olika sätt. Om den är `true` kommer värdet beräknas initialt men kan ändras. 
-Om den är `false` beräknas värdet både vid registrering och då formuläret sparas, och kan inte ändras manuellt.
+Om den är `false` beräknas värdet både vid registrering *och* då formuläret sparas. Med sådan konfiguration kan inte värdet ändras manuellt.
 
-En variabel kan också konfigureras för vissa specialfunktioner:
+`CalculationScript` kan också användas för några ytterligare syften:
 
 **Grupperad variabel.**
 Denna typ använder en värdegrupp i Stratum för att avbilda ett inmatat värde till ett annat. På så sätt kan man till exempel åstadkomma en gruppering av
@@ -504,7 +504,7 @@ en uppräkningsdomän som är grupperad, så kommer automatiskt värden att öve
 **Arkiverad variabel.**
 Denna variant gör att en variabel inte längre syns i formulär, inte heller beräknas eller valideras på nytt, men är däremot synlig
 i datalager. En arkiverad variabel kan också används i api-sammanhang som en vanlig variabel. Typiskt används detta när 
-ett register bestämmer sig för att slopa en variabel men vill ha alla inmatade värden kvar.
+ett register bestämmer sig för att slopa en variabel officiellt men vill behålla alla befintliga värden.
 ```
 //# target=server
 //# archived
@@ -533,9 +533,65 @@ return 42
         + message: `null` (string)
         + code: `0` (number)
 
+### Hämta alla för ett formulär [GET /api/metadata/questions/form/{FormID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + FormID: `1001` (number) - Identifierare för formulär.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Question)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/questions]
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + Question (Question) - 
+            Observera att följande gäller för nedanstående attribut:
+            * `QuestionID` får *inte* anges.
+            * Endast `FormID` behöver anges för `Form`-entitet.
+            * Endast `DomainID` behöver anges för `Domain`-entitet.
+
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Question)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT /api/metadata/questions/{QuestionID}]
++ Parameters
+    + QuestionID: `24205` (number) - Identifierare för aktuell variabel.
+
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + Question (Question) - 
+            Observera att följande gäller för nedanstående attribut:
+            * `QuestionID` får *inte* anges.
+            * Endast `FormID` behöver anges i `Form`-entitet.
+            * `Domain` går inte att byta i dagsläget och får inte anges.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (Question)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 
 ## Domän [/api/metadata/domains/{DomainID}?apikey={APIKey}]
-`TODO: beskrivning`
+Entiteten `Domain` används för att beskriva utfallsrum.
+
+|Område för `DomainID`|Användningsområde
+|-|-
+|1000-1099|Fördefinierade, systemglobala, icke-uppräkningsbara domäner.
+|3000-3099|Uppräkningsdomäner för vårdenhetsgrupperingar.
+|3100-3199|Systemglobala uppräkningsdomäner.
+|3900-3999|Uppräkningsdomäner som döljs i variabelbeskrivning.
+|4000-|”Normala” uppräkningsdomäner.
 
 + Attributes
     + Domain (Domain)
@@ -1353,6 +1409,10 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + FormTitle: `Testformulär` (string, required) - Titel.
 + TableName: `x1005` (string, required) - Namn på tabell i databas.
 + FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
++ Sequence: `1` (number) - ordningsnummer i fall formulär visas sorterade.
++ ValidationScript: `return History.Primary.Registrations.length < 2` (string) - JavaScript-uttryck för validering av ny registrering.
++ HelpNote: ` ` (string) - övergripande hjälptext att visa i formulär (HTML).
++ Description: ` ` (string) - officiell förklarande text utifrån statistiskt perspektiv.
 + Register (Register, required) - Tillhörande register.
 + ParentForm (Form) - Ägande formulär (saknas för rotformulär).
 
@@ -1366,8 +1426,8 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + CalculationScript: `return new Date()` (string) - JavaScript-uttryck för beräkning.
 + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
 + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
-+ HelpNote: ` ` (string) - hjälptext att visa i ett formulär (HTML).
-+ Description: ` ` (string) - officiell beskrivning utifrån statistiskt perspektiv.
++ HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
++ Description: ` ` (string) - officiell förklarande text utifrån statistiskt perspektiv.
 + Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
 + Position: `8` (number) - position på aktuell rad i formulär (1-32).
 + Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
