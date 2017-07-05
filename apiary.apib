@@ -104,6 +104,8 @@ För att se data från kvalitetsregister krävs tvåfaktorautentisering. Inloggn
 
 Autentisering med "mjuka" SITHS-certifikat eller med våra egna RC-certifikat kan också användas men är bara tillåtna för dator-dator-kommunikation då de inte är av tvåfaktortyp.
 
+`TODO: kort om behörigheter`
+
 _Samtliga anrop nedan kan endast göras över https._
 
 ## Inloggning [/api/authentication/login]
@@ -535,7 +537,7 @@ return 42
 
 ### Hämta alla för ett formulär [GET /api/metadata/questions/form/{FormID}?apikey={APIKey}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
     + FormID: `1001` (number) - Identifierare för formulär.
 
 + Response 200 (application/json)
@@ -582,25 +584,52 @@ return 42
         + code: `0` (number)
 
 
-## Domän [/api/metadata/domains/{DomainID}?apikey={APIKey}]
-Entiteten `Domain` används för att beskriva utfallsrum.
+## Domän [/api/metadata/domains]
+Entiteten `Domain` används för att beskriva utfallsrum och kan vara systemglobal, det vill säga vara gemensam för alla register, eller registerspecifik.
+En domän kan vara uppräkningsbar eller inte. Uppräkningsbara domäner har [domänvärden](#reference/metadata/domanvarde) kopplade till sig. 
+Dessa används för att ange utfallsrum med ändligt antal värden, till exempel ”höger” och ”vänster”.
+De övriga domänerna har används för värdevalidering, där utfallsrummen inte är uppräkningsbara, till exempel datum och decimaltal. 
+Värdet på `DomainID` avgör vilken typ den är:
 
-|Område för `DomainID`|Användningsområde
+|`DomainID`|Typ
 |-|-
-|1000-1099|Fördefinierade, systemglobala, icke-uppräkningsbara domäner.
-|3000-3099|Uppräkningsdomäner för vårdenhetsgrupperingar.
-|3100-3199|Systemglobala uppräkningsdomäner.
-|3900-3999|Uppräkningsdomäner som döljs i variabelbeskrivning.
-|4000-|”Normala” uppräkningsdomäner.
+|1000&#8209;1099|Fördefinierade, systemglobala domäner, till exempel datum, heltal och vårdenheter.
+|3000&#8209;3099|Uppräkningsdomäner för vårdenhetsgrupperingar, till exempel landsting och vårdnivå.
+|3100&#8209;3199|Systemglobala uppräkningsdomäner, till exempel status i den gemensamma Projektdatabasen.
+|3900&#8209;3999|Uppräkningsdomäner som döljs i variabelbeskrivning.
+|4000&#8209;|”Normala” uppräkningsdomäner.
+
+Fördefinierade domäner:
+|`DomainID`|Namn|Typ|Kommentar
+|-|-|-|-
+|1015|Boolesk|bit|Kryssruta för ja/nej-svar utan validering och hantering av saknat värde. Rekommenderat är att använda fördefinierad uppräkningsdomän för Ja/Nej (4001) om detta behövs.
+|1020|Text|varchar(80)|Textfält upp till 80 tecken.
+|1021|Kommentar|varchar(max)|Textfält ”utan begräsning”. Presenteras på tre rader.
+|1025|E-postadress|varchar(80)|Textfält med [validering som e-postadress](https://regex101.com/r/Z09r2T/1). Tillåter vad Microsoft SMTP klarar av att skicka, vilket är något mer strikt sätt än [RFC822](https://www.w3.org/Protocols/rfc822/) tillåter.
+|1030|Datum|smalldatetime|Textfält med [validering som datum](https://regex101.com/r/5Gd9RF/1) enligt [ISO8601](https://sv.wikipedia.org/wiki/ISO_8601). Datum måste vara mellan 1900-01-01 och 2076-06-06. Presenteras med kalender som valbar popup.
+|1033|Tid|time(0)|Textfält med [validering som tid](https://regex101.com/r/m39ybA/1). 
+|1036|Tidsstämpel|smalldatetime|Textfält med [validering som tidsstämpel](https://regex101.com/r/0bdk1m/1). Formen är ”YYYY-MM-DD HH:MM:SS”. Datumdelen valideras som domänen Datum (se ovan). Presenteras med kalender som valbar popup.
+|1038|Årtal|smallint|Textfält med validering som årtal. Måste vara mellan 1900 och 2079.
+|1040|Heltal|int|Textfält med validering som heltal. Måste vara mellan -2147483648 och 2147483647.
+|1044|VAS|byte|Textfält med validering som VAS. Måste vara mellan 0 och 100.
+|1050|Flyttal|decimal(18,10)|Textfält med validering som decimaltal med maximalt 10 decimaler.
+|1051|Decimaltal1|decimal(9,1)|Textfält med validering som decimaltal med en decimal.
+|1052|Decimaltal2|decimal(9,2)|Textfält med validering som decimaltal med två decimaler.
+|1053|Decimaltal3|decimal(9,3)|Textfält med validering som decimaltal med tre decimaler.
+|1070|Registrering|int|Sökbar lista med registreringar från ett formulär. Metoden `setPopulator` används i kontrollskript för att ange hur värden fylls på. Attributet `MappedTo` i en `Question` sätts till aktuellt `FormID`.
+|1080|Sektion||Används för att skapa etiketter och sektioner i formulär. Kontrollskript användas för att visa, dölja, inaktivera andra frågor i ett formulär. Kan också användas för att skapa enkla etiketter (dynamiska eller statiska). Inget värde för ”variabeln” sparas.
+|1090|Vårdenhet|int|Sökbar lista med registrets vårdenheter. 
+|1092|Användare|int|Sökbar lista med registrets användare. 
+|1093|Koordinatoranvändare|int|Sökbar lista med registrets koordinatorer.
 
 + Attributes
     + Domain (Domain)
 
+### Hämta [GET /api/metadata/domains/{DomainID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + DomainID: `4000` (optional, number) - Identifierare för en domän.
+    + DomainID: `4000` (number, required) - Unik identifierare för domän.
 
-### Hämta [GET]
 + Response 200 (application/json)
     + Attributes
         + data (Domain)
@@ -630,10 +659,10 @@ Entiteten `Domain` används för att beskriva utfallsrum.
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla som tillhör ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
+### Hämta alla för ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+    + RegisterID: `100` (number, required) - Identifierare för ett register.
 
 + Response 200 (application/json)
     + Attributes
@@ -642,10 +671,10 @@ Entiteten `Domain` används för att beskriva utfallsrum.
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla som tillhör ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
+### Hämta alla för ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + RegisterID: `100` (optional, number) - Identifierare för ett register.
+    + RegisterID: `100` (number, required) - Identifierare för ett register.
 
 + Response 200 (application/json)
     + Attributes
@@ -654,7 +683,7 @@ Entiteten `Domain` används för att beskriva utfallsrum.
         + message: `null` (string)
         + code: `0` (number)
 
-### Skapa [POST /api/metadata/units]
+### Skapa [POST /api/metadata/domains]
 + Response 200 (application/json)
     + Attributes
         + data (Domain)
@@ -662,13 +691,22 @@ Entiteten `Domain` används för att beskriva utfallsrum.
         + message: `null` (string)
         + code: `0` (number)
 
-### Uppdatera [PUT]
+### Uppdatera [PUT /api/metadata/domains/{DomainID}]
++ Parameters
+    + DomainID: `4000` (number, required) - Unik identifierare för domän.
+    
 + Response 200 (application/json)
-    + Attributes(Domain)
+    + Attributes
+        + data (Domain)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
 
 
 ## Domänvärde [/api/metadata/domainvalues]
-`TODO: beskrivning`
+För en uppräkningsdomän, det vill säga en [domän](#reference/metadata/doman) med ett utfallsrum som innehåller ett ändligt antal värden på en nominalskala, så används
+enititen `DomainValue` för att beskriva dessa värden. Varje domänvärde tillhör en domän. Typiskt används dessa i ett [formulär](#reference/metadata/doman) för att 
+generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområde är att gruppera vårdenheter, till exempel i landsting eller efter vårdnivå.
 
 + Attributes
     + DomainValue (DomainValue)
@@ -676,7 +714,7 @@ Entiteten `Domain` används för att beskriva utfallsrum.
 ### Hämta [GET /api/metadata/domainvalues/{DomainValueID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + DomainValueID: `55249` (number) - Identifierare för aktuellt domänvärde.
+    + DomainValueID: `55249` (number, required) - Unik identifierare för domänvärde.
 
 + Response 200 (application/json)
     + Attributes
@@ -685,25 +723,98 @@ Entiteten `Domain` används för att beskriva utfallsrum.
         + message: `null` (string)
         + code: `0` (number)
 
-## Vårdenhet [/api/metadata/units/{UnitID}?apikey={APIKey}]
-En vårdenhet kan vara inom primär- eller slutenvård, privat eller offentlig och identifierar en lokalisering där behandling utförs. 
+### Hämta alla för en domän [GET /api/metadata/domainvalues/domain/{DomainID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + DomainID: `4000` (number, required) - Unik identifierare för domän.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[DomainValue])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/domainvalues]
++ Response 200 (application/json)
+    + Attributes
+        + data (DomainValue)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT /api/metadata/domainvalues/{DomainValueID}]
++ Parameters
+    + DomainValueID: `55249` (number, required) - Unik identifierare för domänvärde.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (DomainValue)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
+## Vårdenhet [/api/metadata/units]
+En vårdenhet kan vara inom primär- eller slutenvård, privat eller offentlig, och identifierar en lokalisering där behandling utförs. 
 Ett register avgör självt vilka vårdenheter som skall finnas och vad de skall kallas i sitt register. I en vidare bemärkelse kan också andra 
 lokaliseringar vara enheter, till exempel registerorganisationer, företag, med flera.
 
 + Attributes
     + Unit (Unit)
 
+### Hämta [GET /api/metadata/units/{UnitID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + UnitID: `2000` (optional, number) - Unik identifierare för en vårdenhet.
+    + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
 
-### Hämta [GET]
 + Response 200 (application/json)
     + Attributes
         + data (Unit)
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
+
+### Hämta alla för ett register [GET /api/metadata/units/register/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + RegisterID: `100` (number, required) - Unik identifierare för register.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Unit])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla för ett register med enhetsgrupperingar [GET /api/metadata/units/bindings/{RegisterID}?apikey={APIKey}]
++ Parameters
+    + RegisterID: `100` (number, required) - Unik identifierare för register.
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                data: {
+                    "Solbrinkens Vårdcentral": {
+                        "County": "Skåne",
+                        "LevelOfCare": "Primärvård"
+                    },
+                    "Näsby Vårdcentral": {
+                        "County": "Skåne",
+                        "LevelOfCare": "Primärvård"
+                    },
+                    "Näsets läkargrupp": {
+                        "County": "Skåne",
+                        "LevelOfCare": "Primärvård"
+                    },
+                    "Kungshamns Vårdcentral": {
+                        "County": "Västra Götaland"
+                    }
+                },
+                success: true,
+                message: null,
+                code: 0
+            }
 
 ### Skapa [POST /api/metadata/units?apikey={APIKey}]
 + Response 200 (application/json)
@@ -713,7 +824,10 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
         + message: `null` (string)
         + code: `0` (number)
 
-### Uppdatera [PUT]
+### Uppdatera [PUT /api/metadata/units/{UnitID}]
++ Parameters
+    + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
+
 + Response 200 (application/json)
     + Attributes
         + data (Unit)
@@ -721,11 +835,12 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
         + message: `null` (string)
         + code: `0` (number)
 
+
 ## Användare [/api/metadata/users/{UserID}?query={QueryString}]
 Vårdpersonal som registrerar, koordinatorer, api-brukare, dataleverantörer och integratörer är alla upplagda som användare, 
 även om det är [kontexten](#reference/metadata/kontext) som är den huvudsakliga entiteten som beskriver vad en användare kan göra i systemet vid ett givet tillfälle.
-En användare måste ha minst en kontext men kan ha flera.
-Användare läggs upp och administreras av koordinatorer via komponenten "Användarhanteraren". 
+En användare måste ha minst en kontext men kan ha flera. 
+Användare läggs upp och administreras av koordinatorer via komponenten "Användarhanteraren" och är gemensamma för alla register i Stratum. 
 
 + Attributes
     + User (User)
@@ -741,9 +856,42 @@ Användare läggs upp och administreras av koordinatorer via komponenten "Använ
         + message: `null` (string)
         + code: `0` (number)
 
-### Sök [GET /api/metadata/users?query={QueryString}]
+### Hämta via namn [GET /api/metadata/users/exist/{Username}]
 + Parameters
-    + QueryString: `SE23 Robert` (string) - Ett eller flera ord separerade med blanktecken. Sökning görs med OCH-villkor mellan alla ord i alla attribut.
+    + Username: `rogsa` (string) - Exakt sökning på namn.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (User)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta via sökning [GET /api/metadata/users?query={QueryString}]
++ Parameters
+    + QueryString: `SE23 Robert` (string) - Ett eller flera ord separerade med blanktecken. Sökning görs med OCH-villkor mellan alla ord i alla attribut. Minst ett ord med minst tre tecken krävs.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[User])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla för ett register [GET /api/metadata/users/register/{RegisterID}]
++ Parameters
+    + RegisterID: `100` (number, required) - Unik identifierare för register.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[User])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla för en vårdenhet [GET /api/metadata/users/unit/{UnitID}]
++ Parameters
+    + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
 
 + Response 200 (application/json)
     + Attributes
@@ -771,12 +919,39 @@ Användare läggs upp och administreras av koordinatorer via komponenten "Använ
         + code: `0` (number)
 
 ## Kontext [/api/metadata/contexts/{ContextID}?contextid={CallerContextID}]
-En kontext är den entitet som beskriver auktoriseringsinformation - en användare, en roll och en vårdenhet. 
+En kontext är den entitet som beskriver den auktoriseringsinformation, vilket i detta sammanhang betyder en användare, en roll och en vårdenhet. 
 Vid varje autentiserat anrop (starkt såväl som via api-nyckel) så är det den aktuella kontexten som avgör användarens behörighet.
+Det spelar alltså ingen roll om en användare har tillgång till en annan kontext som ger behörighet, det är den
+kontexten som medföljer vid anrop som gäller vid auktorisering. 
+
 Vad som är aktuell kontext avgörs med hjälp av två sessionscookies, som gör det möjligt att vara autentiserad på olika sätt 
-i olika webbläsare eller flikar i samma webbläsare.
-Det spelar ingen roll om en användare har tillgång till en annan kontext som ger behörighet, det är den
-aktuella kontexten som gäller. Enda undantaget från denna regel är i särskilda fall för rollen Systemutvecklare.
+i olika webbläsare eller flera flikar i samma webbläsare.
+
+En inaktiverad kontext förhindrar att inloggning sker på kontexten och den kan heller inte användas för auktorisering via till exempel api-anrop.
+
+<a name="RolesTable"></a>
+Roller:
+|`RoleID` |Roll             |Kategori         |Inloggning? |Syfte
+|-        |-                |-                |-           |-
+|903      |Koordinator      |Registerpersonal |ja          |Registrera och hämta data över vårdgivargränser samt administrera register
+|902      |Plusregistrerare |Vårdpersonal     |ja          |Registrerare med något större befogenheter
+|901      |Registrerare     |Vårdpersonal     |ja          |Registrera och hämta data för vårdenheten
+|101      |Dataleverantör   |System           |nej         |Leverera data till Stratum, till exempel via webbtjänst eller api
+|301      |Integratör       |System           |nej         |Hämta registreringar tvärs över vårdgivargränser i syfte att integrera system
+|201      |API-brukare      |System           |nej         |Hämta öppna data
+|906      |Systemutvecklare |System           |nej         |Kan spara programkomponenter och skapa register
+
+Nedan visas registreringsrelaterade egenskaper hos de olika rollerna. Beteckningen *”gränslöst”* nedan betyder *oberoende av vårdenhet*, det vill säga tvärs över vårdenhetsgränser. 
+Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin egen vårdenhets registreringar.
+|Roll             |Se<br>historik   |Spara<br>registrering |Ta bort<br>registrering |Ladda ned<br>registreringar
+|-                |-             |-                  |-                    |-
+|Koordinator      |ja, gränslöst |ja, gränslöst      |ja, gränslöst        |ja, enhetens med personnummer
+|Plusregistrerare |ja, enhetens  |ja, på enheten     |nej                  |ja, enhetens med personnummer
+|Registrerare     |ja, enhetens  |ja, på enheten     |nej                  |ja, enhetens *utan* personnummer
+|Dataleverantör   |nej           |ja, på enheten     |nej                  |nej
+|Integratör       |ja, gränslöst |nej                |nej                  |nej
+|API-brukare      |nej           |nej                |nej                  |nej
+|Systemutvecklare |nej           |nej                |nej                  |nej
 
 + Attributes
     + Context (Context)
@@ -791,7 +966,7 @@ aktuella kontexten som gäller. Enda undantaget från denna regel är i särskil
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för vårdenhet [GET /api/metadata/contexts/unit/{UnitID}]
+### Hämta alla för en vårdenhet [GET /api/metadata/contexts/unit/{UnitID}]
 + Parameters
     + UnitID: `2000` (required, number) - Identifierare för vårdenhet som kontexterna skall tillhöra.
 + Response 200 (application/json)
@@ -801,7 +976,7 @@ aktuella kontexten som gäller. Enda undantaget från denna regel är i särskil
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för användare [GET /api/metadata/contexts/unit/{UserID}]
+### Hämta alla för en användare [GET /api/metadata/contexts/unit/{UserID}]
 + Parameters
     + UserID: `90000` (number, required) - Identifierare för användare som kontexterna skall tillhöra.
 
@@ -812,7 +987,7 @@ aktuella kontexten som gäller. Enda undantaget från denna regel är i särskil
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta för registrering [GET /api/metadata/contexts/registration/{EventID}]
+### Hämta alla för ett register [GET /api/metadata/contexts/registration/{EventID}]
 + Parameters
     + EventID: `12345678` (number, required) - Identifierare för registrering vars kontext skall returneras.
 + Response 200 (application/json)
@@ -841,45 +1016,17 @@ aktuella kontexten som gäller. Enda undantaget från denna regel är i särskil
         + code: `0` (number)
 
 
-## Resurs [/api/metadata/resources]
-`TODO: beskrivning`
+## Sida [/api/metadata/pages]
+Entiteten `Page` används för att visa ett HTML-innehåll. Eftersom vanliga sidor (numera) hanteras via [Stratums CMS-system](https://cms.registercentrum.se)
+så används sidor endast i registrerinsapplikationen, och mestadels för att agera kontainer åt programkomponenter.
 
-+ Attributes
-    + Resource (Resource)
-
-### Hämta [GET /api/metadata/resources/{ResourceID}?apikey={APIKey}]
-+ Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + ResourceID: `30016` (number) - Identifierare för aktuell resurs.
-
-+ Response 200 (application/json)
-    + Attributes
-        + data (Resource)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-## Webbplats [/api/metadata/sites]
-`TODO: beskrivning`
-
-+ Attributes
-    + Site (Site)
-
-### Hämta [GET /api/metadata/sites/{SiteID}?apikey={APIKey}]
-+ Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + SiteID: `100` (number) - Identifierare för aktuell resurs.
-
-+ Response 200 (application/json)
-    + Attributes
-        + data (Site)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-
-## Webbsida [/api/metadata/pages]
-`TODO: beskrivning`
+<a name="PageScope"></a>
+Det finns tre olika sammanhang sidor kan visas i som bestäms av attributet PageScope:
+|`PageScope` |Sammanhang och användningsområde
+|-           |-
+|0           |Sidor som visas i den ”yttre” navigationen. Kan associeras med behörigheter för att endast visas för vissa målgrupper. Denna typ används inte längre utan hanteras via CMS-systemet.
+|1           |Sidor som visas direkt när man visar registreringsapplkationen. En sådan sida är obligatorisk och den med lägst `PageOrder`utgör startsida och visas  automatiskt.
+|2           |Sidor som visas efter att man sökt upp en patient. Kan till exempel innehålla programkomponent för att visa subjekt-relaterat innehåll.
 
 + Attributes
     + Page (Page)
@@ -897,8 +1044,8 @@ aktuella kontexten som gäller. Enda undantaget från denna regel är i särskil
         + code: `0` (number)
 
 ## Subjekt [/api/metadata/subjects]
-`TODO: beskrivning`
-Eftersom Stratum kan hantera registreringar som inte är knutna till patienter använder vi abstraktionen "subjekt", i bemärkelsen mätobjekt.
+Eftersom Stratum kan hantera registreringar som inte är knutna till patienter använder vi abstraktionen ”subjekt”, i bemärkelsen mätobjekt.
+I de allra flesta fall är ”subjekt” synonymt med ”patient”.
 
 + Attributes
     + Subject (Subject)
@@ -1048,17 +1195,7 @@ __Scope.Role__
 
 Identifierare (RoleID) med anroparens roll.
 Kan till exempel användas för att leverera resultat inom eller tvärsöver vårdgivargränser beroende på roll.
-Möjliga värden:
-
-|       |Roll               |Syfte                                                                                          |Läsa/Skriva        |Inloggning
-|-      |-                  |-                                                                                              |-                  |-
-|101    |Dataleverantör     |Leverera data till Stratum, till exempel via webbtjänst eller api.                             |Skriva             |Nej
-|201    |API-klient         |Hämta öppna data.                                                                              |Läsa               |Nej
-|301    |Integratör         |Hämta registreringar tvärs över vårdgivargränser i syfte att integrera system.                 |Läsa               |Nej
-|901    |Registrerare       |Registrera och hämta data för vårdenheten (vårdpersonal).                                      |Läsa och skriva    |Ja
-|902    |Plusregistrerare   |Registrerare med något större befogenheter (vårdpersonal)                                      |Läsa och skriva    |Ja
-|903    |Koordinator        |Registrera och hämta data över vårdgivargränser. Kan administrera register (registerpersonal)  |Läsa och skriva    |Ja
-|906    |Systemutvecklare   |Kan spara programkomponenter och skapa/administrera register (registercentrumpersonal)         |Läsa och skriva    |Nej
+Se [roller](#RolesTable) för en beskrivning.
 
 I själva api-anropet finns också stöd för att skicka med parametrar, till exempel `/api/statistics/brimp/test?diagnos=M16.1`. 
 Dessa hamnar då som argument till anropet av R-skriptet, det vill säga som `Run(diagnos="M16.1")`. 
@@ -1275,6 +1412,8 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - "Reply
 |0      |Upplagd
 |1      |Skickad elektroniskt
 |2      |Skickad via post
+|6      |1:a påminnelse upplagd
+|7      |2:a påminnelse upplagd
 |11     |1:a påminnelse skickad
 |12     |2:a påminnelse skickad
 |99     |Utgår
@@ -1293,18 +1432,13 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - "Reply
         }
 
 # Group Sidadressering
-Det finns olika sätt att adressera innehåll i Stratum. Med innehåll menas här ett HTML-innehåll på en av Stratums webbplatser (inte api:er, filtjänster eller webbtjänster). 
-Innehållet kan vara sidor (med eller utan komponenter - "widgets"), registreringsapplikationens startsida, formulär eller befintliga registreringar.
-Vad gäller sidor hör dessa till ett av tre möjliga `PageScope` som beskriver i vilket sammanhang sidan och dess tillhörande navigation visas:
-|PageScope  |Funktion
-|-          |-
-|0          |Sidor som finns i den yttre navigationen, det vill säga sidor som normalt sett alla användare ser (om det inte finns behörigheter som spärrar). På denna nivå finns vanliga sidor, med eller utan dynamiskt innehåll (widgets).
-|1          |Sidor som syns i navigationen när man gått in i registreringsapplikationen (normalt genom att klicka på "Registrera"). Vanligt tillämpningsområde för dessa sidor är enhetsspecifika resultat.
-|2          |Sidor som syns i navigationen när man är inne i registreringsappliaktionen och har sökt upp en patient. För dessa behöver man också skicka med parametern aSubjectKey för att peka ut vilket subjekt som avses. Vanligt tillämpningsområde är subjektspecifika resultat, till exempel en patientprofil.
+Alla adresser i Stratum gåt att direktadressera, det vill säga en URL kan kopieras från en webbläsare till en annan och rätt innehåll kommer att visas
+(under förutsättning att autentiseringen är korrekt och behörighet finns).
+Sidor kan också finnas i olika sammanhang (se [förklaring av](#PageScope) av `PageScope` och av entiteten [`Sida`](#reference/metadata/sida)).
 
-Alla sidtyperna kan direktadresseras ("link-in") och tillhörande Stratum-funktioner kommer laddas in automatiskt om de inte redan är inladdade. Utöver sidinnehåll kan även tomma 
+Vid direktadressering kommer tillhörande Stratum-funktioner laddas in automatiskt om de inte redan är inladdade. Utöver sidinnehåll kan även tomma 
 registreringsformulär och befintliga registreringar adresseras för både patientbundna och enhetsbundna registreringar. Generellt gäller 
-att om efterfrågad resurs kräver auktorisering, och denna inte finns, så visas en 404-sida ("Oops!").
+att om efterfrågad resurs kräver auktorisering, och denna inte finns, så visas en 404-sida (”Oops!”).
 
 ## Sida [/#!page?id={aPageID}?key={aSubjectKey}]
 `/#!page?id=<aPageID>?key=<aSubjectKey>`
@@ -1453,21 +1587,13 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 
 ## Unit (object)
 + UnitID: `2000` (number, required) - Unik identifierare.
-+ UnitCode: `26` (number, required) - Registrets egna vårdenhetskod.
-+ UnitName: `Testkliniken` (string) - Registrets egna vårdenhetsnamn.
-+ IsActive: `true` (optional, boolean) - Om aktiv.
-+ HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (om registret angett denna).
-+ PARID: `null` (string) - ID i Patientregistret (om registret angett denna).
++ UnitCode: `26` (number, required) - Registrets kod för  vårdenheten.
++ UnitName: `Testkliniken` (string) - Registrets namn på vårdenheten.
++ IsActive: `true` (optional, boolean) - Om aktiv (kan döljas i listor av vårdenheter om ej aktiv).
++ HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (administreras av registret).
++ PARID: `null` (string) - ID i Patientregistret (administreras av registret).
 + Register (Register, required) - Registertillhörighet.
 + Bindings (array[UnitBinding], optional) - Lista av egenskaper, till exempel landsting eller vårdnivå.
-
-## ShallowUnit (object)
-+ UnitID: `2000` (number, required) - Unik identifierare.
-+ UnitCode: `26` (number, required) - Registrets egna kod.
-+ UnitName: `Testkliniken` (string, required) - Registrets egna namn.
-+ IsActive: `true` (boolean) - Om aktiv.
-+ HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (om registret angett denna).
-+ PARID: `null` (string) - ID i Patientregistret (om registret angett denna).
 
 ## UnitBinding (object)
 + UnitID: `2000` (required, number) - Unik identifierare.
@@ -1515,6 +1641,13 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 
 ## Page (object)
 + PageID: `1001` (number, required) - Unik identifierare.
++ PageTitle: `Om Stratum` (string) - Titel i navigation.
++ PageContent: `Detta är portalsidan för <a href="http://www.registercentrum.se">Registercentrum Västra Götalands</a> tekniska plattform Stratum.` (string) - Sidinnehåll i HTML. Kan även innehålla [programkomponent(er)](#reference/metadata/komponenter) och JavaScript i största allmänhet.
++ PageLevel: `0` (number) - För att skapa hierarkier av sidor. Allt på samma `PageLevel` är grupperat under föregående sida med närmast lägre `PageLevel` när sidorna sorteras med avseende på `PageOrder`. Används inte längre då detta hanteras av CMS-systemet.
++ PageOrder: `1` (number) - Sidans ordningsnummer.
++ PageScope: `0` (number) - Sammanhang där sidan skall visas (se [förklaring](#PageScope)).
++ ModifiedAt: `2017-07-05 13:39:00` (string) - Tidsstämpel för senaste uppdatering.
++ Site (Site, required) - Tillhörande webbplats
 
 ## Subject (object)
 + SubjectID: `1001` (number, required) - Unik identifierare.
