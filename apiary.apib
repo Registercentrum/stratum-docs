@@ -1018,14 +1018,25 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ## Sida [/api/metadata/pages]
 Entiteten `Page` används för att visa ett HTML-innehåll. Eftersom vanliga sidor (numera) hanteras via [Stratums CMS-system](https://cms.registercentrum.se)
-så används sidor endast i registrerinsapplikationen, och mestadels för att agera kontainer åt programkomponenter.
+så används sidor endast i registrerinsapplikationen, och mestadels för att agera kontainer åt programkomponenter. En programkomponent på en sida
+länkas in enligt nedanstående mönster:
+```
+<!-- Eventuell HTML innan komponent -->
+<div id="{{ Namn på komponentkontainer }}"></div>
+<script type="text/javascript">
+   // Kod som renderar en eller flera komponenter i komponentkontainern ovan.
+//! {{ Beskrivning av komponent som är begriplig av andra }}
+//# sourceURL={{ Systemunikt komponentnamn på formen <ShortName>/<WidgetName> }}
+</script>
+<!-- Eventuell HTML efter komponent -->
+```
 
 <a name="PageScope"></a>
 Det finns tre olika sammanhang sidor kan visas i som bestäms av attributet PageScope:
 |`PageScope` |Sammanhang och användningsområde
 |-           |-
-|0           |Sidor som visas i den ”yttre” navigationen. Kan associeras med behörigheter för att endast visas för vissa målgrupper. Denna typ används inte längre utan hanteras via CMS-systemet.
-|1           |Sidor som visas direkt när man visar registreringsapplkationen. En sådan sida är obligatorisk och den med lägst `PageOrder`utgör startsida och visas  automatiskt.
+|0           |Sidor som visas i den ”yttre” navigationen. Kan associeras med behörigheter för att endast visas för vissa målgrupper. __Denna typ används inte längre utan hanteras via CMS-systemet.__
+|1           |Sidor som visas direkt när man visar registreringsapplkationen. En sådan sida är obligatorisk, och den med lägst `PageOrder` utgör startsida och visas automatiskt.
 |2           |Sidor som visas efter att man sökt upp en patient. Kan till exempel innehålla programkomponent för att visa subjekt-relaterat innehåll.
 
 + Attributes
@@ -1034,7 +1045,7 @@ Det finns tre olika sammanhang sidor kan visas i som bestäms av attributet Page
 ### Hämta [GET /api/metadata/pages/{PageID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + PageID: `100` (number) - Identifierare för aktuell webbsida.
+    + PageID: `1001` (number) - Identifierare för aktuell webbsida.
 
 + Response 200 (application/json)
     + Attributes
@@ -1043,9 +1054,51 @@ Det finns tre olika sammanhang sidor kan visas i som bestäms av attributet Page
         + message: `null` (string)
         + code: `0` (number)
 
+### Hämta alla för webbplats [GET /api/metadata/pages/site/{SiteID}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + SiteID: `100` (number) - Identifierare för aktuell webbplats.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Page])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Skapa [POST /api/metadata/pages]
++ Response 200 (application/json)
+    + Attributes
+        + data (Page)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT /api/metadata/pages/{PageID}]
++ Parameters
+    + PageID: `1001` (number) - Identifierare för aktuell webbsida.
++ Response 200 (application/json)
+    + Attributes
+        + data (Page)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
 ## Subjekt [/api/metadata/subjects]
 Eftersom Stratum kan hantera registreringar som inte är knutna till patienter använder vi abstraktionen ”subjekt”, i bemärkelsen mätobjekt.
-I de allra flesta fall är ”subjekt” synonymt med ”patient”.
+I de allra flesta fall är ”subjekt” synonymt med ”patient”. Ett subjekt är unikt för ett register, vilket innebär att om en patient 
+(eller annat mätobjekt) registreras i ett annat register så blir det ett nytt subjekt.
+
+<a name="DateCorrectness"></a>
+Attributet `StatusDate` (och det härledda `DateOfDeath` för avlidna) innehåller alltid kompletta datum men i undantagsfall kan statuskontroll 
+via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas saknade datumdelar enligt nedan, och `DateCorrectness` avgör vad som ersatts:
+|`DateCorrectness` |Betydelse vid statuskontroll
+|-                 |-
+|0                 |År/Månad/Dag satt till dagens datum.
+|1                 |Månad/Dag satt till dagens datum.
+|2                 |Dag satt till dagens datum.
+|3                 |Komplett datum från Navet.
 
 + Attributes
     + Subject (Subject)
@@ -1651,6 +1704,13 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 
 ## Subject (object)
 + SubjectID: `1001` (number, required) - Unik identifierare.
++ SubjectKey: `19620831-5116` (string, required) - Personnummer eller annan identifierare för mätobjekt.
++ IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
++ StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
++ StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel "2001-01" eller bara "2001". Attributet "DateCorrectnes" anger detta attributs innehåll.
++ DateOfDeath: `2027-08-31` (string, fixed) - Dödsdatum (det vill säga "StatusDate" då "StatusCode" = "AV").
++ DateCorrectness: `0` (number) - Avgör "kompletthet" hos attributet "StatusDate" (se [förklaring](#DateCorrectness).)
++ Register (Register, required) - Tillhörande register.
 
 ## LogEntry (object)
 + LogEntryID: `1001` (number, required) - Unik identifierare.
