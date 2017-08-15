@@ -1201,23 +1201,25 @@ antingen manuellt via webbgränssnitt eller automatiserat via direktöverföring
 Den vanligaste formen av registrering är den som görs på en patient (så kallad ”subjektbunden registrering”) 
 och som fångar information vid ett specifikt tillfälle i en vårdprocess för en patient. 
 
+Den andra formen av registrering är inte är knuten till en patient, utan till en vårdenhet (så kallad ”enhetsbunden registrering”). 
+Dessa registreringar kan användas för att beskriva karaktäristika hos ett registers vårdenheter. 
+I vissa fall används dessa för metaregister, det vill säga register på aggregerad nivå sammanställda av andra register, 
+till exempel ”Kvartalen” och ”Regionalt kvalitetsregister för primärvården i Västra Götaland”. 
+Ett ytterligare användningsområde är emensamma, öppna databaser till exempel ”Projektdatabasen”.
+
 Data för en registrering hålls i en specifik tabell för varje formulär i ett register. Länken mellan registerdata och metadata
 går via `Event`-entiteten, en struktur som framför allt håller tre väsentliga datapunkter gemensamt för alla register:
 
-* Vem insamlad information avser (`SubjectKey` i relaterad `Subjekt`-entitet).
-* När vårdhändelsen inträffade (`EventDate` i `Event`-entiteten).
-* Var vårdhändelsen inträffade (`UnitCode` i relaterad `Unit`-entitet).
+|Datapunkt    |Förklaring
+|-            |-
+|`SubjectKey` |Vem insamlad information avser (till exempel personnummer för en patient)
+|`EventDate`  |När vårdhändelsen inträffade (till exempel datum för besök, operation, uppföljning)
+|`UnitCode`   |Var vårdhändelsen inträffade (till exempel vilken vårdcentral eller sjukhus)
 
 Fördelen med att hålla viss information systemgemensam är att programkomponenter och applikationer kan göras mer
-generella och återanvändas mellan olika register. 
-När ett datalager (samkörd datavy) tas fram för statistisk bearbetning, samkörs registerdata med data från gemensamma strukturer 
-till en enklare, flat struktur. 
-
-Den andra formen av registrering är inte är knuten till en patient, utan till en vårdenhet. 
-Dessa registreringar kan vara för att beskriva karakäristika hos ett registers vårdenheter. 
-I vissa fall används även denna typ av registrering för att hålla metaregister i Stratum (register på aggregerad nivå 
-sammanställda av andra register), till exempel ”Kvartalen” och ”Regionalt kvalitetsregister för primärvården i Västra Götaland”. Ett 
-ytterligare användningsområde är emensamma, öppna databaser till exempel ”Projektdatabasen”.
+generella och återanvändas mellan olika register. När ett datalager tas fram samkörs registerdata med systemgemensamma data 
+till en enklare flatfilsstruktur, bättre lämpad för statistisk bearbetning men mindre lämplig för att lagra data i 
+på grund av normaliseringproblem (dubbellagring inte minst). 
 
 ## Instanser och kollektioner [/api/registrations]
 `TODO Allmän beskrivning`
