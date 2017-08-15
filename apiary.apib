@@ -980,13 +980,13 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ## Sida [/api/metadata/pages]
 Entiteten `Page` används för att visa ett HTML-innehåll. Eftersom vanliga sidor (numera) hanteras via [Stratums CMS-system](https://cms.registercentrum.se)
-så används sidor endast i registrerinsapplikationen, och mestadels för att agera kontainer åt programkomponenter. En programkomponent på en sida
+så används sidor endast i registrerinsapplikationen, och mestadels för att agera container åt programkomponenter. En programkomponent på en sida
 läggs in enligt nedanstående mönster:
 ```
 ...
-<div id="{{ Namn på komponentkontainer }}"></div>
+<div id="{{ Namn på komponentcontainer }}"></div>
 <script type="text/javascript">
-   // Kod som renderar en eller flera komponenter i komponentkontainern ovan.
+   // Kod som renderar en eller flera komponenter i komponentcontainern ovan.
 //! {{ Beskrivning av komponent som är begriplig av andra }}
 //# sourceURL="{{ Systemunikt komponentnamn på formen <ShortName>/<WidgetName> }}"
 </script>
@@ -1196,7 +1196,28 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 
 
 # Group Registreringar
-`TODO Allmän beskrivning`
+Registrering i Stratum-perspektivet är de data som sparas för ett registers räkning av en vårdenhet, 
+antingen manuellt via webbgränssnitt eller automatiserat via direktöverföring från andra it-system.
+Den vanligaste formen av registrering är den som görs på en patient (så kallad ”subjektbunden registrering”) 
+och som fångar information vid ett specifikt tillfälle i en vårdprocess för en patient. 
+
+Data för en registrering hålls i en specifik tabell för varje formulär i ett register. Länken mellan registerdata och metadata
+går via `Event`-entiteten, en struktur som framför allt håller tre väsentliga datapunkter gemensamt för alla register:
+
+* Vem insamlad information avser (`SubjectKey` i relaterad `Subjekt`-entitet).
+* När vårdhändelsen inträffade (`EventDate` i `Event`-entiteten).
+* Var vårdhändelsen inträffade (`UnitCode` i relaterad `Unit`-entitet).
+
+Fördelen med att hålla viss information systemgemensam är att programkomponenter och applikationer kan göras mer
+generella och återanvändas mellan olika register. 
+När ett datalager (samkörd datavy) tas fram för statistisk bearbetning, samkörs registerdata med data från gemensamma strukturer 
+till en enklare, flat struktur. 
+
+Den andra formen av registrering är inte är knuten till en patient, utan till en vårdenhet. 
+Dessa registreringar kan vara för att beskriva karakäristika hos ett registers vårdenheter. 
+I vissa fall används även denna typ av registrering för att hålla metaregister i Stratum (register på aggregerad nivå 
+sammanställda av andra register), till exempel ”Kvartalen” och ”Regionalt kvalitetsregister för primärvården i Västra Götaland”. Ett 
+ytterligare användningsområde är emensamma, öppna databaser till exempel ”Projektdatabasen”.
 
 ## Instanser och kollektioner [/api/registrations]
 `TODO Allmän beskrivning`
