@@ -3,8 +3,6 @@ HOST: https://stratum.registercentrum.se/
 
 # Öppna data från Stratum
 
-> ___Detta är en levande dokumentation som till och från kan innehålla fel eller sakna väsentlig information.___
-
 ## Vad är Stratum?
 Stratum är en teknisk plattform för att beskriva, samla in och presentera data från kvalitetsregister inom hälso- och sjukvård och 
 förser ett register och dess användare med bland annat en avancerad formulärapplikation och verktyg för att administrera registreringar. 
@@ -1196,16 +1194,17 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 
 
 # Group Registreringar
-Registrering i Stratum-perspektivet är de data som sparas för ett registers räkning av en vårdenhet, 
+Registreringar i detta perspektiv är de data som sparas för ett registers räkning av en vårdenhet, 
 antingen manuellt via webbgränssnitt eller automatiserat via direktöverföring från andra it-system.
 Den vanligaste formen av registrering är den som görs på en patient (så kallad ”subjektbunden registrering”) 
 och som fångar information vid ett specifikt tillfälle i en vårdprocess för en patient. 
 
-Den andra formen av registrering är inte är knuten till en patient, utan till en vårdenhet (så kallad ”enhetsbunden registrering”). 
-Dessa registreringar kan användas för att beskriva karaktäristika hos ett registers vårdenheter. 
-I vissa fall används dessa för metaregister, det vill säga register på aggregerad nivå sammanställda av andra register, 
-till exempel ”Kvartalen” och ”Regionalt kvalitetsregister för primärvården i Västra Götaland”. 
-Ett ytterligare användningsområde är emensamma, öppna databaser till exempel ”Projektdatabasen”.
+Den andra formen av registrering är inte är knuten till en patient utan direkt till en vårdenhet (så kallad ”enhetsbunden registrering”). 
+Dessa registreringar används typiskt till att beskriva karaktäristika hos ett registers vårdenheter 
+(till exempel operationsmiljö eller utbildningsnivå hos personal), men kan även användas till metaregister. 
+Exempel på metaregister är ”Kvartalen” som sammanställer data på aggregerad nivå för många olika kvalitetsregister, för Västra götalandsregionen. 
+Ytterligare användningsområde är gemensamma, öppna databaser, till exempel ”Projektdatabasen” som används för att registrera och 
+följa upp registerbaserade forskningsprojekt.
 
 Data för en registrering hålls i en specifik tabell för varje formulär i ett register. Länken mellan registerdata och metadata
 går via `Event`-entiteten, en struktur som framför allt håller tre väsentliga datapunkter gemensamt för alla register:
@@ -1217,27 +1216,181 @@ går via `Event`-entiteten, en struktur som framför allt håller tre väsentlig
 |`UnitCode`   |Var vårdhändelsen inträffade (till exempel vilken vårdcentral eller sjukhus)
 
 Fördelen med att hålla viss information systemgemensam är att programkomponenter och applikationer kan göras mer
-generella och återanvändas mellan olika register. När ett datalager tas fram samkörs registerdata med systemgemensamma data 
-till en enklare flatfilsstruktur, bättre lämpad för statistisk bearbetning men mindre lämplig för att lagra data i 
-på grund av normaliseringproblem (dubbellagring inte minst). 
+generella och återanvändas mellan olika register. När ett datalager tas fram, samkörs registerdata med systemgemensamma data 
+till en enklare flatfilsstruktur, bättre lämpad för statistisk bearbetning (men suboptimal för lagring). 
 
-## Instanser och kollektioner [/api/registrations]
-`TODO Allmän beskrivning`
+## Generella funktioner [/api/registrations]
+Dessa utgör huvudgrenen för att hämta, söka, spara och uppdatera registreringar, såväl subjektbundna som enhetsbundna.
 
-### Hämta instans via händelseidentifierare [GET /api/registrations/?apikey={anAPIKey}]
+<a name="Query"></a>
+**Sökkriterier**
+
+Som i flera andra sammanhang i Stratum så begränsas de data som returneras (registreringar i detta fall) till de som finns på aktuell kontexts vårdenhet
+Det finns även möjlighet att ytterligare filtrera via enkla sökkriterier. Dessa anges genom att lägga till parametern `query` till URL:n. Formen på dess värde är:
+```
+<query> :: <queryExpression>[,<queryExpression>...]
+<queryExpression> :: <nameOfVariable> {{eq|lt|gt} <simpleLiteral> | in <sequenceLiteral>}
+<sequenceLiteral> :: <simpleLiteral>|<simpleLiteral>|...
+```
+
+Exempel på sökkriteria med två uttryck och OCH-villkor mellan uttrycken:
+```
+query=P_Diag in 1|2|3,P_Year gt 2015
+```
+
+Notera att alla literaler överförs som strängar.
+
+<a name="Template"></a>
+**Mallformatering**
+
+För enhetsbundna registreringar finns möjlighet att använda enkla malluttryck för att formatera returvärden,
+vilket är användbart för att populera listor i ett registreringsformulär. Ett malluttryck anges med parametern `template` till aktuell URL. Exempel:
+```
+template={C_ArticleNumber} - {C_Description}
+```
+Returvärdet är på formen
+```
+[
+    {
+        "ValueName": ...,
+        "ValueCode": ...
+    },
+    ...
+]
+```
+vilket är en lista av nyckel/värde-par, en form särskilt lämpligg för att mata listfält med i Stratums registreringsapplikation. 
+`ValueName` är den formatterade texten enligt mallen och `ValueCode` är registreringsidentifierare (`EventID`).
+
+***Notera att stark autentisering krävs för att skapa eller förändra registreringar.***
+
+### Hämta specifik registrering [GET /api/registrations/{anEventID}]
 + Parameters
+    + anEventID: `10004765` (string, required) - Identifierare för aktuell registreringshändelse.
++ Response 200 (application/json)
+
+        {
+        }
+
+### Hämta registreringar enligt sökkriterier [GET /api/registrations/form/{aFormID}?query={aQuery}]
++ Parameters
+    + aFormID: `2224` (string, required) - Identifierare för aktuellt formulär.
+    + aQuery: `C_StratumCode eq 215` (string) - Sökkriterier (se [förklaring](#Query)).
++ Response 200 (application/json)
+
+        {
+            "data": [
+                {
+                    "EventID": 11295124,
+                    "InsertedAt": "2015-09-30T13:49:23.397",
+                    "ModifiedAt": "2015-09-30T13:49:23.397",
+                    "UnitID": 4615,
+                    "C_SubmitDate": "2015-09-30T13:49:23.397",
+                    "C_ArticleNumber": "71352258",
+                    "C_StratumCode": 215,
+                    "C_Description": "Reflection Polyeth. UHMWPE ID 22mm x OD 58mm",
+                    "C_IsHalf": false,
+                    "C_IsTotal": true,
+                    "C_Fixation": 1,
+                    "C_Resurfacing": null
+                },
+                {
+                    "EventID": 11295123,
+                    "InsertedAt": "2015-09-30T13:49:23.393",
+                    "ModifiedAt": "2015-09-30T13:49:23.393",
+                    "UnitID": 4615,
+                    "C_SubmitDate": "2015-09-30T13:49:23.393",
+                    "C_ArticleNumber": "71352255",
+                    "C_StratumCode": 215,
+                    "C_Description": "Reflection Polyeth. UHMWPE ID 22mm x OD 55mm",
+                    "C_IsHalf": false,
+                    "C_IsTotal": true,
+                    "C_Fixation": 1,
+                    "C_Resurfacing": null
+                }
+            ],
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
+### Hämta mallformaterade registreringar [GET /api/registrations/form/{aFormID}?template={aTemplate}&query={aQuery}&apikey={anAPIKey}]
++ Parameters
+    + aFormID: `2224` (string, required) - Identifierare för aktuellt formulär.
+    + aTemplate: `{C_ArticleNumber} - {C_Description}` (string, required) - Formateringmall (se [förklaring](#Template)).
+    + aQuery: `C_IsHalf eq 1,C_IsTotal eq 0` (string) - Sökkriterier (se [förklaring](#Query)).
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel (vid enhetsbundna registreringar).
++ Response 200 (application/json)
+
+        {
+          "data": [
+            {
+              "ValueName": "110010273 - G7 OsseoTi multi hole acetabular shell 70 mm sz I",
+              "ValueCode": 13489987
+            }
+          ],
+          "success": true,
+          "message": null,
+          "code": 0
+        }
+
+### Hämta alla registreringar för ett formulär [GET /api/registrations/form/{aFormID}?apikey={anAPIKey}]
++ Parameters
+    + aFormID: `1001` (string, required) - Identifierare för aktuellt formulär.
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel (vid enhetsbundna registreringar).
++ Response 200 (application/json)
+
+        {
+        }
+
+### Skapa registrering [POST /api/registrations]
++ Response 200 (application/json)
+
+        {
+        }
+
+### Skapa registrering via bjudning [POST /api/registrations?apikey={anAPIKey}&token={aToken}]
++ Parameters
+    + anAPIKey: `J6b-GSKrkfk=` (string, required) - API-nyckel.
+    + aToken: `jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8` (string, required) - Identifierare till bjudning.
++ Response 200 (application/json)
+
+        {
+        }
+
+### Uppdatera registrering [PUT /api/registrations/{anEventID}?apikey={anAPIKey}]
++ Parameters
+    + anEventID: `10004765` (string) - Aktuell händelseidentifierare.
     + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
         {
         }
 
-## Specialiserade kollektioner [/api/overview]
-`TODO Allmän beskrivning`
+## Specialkollektioner [/api/overview]
+Eftersom registreringar är en så central del av systemet finns stöd för några specialiserade funktioner som 
+används ofta, inte minst i registreringsapplikationen. Dessa är dock av generell karaktär och kan med fördel 
+användas (och används) i programkomponenter i flera olika sammanhang.
 
-### Hämta [GET /api/overview/?apikey={anAPIKey}]
+### Hämta all subjektbunden registreringshistorik för vårdenhet [GET /api/overview/subject]
+`TODO: förklaring`
++ Response 200 (application/json)
+
+        {
+        }
+
+### Hämta registreringshistorik för specifikt subjekt [GET /api/overview/history/{aSubjectKey}]
+`TODO: förklaring`
 + Parameters
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + aSubjectKey: `19620831-5116` (string) - A subject key.
++ Response 200 (application/json)
+
+        {
+        }
+
+### Hämta elektroniskt patientutdrag [GET /api/overview/excerpt/{aSubjectKey}]
+`TODO: förklaring`
++ Parameters
+    + aSubjectKey: `19620831-5116` (string) - A subject key.
 + Response 200 (application/json)
 
         {
@@ -1338,7 +1491,7 @@ Parametrar som överförs är versalkänsliga, till exempel om Run-funktionen i 
 fungerar det inte att göra anrop med `/api/statistics/brimp/test?Diagnos=M16.1`.
 Alla parametrar överförs som textsträngar.
 
-### Exempel från LVR, senaste version [GET /api/statistics/{aShortName}/{aScriptName}?apikey={anAPIKey}&rinvoke=1]
+### Exempel 1 - antal registreringar per status rökning i LVR [GET /api/statistics/{aShortName}/{aScriptName}?apikey={anAPIKey}]
 + Parameters
     + aShortName: `LVR` (string) - Registrets kortnamn.
     + aScriptName: `test` (string) - R-skript att exekvera (utan .R i slutet).
@@ -1346,16 +1499,21 @@ Alla parametrar överförs som textsträngar.
 + Response 200 (application/json)
 
         {
-            "Aldrig varit rökare": 8039,
-            "Slutat röka för >6 månader sedan": 18215,
-            "Slutat röka för <6 månader sedan": 2084,
-            "Röker, men inte dagligen": 784,
-            "Röker dagligen 1-9 cigaretter/dag": 6252,
-            "Röker dagligen 10-19 cigaretter/dag": 4947,
-            "Röker dagligen >20 cigaretter/dag": 1459
+          "data": {
+            "Aldrig varit rökare": 87222,
+            "Slutat röka för >6 månader sedan": 41210,
+            "Slutat röka för <6 månader sedan": 4176,
+            "Röker, men inte dagligen": 2835,
+            "Röker dagligen 1-9 cigaretter/dag": 16793,
+            "Röker dagligen 10-19 cigaretter/dag": 9771,
+            "Röker dagligen >20 cigaretter/dag": 4246
+          },
+          "success": true,
+          "message": null,
+          "code": 0
         }
         
-### Exempel från BOA, specifik version [GET /api/statistics/{aShortName}/{aScriptName}/{aVersion}?apikey={anAPIKey}&rinvoke=1]
+### Exempel 2 - antal registreringar per led och kön i BOA [GET /api/statistics/{aShortName}/{aScriptName}/{aVersion}?apikey={anAPIKey}]
 + Parameters
     + aShortName: `BOA` (string) - Registrets kortnamn.
     + aScriptName: `test` (string) - R-skript att exekvera (utan .R i slutet).
@@ -1363,48 +1521,65 @@ Alla parametrar överförs som textsträngar.
     + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
-        [
+        {
+          "data": [
             {
-                "k": "Höft",
-                "v": [
-                    {
-                        "k": "Man",
-                        "v": 4735
-                    },
-                    {
-                        "k": "Kvinna",
-                        "v": 10051
-                    }
-                ]
+              "k": "Höft",
+              "v": [
+                {
+                  "k": "Man",
+                  "v": 7278
+                },
+                {
+                  "k": "Kvinna",
+                  "v": 15238
+                }
+              ]
             },
             {
-                "k": "Knä",
-                "v": [
-                    {
-                        "k": "Man",
-                        "v": 10144
-                    },
-                    {
-                        "k": "Kvinna",
-                        "v": 22157
-                    }
-                ]
+              "k": "Knä",
+              "v": [
+                {
+                  "k": "Man",
+                  "v": 15239
+                },
+                {
+                  "k": "Kvinna",
+                  "v": 32680
+                }
+              ]
             },
             {
-                "k": "Hand",
-                "v": [
-                    {
-                        "k": "Man",
-                        "v": 149
-                    },
-                    {
-                        "k": "Kvinna",
-                        "v": 885
-                    }
-                ]
+              "k": "Hand",
+              "v": [
+                {
+                  "k": "Man",
+                  "v": 333
+                },
+                {
+                  "k": "Kvinna",
+                  "v": 1851
+                }
+              ]
+            },
+            {
+              "k": "Axel",
+              "v": [
+                {
+                  "k": "Man",
+                  "v": 16
+                },
+                {
+                  "k": "Kvinna",
+                  "v": 22
+                }
+              ]
             }
-        ]
-
+          ],
+          "success": true,
+          "message": null,
+          "code": 0
+        }
 
 # Group Konfigurationer
 
