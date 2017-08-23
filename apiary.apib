@@ -947,9 +947,9 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för ett register [GET /api/metadata/contexts/registration/{EventID}]
+### Hämta för en registrering [GET /api/metadata/contexts/registration/{EventID}]
 + Parameters
-    + EventID: `10004765` (number, required) - Identifierare för registrering vars kontext skall returneras.
+    + EventID: `10115713` (number, required) - Identifierare för registrering vars kontext skall returneras.
 + Response 200 (application/json)
     + Attributes
         + data (Context)
@@ -1182,9 +1182,9 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 + Attributes
     + LogEntry (LogEntry)
 
-### Hämta för registrering [GET /api/metadata/logentries/event/{EventID}]
+### Hämta för en registrering [GET /api/metadata/logentries/event/{EventID}]
 + Parameters
-    + EventID: `10004765` (number, required) - Identifierare för registrering vars loggrader skall returneras.
+    + EventID: `10115713` (number, required) - Identifierare för registrering vars loggrader skall returneras.
 + Response 200 (application/json)
     + Attributes
         + data (LogEntry)
@@ -1201,13 +1201,24 @@ och som fångar information vid ett specifikt tillfälle i en vårdprocess för 
 
 Den andra formen av registrering är inte är knuten till en patient utan direkt till en vårdenhet (så kallad ”enhetsbunden registrering”). 
 Dessa registreringar används typiskt till att beskriva karaktäristika hos ett registers vårdenheter 
-(till exempel operationsmiljö eller utbildningsnivå hos personal), men kan även användas till metaregister. 
-Exempel på metaregister är ”Kvartalen” som sammanställer data på aggregerad nivå för många olika kvalitetsregister, för Västra götalandsregionen. 
+(till exempel operationsmiljö eller utbildningsnivå hos personal). Ett annat använddningsområde är till metaregister, 
+till exempel ”Kvartalen” som sammanställer Västra götalandsregionens data på aggregerad nivå från många olika kvalitetsregister. 
 Ytterligare användningsområde är gemensamma, öppna databaser, till exempel ”Projektdatabasen” som används för att registrera och 
 följa upp registerbaserade forskningsprojekt.
 
-Data för en registrering hålls i en specifik tabell för varje formulär i ett register. Länken mellan registerdata och metadata
-går via `Event`-entiteten, en struktur som framför allt håller tre väsentliga datapunkter gemensamt för alla register:
+## Avgränsning till vårdenhet
+Som i flera andra sammanhang i Stratum så begränsas de data som returneras till de som finns på **aktuell kontexts vårdenhet**,
+vilket innebär att om anroparen är inloggad på en vårdenhet så avgränsas resultatet från api-anrop automatiskt till denna vårdenhet.
+Detta ger en automatiserad datasäkerhet, då data mellan vårdgivargränser inte är tillåtet juridiskt i normalfallet. 
+Det finns en del undantag. Exempelvis kan en koordinator hämta data tvärs vårdgivargränser då de juridiskt är 
+registerpersonal, inte vårdpersonal. I praktiken innebär det att en registreringskedja för en och samma patient som är 
+gjord av flera vårdgivare, kan en koordinator se dessa men en vanlig registrerare ser enbart de registreringar 
+som är gjorta på dennes vårdenhet.
+
+## Systemgemensamma data
+Det allra flesta data för en registrering hålls i en specifik tabell för varje formulär i ett register men vissa data hålls 
+i gemensamma strukturer. Länken mellan registerdata och beskrivande metadata går via `Event`-entiteten, en struktur som framför allt 
+håller tre väsentliga datapunkter gemensamt, oberoende av register:
 
 |Datapunkt    |Förklaring
 |-            |-
@@ -1216,7 +1227,9 @@ går via `Event`-entiteten, en struktur som framför allt håller tre väsentlig
 |`UnitCode`   |Var vårdhändelsen inträffade (till exempel vilken vårdcentral eller sjukhus)
 
 Fördelen med att hålla viss information systemgemensam är att programkomponenter och applikationer kan göras mer
-generella och återanvändas mellan olika register. När ett datalager tas fram, samkörs registerdata med systemgemensamma data 
+generella och på så sätt återanvändas mellan olika register. 
+
+När ett datalager tas fram, samkörs registerdata med systemgemensamma data 
 till en enklare flatfilsstruktur, bättre lämpad för statistisk bearbetning (men suboptimal för lagring). 
 
 ## Generella funktioner [/api/registrations]
@@ -1225,12 +1238,11 @@ Dessa utgör huvudgrenen för att hämta, söka, spara och uppdatera registrerin
 <a name="Query"></a>
 **Sökkriterier**
 
-Som i flera andra sammanhang i Stratum så begränsas de data som returneras (registreringar i detta fall) till de som finns på aktuell kontexts vårdenhet
 Det finns även möjlighet att ytterligare filtrera via enkla sökkriterier. Dessa anges genom att lägga till parametern `query` till URL:n. Formen på dess värde är:
 ```
 <query> :: <queryExpression>[,<queryExpression>...]
 <queryExpression> :: <nameOfVariable> {{eq|lt|gt} <simpleLiteral> | in <sequenceLiteral>}
-<sequenceLiteral> :: <simpleLiteral>|<simpleLiteral>|...
+<sequenceLiteral> :: <simpleLiteral>|<simpleLiteral>|... // ("|" avser literalt tecken)
 ```
 
 Exempel på sökkriteria med två uttryck och OCH-villkor mellan uttrycken:
@@ -1244,11 +1256,12 @@ Notera att alla literaler överförs som strängar.
 **Mallformatering**
 
 För enhetsbundna registreringar finns möjlighet att använda enkla malluttryck för att formatera returvärden,
-vilket är användbart för att populera listor i ett registreringsformulär. Ett malluttryck anges med parametern `template` till aktuell URL. Exempel:
+vilket är användbart för att populera listor i ett registreringsformulär. Ett malluttryck anges med parametern `template` till aktuell URL. 
+Om malluttryck används görs inte den naturliga avgränsningen till aktuell kontexts vårdenhet. Exempel på uttryck:
 ```
 template={C_ArticleNumber} - {C_Description}
 ```
-Returvärdet är på formen
+När mallformatering används konverteras returvärdet till formen:
 ```
 [
     {
@@ -1258,23 +1271,68 @@ Returvärdet är på formen
     ...
 ]
 ```
-vilket är en lista av nyckel/värde-par, en form särskilt lämpligg för att mata listfält med i Stratums registreringsapplikation. 
-`ValueName` är den formatterade texten enligt mallen och `ValueCode` är registreringsidentifierare (`EventID`).
+Där `ValueName` är den formaterade texten enligt mallen och `ValueCode` är registreringsidentifierare (`EventID`).
+Formen lämpar sig väl för att mata listfält med i Stratums registreringsapplikation. 
 
 ***Notera att stark autentisering krävs för att skapa eller förändra registreringar.***
 
-### Hämta specifik registrering [GET /api/registrations/{anEventID}]
+### Hämta specifik registrering [GET /api/registrations/{anEventID}?apikey={anAPIKey}]
 + Parameters
-    + anEventID: `10004765` (string, required) - Identifierare för aktuell registreringshändelse.
+    + anEventID: `10115713` (string, required) - Identifierare för aktuell registreringshändelse.
+    + anAPIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
+            "data": {
+                "EventID": 10115713,
+                "InsertedAt": "2013-04-02T08:48:36.57",
+                "ModifiedAt": "2013-04-02T08:48:36.57",
+                "ChangedDate": "2013-04-02T00:00:00",
+                "ProjectType": 1,
+                "ProjectStatus": 6,
+                "ProjectName": "A Scandinavian experience of register collaboration: the Nordic Arthroplasty Register Association (NARA).  ",
+                "LaymansDescription": null,
+                "ScientificDescription": null,
+                "FirstAuthor": "Havelin LI",
+                "LastAuthor": "Furnes O.",
+                "OtherAuthor": "Robertsson O, Fenstad AM, Overgaard S, Garellick G",
+                "EthicsApproval": null,
+                "EthicsBoard": null,
+                "EthicsNumber": null,
+                "ResearchRequest": null,
+                "ResearchContract": null,
+                "Merging": null,
+                "MergeWith": null,
+                "InCooperation": null,
+                "DateOfDelivery": null,
+                "DateOfSubmission": null,
+                "DateOfPublication": "2011-12-01T00:00:00",
+                "Magazine": "J Bone Joint Surg Am",
+                "Issue": "93 Suppl 3",
+                "Pages": "13-19",
+                "Form": {
+                    "FormID": 1082,
+                    "FormName": "Project",
+                    "FormTitle": "Projekt",
+                    "IsSubjectBound": false,
+                    "IsSingleMapped": false,
+                    "IsCrossBorder": false,
+                    "FormScope": 4,
+                    "Sequence": 10,
+                    "Parent": null
+                },
+                "UnitID": 2329
+            },
+            "success": true,
+            "message": null,
+            "code": 0
         }
-
-### Hämta registreringar enligt sökkriterier [GET /api/registrations/form/{aFormID}?query={aQuery}]
+        
+### Hämta registreringar enligt sökkriterier [GET /api/registrations/form/{aFormID}?query={aQuery}&apikey={anAPIKey}]
 + Parameters
     + aFormID: `2224` (string, required) - Identifierare för aktuellt formulär.
     + aQuery: `C_StratumCode eq 215` (string) - Sökkriterier (se [förklaring](#Query)).
+    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
@@ -1318,7 +1376,7 @@ vilket är en lista av nyckel/värde-par, en form särskilt lämpligg för att m
     + aFormID: `2224` (string, required) - Identifierare för aktuellt formulär.
     + aTemplate: `{C_ArticleNumber} - {C_Description}` (string, required) - Formateringmall (se [förklaring](#Template)).
     + aQuery: `C_IsHalf eq 1,C_IsTotal eq 0` (string) - Sökkriterier (se [förklaring](#Query)).
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel (vid enhetsbundna registreringar).
+    + anAPIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
@@ -1335,13 +1393,45 @@ vilket är en lista av nyckel/värde-par, en form särskilt lämpligg för att m
 
 ### Hämta alla registreringar för ett formulär [GET /api/registrations/form/{aFormID}?apikey={anAPIKey}]
 + Parameters
-    + aFormID: `1001` (string, required) - Identifierare för aktuellt formulär.
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel (vid enhetsbundna registreringar).
+    + aFormID: `2187` (string, required) - Identifierare för aktuellt formulär.
+    + anAPIKey: `1YcBDBtMoKk=` (string) - API-nyckel (vid enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
+          "data": [
+            {
+              "EventID": 10772386,
+              "InsertedAt": "2014-12-08T16:07:37.09",
+              "ModifiedAt": "2016-01-14T10:34:54.997",
+              "ProjectType": 1,
+              "ProjectStatus": 2,
+              "ProjectName": "Revision for aseptic loosening, a comparison between highly cross-linked and conventional polyethylene. A study of 163366 patients in the Nordic Arthroplasty Register Association database",
+              "LaymansDescription": "Den vanligaste orsaken till att en höftprotes behöver opereras om är så kallad icke-infektiös lossning. Protesen tappar ...",
+              "ScientificDescription": "Vetenskaplig frågeställning:\nAtt i en registerstudie jämföra risk för reoperation och revision på grund av aseptisk lossning mellan höggradigt korslänkad och konventionell ...",
+              "FirstAuthor": "Per-Erik Johanson",
+              "LastAuthor": "Johan Kärrholm",
+              "OtherAuthor": "Göran Garellick",
+              "EthicsApproval": 4,
+              "EthicsBoard": "Göteborg",
+              "EthicsNumber": "348-13",
+              "ResearchRequest": 4,
+              "ResearchContract": 3,
+              "Merging": 1,
+              "MergeWith": null,
+              "InCooperation": 1,
+              "DateOfDelivery": "2014-06-27T00:00:00",
+              "DateOfSubmission": null,
+              "DateOfPublication": null,
+              "Magazine": null,
+              "Issue": null,
+              "Pages": null
+            }
+          ],
+          "success": true,
+          "message": null,
+          "code": 0
         }
-
+        
 ### Skapa registrering [POST /api/registrations]
 + Response 200 (application/json)
 
@@ -1359,7 +1449,7 @@ vilket är en lista av nyckel/värde-par, en form särskilt lämpligg för att m
 
 ### Uppdatera registrering [PUT /api/registrations/{anEventID}?apikey={anAPIKey}]
 + Parameters
-    + anEventID: `10004765` (string) - Aktuell händelseidentifierare.
+    + anEventID: `10115713` (string) - Aktuell händelseidentifierare.
     + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
@@ -1790,14 +1880,14 @@ ___Stark autentisering krävs (för patientbundna formulär).___
 ## Nytt underformulär [/#!form?id={aFormID}?parent={anEventID}]
 `/#!form?id=<aFormID>?parent=<anEventID>`
 
-Öppnar ett nytt underformulär som identifieras av `aFormID`, för den registrering som identifieras av `anEventID`. 
+Öppnar ett nytt underformulär som identifieras av `aFormID`, med ägande registrering som identifieras av `anEventID`. 
 
 ___Stark autentisering krävs.___
 
 ### Hämta[GET]
 + Parameters
-    + aFormID: `1005` (number) - Underformulärets identifierare.
-    + anEventID: `10004765` (number) - Registreringsidentifierare.
+    + aFormID: `1082` (number) - Underformulärets identifierare.
+    + anEventID: `10115713` (number) - Registreringsidentifierare till ägande registrering.
 + Response 200 (text/html)
 
 ## Registrering [/#!event?id={anEventID}]
@@ -1810,7 +1900,7 @@ ___Stark autentisering krävs för patientbundna registreringar.___
 
 ### Hämta[GET]
 + Parameters
-    + anEventID: `10004765` (number) - Registreringsidentifierare.
+    + anEventID: `10115713` (number) - Registreringsidentifierare.
 + Response 200 (text/html)
 
 ## Enhetsbundna registreringar [/#!profile]
@@ -1969,7 +2059,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + LogEntryID: `100037` (number, required) - Unik identifierare.
 + PerformedAt: `2017-08-09 11:14:43` (string) - Tidstämpel när loggraden skapades.
 + ActionTarget: `GET /api/metadata/units/register/104` (string) - Beskrivning av loggad händelse (innehåll beroende av loggtyp).
-+ EventID: `10004765` (number) - Vilken registrering loggraden avser (om registreringsrelaterad, saknas annars).
++ EventID: `10115713` (number) - Vilken registrering loggraden avser (om registreringsrelaterad, saknas annars).
 + LogTypeID: `1031` (number, required) - Typ av loggrad (se [förklaring](#LogType)).
 + Context (Context, required) - Kontext som orsakat loggningen
 
