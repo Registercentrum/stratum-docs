@@ -102,9 +102,11 @@ För att se data från kvalitetsregister krävs tvåfaktorautentisering. Inloggn
 
 Autentisering med ”mjuka” SITHS-certifikat eller med våra egna RC-certifikat kan också användas men är bara tillåtna för dator-dator-kommunikation då de inte är av tvåfaktortyp.
 
-`TODO: kort om behörigheter`
+Behörigheter kan tilldelas för sidor, formulär och resurser och kan tilldelas register, vårdenheter eller användare. 
+Den inbyggda behörighetshanteringen åsidosätts då en eller flera specifika behörigheter finns, och det blir då de 
+specifika behörigheterna som avgör vem som kan göra vad.
 
-_Samtliga anrop nedan kan endast göras över https._
+_Nedanstående anrop kan endast göras över https._
 
 ## Inloggning [/api/authentication/login]
 
@@ -564,7 +566,7 @@ return 42
 
 
 ## Domän [/api/metadata/domains]
-Entiteten `Domain` används för att beskriva utfallsrum och kan vara systemglobal, det vill säga vara gemensam för alla register, eller registerspecifik.
+Entiteten `Domain` används för att beskriva utfallsrum och kan vara gemensam för alla register eller registerspecifik.
 En domän kan vara uppräkningsbar eller inte. Uppräkningsbara domäner har [domänvärden](#reference/metadata/domanvarde) kopplade till sig. 
 Dessa används för att ange utfallsrum med ändligt antal värden, till exempel ”höger” och ”vänster”.
 De övriga domänerna har används för värdevalidering, där utfallsrummen inte är uppräkningsbara, till exempel datum och decimaltal. 
@@ -577,6 +579,8 @@ Värdet på `DomainID` avgör vilken typ den är:
 |3100&#8209;3199|Systemglobala uppräkningsdomäner, till exempel status i den gemensamma Projektdatabasen.
 |3900&#8209;3999|Uppräkningsdomäner som döljs i variabelbeskrivning.
 |4000&#8209;|”Normala” uppräkningsdomäner.
+
+Se nedan under [Hämta alla gemensamma](#reference/metadata/doman/hamta-alla-gemensamma) för att hämta en lista över domäner som är gemensamma för alla register, till exempel landsting, vårdnivå och lateralitet.
 
 Fördefinierade domäner:
 |ID   |Namn|Typ|Kommentar
@@ -1094,7 +1098,6 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
 I Stratum loggas i första hand händelser som används för att avgöra vem som gjort vad, till exempel vem som loggat in 
 och av vem och när en registrering skapades. Detta av juridiska skäl.
 En del loggningar görs även i syfte att kartlägga hur systemet används, till exempel anrop till våra REST-api:n. 
-
 <a name="LogType"></a>
 Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |Kod |Åtgärd vid statuskontroll
@@ -1104,9 +1107,8 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1002|Registration updated
 |1003|Registration deleted
 |1004|Registration received
-|1005|Units all registrations delivered
 |1006|Registration delivered
-|1007|Units registrations delivered for a form
+|1007|Registrations delivered
 |1008|Registration history delivered
 |1009|Registration failure
 |1010|Patient lookup performed
@@ -1122,22 +1124,12 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1103|User switched context
 |1104|User authenticated by SAML
 |1105|User authenticated by certificate (RC)
-|1110|User login by credentials failed
-|1111|User login by SITHS failed
-|1112|User login by SAML failed
 |1113|User authentication failed
-|1120|User logged out
 |1121|User created
 |1122|User updated
 |1123|User deleted
-|1130|User changed password
-|1131|User changed account details
 |1140|SITHS certificate assigned
 |1141|SITHS certificate assigment failed
-|1151|Administrator created user
-|1152|Administrator changed users password
-|1153|Administrator changed users account details
-|1154|Administrator invalidated users account
 |1201|Context created
 |1202|Context disabled
 |1203|Context enabled
@@ -1207,7 +1199,8 @@ Ytterligare användningsområde är gemensamma, öppna databaser, till exempel �
 följa upp registerbaserade forskningsprojekt.
 
 ## Avgränsning till vårdenhet
-Som i flera andra sammanhang i Stratum så begränsas de data som returneras till de som finns på **aktuell kontexts vårdenhet**,
+Som i flera andra sammanhang i Stratum så begränsas de data som returneras till de som finns på **aktuell kontexts vårdenhet**
+(”min vårdenhets data”),
 vilket innebär att om anroparen är inloggad på en vårdenhet så avgränsas resultatet från api-anrop automatiskt till denna vårdenhet.
 Detta ger en automatiserad datasäkerhet, då data mellan vårdgivargränser inte är tillåtet juridiskt i normalfallet. 
 Det finns en del undantag. Exempelvis kan en koordinator hämta data tvärs vårdgivargränser då de juridiskt är 
@@ -1238,26 +1231,28 @@ Dessa utgör huvudgrenen för att hämta, söka, spara och uppdatera registrerin
 <a name="Query"></a>
 **Sökkriterier**
 
-Det finns även möjlighet att ytterligare filtrera via enkla sökkriterier. Dessa anges genom att lägga till parametern `query` till URL:n. Formen på dess värde är:
+Utöver den inbyggda begränsningen att endast returnera ”min vårdenhets data”, så finns möjlighet att ytterligare filtrera via enkla sökkriterier, 
+vilket läggs till via URL-parametern `query`:
 ```
 <query> :: <queryExpression>[,<queryExpression>...]
 <queryExpression> :: <nameOfVariable> {{eq|lt|gt} <simpleLiteral> | in <sequenceLiteral>}
 <sequenceLiteral> :: <simpleLiteral>|<simpleLiteral>|... // ("|" avser literalt tecken)
 ```
 
-Exempel på sökkriteria med två uttryck och OCH-villkor mellan uttrycken:
+Exempel på filtrering med två uttryck och OCH-villkor mellan uttrycken (notera att alla literaler överförs som strängar):
 ```
 query=P_Diag in 1|2|3,P_Year gt 2015
 ```
 
-Notera att alla literaler överförs som strängar.
+För de som konfigurerar register används samma syntax vid anrop av funktionen `setPopulator` för att formatera och fylla en lista med svarsalternativ från en alternativ datakälla, 
+till exempel implantatkomponenter till primäroperationsformuläret i Svenska höftprotesregistret.
 
 <a name="Template"></a>
 **Mallformatering**
 
 För enhetsbundna registreringar finns möjlighet att använda enkla malluttryck för att formatera returvärden,
 vilket är användbart för att populera listor i ett registreringsformulär. Ett malluttryck anges med parametern `template` till aktuell URL. 
-Om malluttryck används görs inte den naturliga avgränsningen till aktuell kontexts vårdenhet. Exempel på uttryck:
+*Observera att om malluttryck används görs inte den naturliga avgränsningen till aktuell kontexts vårdenhet.* Exempel på uttryck:
 ```
 template={C_ArticleNumber} - {C_Description}
 ```
@@ -1271,10 +1266,11 @@ När mallformatering används konverteras returvärdet till formen:
     ...
 ]
 ```
-Där `ValueName` är den formaterade texten enligt mallen och `ValueCode` är registreringsidentifierare (`EventID`).
-Formen lämpar sig väl för att mata listfält med i Stratums registreringsapplikation. 
+`ValueName` står för den formaterade texten enligt mallen och `ValueCode` är registreringens identifierare (`EventID`).
+Formen lämpar sig särskilt väl för att mata listfält i Stratums registreringsapplikation, för att i register A kunna välja en registrering från register B.
+På så sätt kan registreringar i två olika register länkas samman.
 
-***Notera att stark autentisering krävs för att skapa eller förändra registreringar.***
+***Notera att med api-nyckel går det *inte* att skapa eller förändra registreringar.***
 
 ### Hämta specifik registrering [GET /api/registrations/{anEventID}?apikey={anAPIKey}]
 + Parameters
@@ -1436,7 +1432,16 @@ Formen lämpar sig väl för att mata listfält med i Stratums registreringsappl
 + Response 200 (application/json)
 
         {
+            "data": [
+                {
+                    "EventID": 11295124
+                }
+            ],
+            "success": true,
+            "message": null,
+            "code": 0
         }
+    
 
 ### Skapa registrering via bjudning [POST /api/registrations?apikey={anAPIKey}&token={aToken}]
 + Parameters
@@ -1445,6 +1450,14 @@ Formen lämpar sig väl för att mata listfält med i Stratums registreringsappl
 + Response 200 (application/json)
 
         {
+            "data": [
+                {
+                    "EventID": 11295124
+                }
+            ],
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
 ### Uppdatera registrering [PUT /api/registrations/{anEventID}?apikey={anAPIKey}]
@@ -1454,70 +1467,348 @@ Formen lämpar sig väl för att mata listfält med i Stratums registreringsappl
 + Response 200 (application/json)
 
         {
+            "data": [
+                {
+                    "EventID": 11295124
+                }
+            ],
+            "success": true,
+            "message": null,
+            "code": 0
         }
+        
 
 ## Specialkollektioner [/api/overview]
 Eftersom registreringar är en så central del av systemet finns stöd för några specialiserade funktioner som 
-används ofta, inte minst i registreringsapplikationen. Dessa är dock av generell karaktär och kan med fördel 
-användas (och används) i programkomponenter i flera olika sammanhang.
+används ofta, bland annat i registreringsapplikationen och generiska programkomponenter. Dessa är dock av 
+generell karaktär och kan med fördel användas i skräddarsydda programkomponenter.
 
-### Hämta all subjektbunden registreringshistorik för vårdenhet [GET /api/overview/subject]
-`TODO: förklaring`
+### Hämta registreringshistorik för subjekt [GET /api/overview/history/{aSubjectKey}]
+Returnerar alla formulär, med tillhörande registreringar som är utförda på aktuell kontexts vårdenhet, för ett specifikt subjekt. 
+Även en del metadata finns med i resultatet som beskriver aktuellt formulär. Om anropande 
+kontext har rollen Koordinator *eller* om ett formulär är markerat som ”cross-border” (se <a href="#FormScope">FormScope</a>)
+så kommer även registreringar från andra vårdenheter med. I fallet ”cross-border” inkluderas endast de variabler som är 
+markerade som identifierare och denna typ av formulär får endast användas efter överrenskommelse med Västra Götalandsregionens jurist.
+
+Denna funktion driver bland annat registreringsapplikationen.
++ Parameters
+    + aSubjectKey: `19410321-9202` (string) - A subject key.
 + Response 200 (application/json)
 
         {
+            "data": {
+                "Subject": {
+                    "SubjectID": 0,
+                    "SubjectKey": "19410321-9202"
+                },
+                "History": {
+                    "TestForm": {
+                        "FormID": 1001,
+                        "FormName": "TestForm",
+                        "FormTitle": "Testformulär",
+                        "Sequence": 1,
+                        "ValidationScript": "return History.TestForm.Registrations.length <= 2 ? true : 'Det går endast att registrera tre formulär per patient av ' + History.TestForm.FormTitle + '.'",
+                        "IsSubjectBound": true,
+                        "IsSingleMapped": false,
+                        "IsCrossBorder": false,
+                        "ParentForm": null,
+                        "Identifiers": [
+                            "KlinPri",
+                            "TestDat",
+                            "Ja"
+                        ],
+                        "MappedEventDate": "TestDat",
+                        "MappedUnitCode": "KlinPri",
+                        "MappedIsClosed": "Klar",
+                        "MappedHSAID": null,
+                        "MappedPARID": null,
+                        "MappedModifiedAt": null,
+                        "MappedInsertedAt": null,
+                        "Registrations": []
+                    }
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
-### Hämta registreringshistorik för specifikt subjekt [GET /api/overview/history/{aSubjectKey}]
-`TODO: förklaring`
-+ Parameters
-    + aSubjectKey: `19620831-5116` (string) - A subject key.
+### Hämta vårdenhetens registreringshistorik [GET /api/overview/subject]
+Returnerar alla registreringar som är utförda på aktuell kontexts vårdenhet. Endast registreringar levereras tillbaka 
+och likt en avbildning (”hash map”) som gör den lämplig att traversera stora mängder data snabbt när man utgår från ett
+personnummer och vill ha fram alla tillhörande registreringar.
+
+Denna funktion driver bland annat patientöversikten.
 + Response 200 (application/json)
 
         {
+            "data": {
+                "19410321-9202": {
+                    "10183435": {
+                        "FormName": "TestForm",
+                        "FormID": 1001,
+                        "EventID": 10183435,
+                        "InsertedAt": "2013-09-25T16:29:20.777",
+                        "ModifiedAt": "2015-04-27T08:24:26.98",
+                        "TestDat": "2013-09-25T00:00:00",
+                        "Ja": 1,
+                        "Text": "roger@xyz.se",
+                        "Boolesk": true,
+                        "Kommentar": "dferewrqewwqweqeqw",
+                        "Datum": null,
+                        "Tid": null,
+                        "Tidsstampel": null,
+                        "Artal": null,
+                        "Heltal": null,
+                        "VASskala": 11,
+                        "ClassOfVAS": 1,
+                        "Flyttal": null,
+                        "Diagnos": "M16.0",
+                        "DiagnosisGroup": 1,
+                        "Remitt": null,
+                        "Decimal3": 2.2,
+                        "Decimal2": 3.3,
+                        "Decimal1": 7.3,
+                        "Registrering": null,
+                        "Klar": false,
+                        "ParentEventID": null
+                    },
+                    "10914294": {
+                        "FormName": "TestForm",
+                        "FormID": 1001,
+                        "EventID": 10914294,
+                        "InsertedAt": "2015-02-15T11:29:01.563",
+                        "ModifiedAt": "2016-03-11T13:08:01.153",
+                        "TestDat": "2015-02-15T00:00:00",
+                        "Ja": 0,
+                        "Text": "xyzb@gmail.com",
+                        "Boolesk": false,
+                        "Kommentar": null,
+                        "Datum": null,
+                        "Tid": "10:22:00",
+                        "Tidsstampel": "2015-02-15T14:31:00",
+                        "Artal": null,
+                        "Heltal": 112,
+                        "VASskala": 23,
+                        "ClassOfVAS": 1,
+                        "Flyttal": 1.234568,
+                        "Diagnos": "M12.2F",
+                        "DiagnosisGroup": null,
+                        "Remitt": 9999,
+                        "Decimal3": 2.222,
+                        "Decimal2": 3.33,
+                        "Decimal1": 7.4,
+                        "Registrering": null,
+                        "Klar": true,
+                        "ParentEventID": null
+                    }
+                },
+                "19470122-2798": {
+                    "10496043": {
+                        "FormName": "TestForm",
+                        "FormID": 1001,
+                        "EventID": 10496043,
+                        "InsertedAt": "2014-05-09T12:30:23.473",
+                        "ModifiedAt": "2017-08-16T07:26:15.01",
+                        "TestDat": "2014-05-09T00:00:00",
+                        "Ja": 0,
+                        "Text": "__.__.__.__.__@__.__.__.__.__.this_is_my_email_address__.se",
+                        "Boolesk": false,
+                        "Kommentar": null,
+                        "Datum": null,
+                        "Tid": "05:12:00",
+                        "Tidsstampel": "2017-06-02T00:00:00",
+                        "Artal": 2002,
+                        "Heltal": 100,
+                        "VASskala": 25,
+                        "ClassOfVAS": 1,
+                        "Flyttal": null,
+                        "Diagnos": "M00.9F",
+                        "DiagnosisGroup": null,
+                        "Remitt": 9999,
+                        "Decimal3": 2.225,
+                        "Decimal2": 3.39,
+                        "Decimal1": 7.5,
+                        "Registrering": null,
+                        "Klar": true,
+                        "ParentEventID": null
+                    }
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
 ### Hämta elektroniskt patientutdrag [GET /api/overview/excerpt/{aSubjectKey}]
-`TODO: förklaring`
+Returnerar samtliga registreringar, oberoende av register för ett specifikt subjekt. I dagsläget är det endast rollen
+”Patient” som har behörighet att göra anropet. Denna roll är inte implementerad ännu, så på begäran från en patient kan vi tillfälligt 
+ställa om så att någon internt kan använda funktionen för en patients räkning. 
+
+Denna funktion driver programkomponenten för e-utdrag.
 + Parameters
-    + aSubjectKey: `19620831-5116` (string) - A subject key.
+    + aSubjectKey: `19410321-9202` (string) - A subject key.
 + Response 200 (application/json)
 
         {
+          "data": {
+            "FEJK": {
+              "Visit": [
+                {
+                  "EventID": 10183435,
+                  "InsertedAt": "2013-09-25T16:29:20.777",
+                  "ModifiedAt": "2015-04-27T08:24:26.98",
+                  "F_Date": "2013-09-25T00:00:00",
+                  "F_Var1": 1,
+                  "F_Var2": "M16.1",
+                  "F_Var3": true,
+                  "F_Var4": 87,
+                  "Unit": {
+                    "UnitID": 2000,
+                    "UnitName": "Testenheten"
+                  }
+                }
+              ]
+            },
+            "BOGUS": {
+              "Operation": [
+                {
+                  "EventID": 10496043,
+                  "InsertedAt": "2013-09-26T16:29:20.777",
+                  "ModifiedAt": "2015-04-28T08:24:26.98",
+                  "F_Date": "2013-09-26T00:00:00",
+                  "B_Var1": 7,
+                  "B_Var2": 117.3,
+                  "B_Var3": false,
+                  "Unit": {
+                    "UnitID": 2001,
+                    "UnitName": "Andra testenheten"
+                  }
+                }
+              ]
+            }
+          },
+          "success": true,
+          "message": null,
+          "code": 0
         }
 
 
 # Group Statistik
 
-`TODO Allmän beskrivning`
+Det finns två api:er finns för att ta fram statistik. 
+Det första är för korstabuleringar i noll, en eller två dimensioner och kan användas generiskt på ett registers alla variabler
+(med noll-dimensionellt menas här aggregat med endast ett värde).
+Underliggande data kommer direkt från databasen och har ingen eftersläpning. 
+Dess generiska natur gör att statistik kan tas fram för nystartade register och kan användas för enkel, experimentell dataanalys
+för att till exempel avgöra lämpliga kvalitetsindikatorer, eller snabbt få en överblick av registreringsgrad vid introduktion av nya variabler. 
+Nackdelen är att den typ av resultat som kan tas fram är begränsad till korstabeller med deskriptiv statistik.
 
-## Fördefinierad aggregatstatistik [/api/aggregate]
+Det andra är för skräddarsydda resultat och tas fram via R-skript, vilket gör att mer avancerade statistiska metoder kan användas.
+Underliggande data kommer från datalager som tas fram en gång per dygn, vilket medför eftersläpning på upp till ett dygn.
+Detta api är betydligt mer kraftfullt men varje resultat måste programmeras fram av statistiker, så det är en längre startsträcka.
 
-> _Obs! Denna sektion är bara påbörjad._
+Det finns också möjlighet att hämta upp [listor av registreringar](#reference/registreringar/generella-funktioner) (beroende på behörighet) 
+och ställa samman egna resultat från dessa.
 
-`TODO Fördelar och nackdelar`
-- komplext att göra optimeringar för generella databasfrågor
-- saknat stöd för mer avancerade beräkningar på databasnivå
-- svårighet att anrop begripliga och pedagogiska på grund av komplexitet
+## Aggregatstatistik [/api/aggregate]
+> __Det här avsnittet är under uppbyggnad.__
 
-`TODO Snabbt få ut resultat i nystartade register och vid varibelförändringar`
+Med aggregat menas här resultat där rådata delas in i grupper och ett värde för varje grupp beräknas genom en aggregatfunktion, 
+till exempel medelvärde, summa eller antal. Gruppering kan göras på en eller två nivåer eller för alla värden (totalvärde).
 
-`TODO Experimentell datanalys`
+Ett exempel på aggregat är medelvärde av BMI per sjukhus och kön. Medelvärde är här aggregatfunktionen, BMI aggregerad variabel och sjukhus/kön grupperande variabler.
+Resultatet utgör då en hierarki med tre nivåer - sjukhus, kön och själva BMI-värdet för gruppen.
+Denna typ av statistik är mycket vanlig i kvalitetsregistersammanhang. Aggregat tas alltid fram för antingen riket, landstinget eller vårdenheten. 
+Någon annan filtrering är inte möjlig.
 
-### Hämta [GET /api/aggregate/{aShortName}/{aFormName}?apikey={APIKey}]
+Innan aggregatet beräknas görs en samkörning av relaterad data på så sätt att en *underliggande* registrering 
+har tillgång till sin *överliggande* registrerings data. 
+Detta gör att urval och uppdelning av resultatet kan göras på alla variabler i en registreringskedja.
+
+Detta api har sina begränsningar men har också fördelarna att det som brukare är relativt lätt att förstå 
+och att prestandan i normalfallet är mycket bra. Dessutom finns en mängd statistik tillgänglig omedelbart 
+från det att ett register startar och de första registreringarna kommit in. 
+Behövs större flexibilitet kan [skräddarsydd statistik](/#reference/statistik/skraddarsydd-statistik) användas
+men då behöver skript tas fram av statistiker för varje resultat.
+
+Adressering av aggregat görs på formen:
+
+```
+/api/aggregate/<Register>/<Formulärnamn>/<Omfång>/<Aggregator>/<X-variabel>/<Y-variabel>
+```
+
+Man kan se retunerat resultat som en korstabell. Man kan ange både X- och Y-variabel eller enbart X *eller* ingen grupperande variabel alls. 
+Om både X- och Y-variabel anges blir resultat i ”tvådimensionellt” enligt strukturen:
+|x/y|y1 |y2 |y3 |...
+|-  |-  |-  |-  |-
+|x1 |5  |6  |3  |...
+|x2 |2  |8  |4  |...
+|x3 |0  |1  |6  |...
+|...|...|...|...|...
+
+|Segment                |Förklaring
+|-                      |-
+|Register               |Registrets kortnam, till exempel ”LVR”, ”SHPR”, ”BOA”.
+|Formulärnamn           |Namn på formuläret som aggregatet skall utgå ifrån, till exempel ”Visit”. Notera att även samtliga variabler i överliggande formulär finns tillgängliga.
+|Omfång                 |Vilket omfång dataunderlaget skall ha - riket (`total`), egna landstinget (`county`) eller egna vårdenheten (`unit`).
+|Aggregator             |Den variabel som skall aggregeras tillsammans med aggregerande funktion. Om man enbart skall räkna antal registreringar kan denna uteslutas. Se beskrivning av aggregator nedan.
+|X-variabel             |Första variabel att gruppera efter (ej obligatorisk).
+|Y-variabel             |Andra variabel att gruppera efter (ej obligatorisk).
+
+
+#### Aggregator
+En aggregator används för att dels specificera vad som skall beräknas, dels på vilken variabel. I vissa fall kan man även dela in data från underliggande variabel 
+med brytpunkt eller lista av värden. Formen för en aggregator är:
+<!--
+```
+<aggregator> :: <aggregatingFunction>([<aggregatorExpression>])
+<aggregatingFunction> :: {count|subjectcount|usercount|unitcount|transfercount|mean|sum|min|max|stdev}
+<aggregatorExpression> :: <simpleVariable>|<simpleVariable>(<breakpointValue>)|<simpleVariable>(<listValue1, listValue2, ...)
+<breakpointValue> :: <numerical>
+<listValue> :: <integer>
+```
+-->
+```
+<AggregatorFunktion>([<Aggregatorvariabel>[({<Brytpunkt>|<ListVärde1>,<ListVärde2>,...}])])
+```
+
+|Aggregatorfunktion |Värde för aktuell gruppering
+|-                  |-
+|count              |Antal registreringar
+|subjectcount       |Antal subjekt (patienter)
+|usercount          |Antal användare
+|unitcount          |Antal vårdenheter
+|transfercount      |Antal direktöverförda registreringar (via rollen Dataleverantör)
+|mean               |Medelvärde
+|sum                |Summa
+|min                |Minsta värde
+|max                |Största värde
+|stdev              |Standardavvikelse
+
+För alla `count`-funktioner
+
+`TODO: exempel`
+
+### Hämta [GET /api/aggregate/{aShortName}/{aFormName}/{aScopeSpecifier}?apikey={APIKey}]
 + Parameters
     + aShortName: `LVR` (string) - Registrets kortnamn.
     + aFormName: `Visit` (string) - Formulär att utgå från (variabler från överliggande formulär finns också tillgängliga).
+    + aScopeSpecifier: `total` (enum[string]) - Urvalets avgränsning (riket, landstinget eller vårdenheten).
+        + Members
+            + `total`
+            + `county`
+            + `unit`
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
         {
         }
 
-## Skräddarsydd statistik via R [/api/statistics]
+## Skräddarsydd statistik [/api/statistics]
 
 För mer avancerad statistik än den som går att ta fram via [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) 
-finns stöd för att returnera resultat från R-skript. 
+finns stöd för exekvering av R-skript via Stratums R-server. 
 Likt övriga anrop retuneras endast resultat i JSON-format, inte bilder eller 
 andra typer av resurser. Detta för att få så generellt användningsområde och hög återanvändbarhet som möjligt.
 
@@ -1543,10 +1834,10 @@ Notera att:
 - Skript måste sparas som UTF-8. Detsamma gäller även strängliteraler. Allting i textform som överförs från Stratum är redan i UTF-8, till exmpel varibel- och värdeetiketter.
 - Namn på R-skript kan enbart bestå av gemener. Lämpligt är att använda den syntax som är vanligast för webbapplikationer, det vill enbart gemener med streck (minustecken) mellan ord, till exempel `number-of-registrations.R`.
 - Filändelsen på ett R-skriptet skall vara `.R`, __inte__ `.r`.
-- Eventuella parametrar alltid överförs som strängar (en följd av att de överförs från adressen till api-anropet).
+- Eventuella parametrar överförs alltid som text (en följd av att de överförs från adressen till api-anropet). Det finns med andra ord ingen typhantering.
 
 För något resultat skall levereras ut _måste_ målgrupp specificeras, vilket görs genom att tilldela den globala 
-variabeln `Scope` ett värde (notera att `<<-` används, inte `<-` i exemplet ovan). `Scope` skall tilldelas ett av nedanstående värden:
+variabeln `Scope` ett värde (notera i exemplet ovan att `<<-` används, inte `<-`). `Scope` skall tilldelas ett av nedanstående värden:
 
 |Scope      |Förklaring
 |-          |-
@@ -1673,17 +1964,25 @@ Alla parametrar överförs som textsträngar.
 
 # Group Konfigurationer
 
-## Generiska funktioner [/api/configurations/globals]
+## Basfunktioner [/api/configurations/globals]
+> __Det här avsnittet är under uppbyggnad.__
+
 En uppsättning funktioner av generisk karaktär i Stratum, till exempel datumkonvertering, ålders-/könsberäkning, ägarregistrering, underregistreringar. 
-Även användbara attribut såsom Stratumversion och aktuellt produktionsläge är inkluderade. API-nyckel behöves inte för detta anrop.
+Dessa används ofta av beräknings- och valideringskript i bland annat Stratums registreringsapplikation och diverse [promgramkomponenter](#reference/komponenter).
+Inkluderar även Stratumversion och aktuellt produktionsläge. API-nyckel behöves inte för detta anrop.
 
 ### Hämta [GET]
 + Response 200 (application/json)
 
         {
-            "StratumVersion": "2.78.3708",
-            "DeploymentMode": "PROD",
-            "Methods": [...]
+            "data": {
+                "StratumVersion": "2.78.3708",
+                "DeploymentMode": "PROD",
+                "Methods": [...]
+            },
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
 ## Huvudnavigation [/api/configurations/navigation/{aSiteID}?apikey={anAPIKey}]
@@ -1695,100 +1994,105 @@ Hierarkisk navigation för ett registers webbplats.
     + anAPIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
 
-        [
-            {
-                "leaf": true,
-                "id": 1001,
-                "level": 0,
-                "text": "Om Stratum",
-                "children": null
-            },
-            {
-                "leaf": true,
-                "id": 1097,
-                "level": 0,
-                "text": "Kontakta oss",
-                "children": null
-            },
-            {
-                "leaf": true,
-                "id": 1863,
-                "level": 0,
-                "text": "Registerförteckning",
-                "children": null
-            },
-            {
-                "leaf": false,
-                "id": 1661,
-                "level": 0,
-                "text": "Dokumentation",
-                "children": [...]
-            },
-            {
-                "leaf": false,
-                "id": 1856,
-                "level": 0,
-                "text": "Administration",
-                "children": [
-                    {
-                        "leaf": true,
-                        "id": 1336,
-                        "level": 1,
-                        "text": "Dina resurser",
-                        "children": null
-                    },
-                    {
-                        "leaf": true,
-                        "id": 2126,
-                        "level": 1,
-                        "text": "Registerutdrag",
-                        "children": null
-                    }
-                ]
-            },
-            {
-                "leaf": false,
-                "id": 1743,
-                "level": 0,
-                "text": "Internt",
-                "children": [...]
-            }
-        ]
+        {
+            "data": [
+                {
+                    "leaf": true,
+                    "id": 1001,
+                    "level": 0,
+                    "text": "Om Stratum",
+                    "children": null
+                },
+                {
+                    "leaf": true,
+                    "id": 1097,
+                    "level": 0,
+                    "text": "Kontakta oss",
+                    "children": null
+                },
+                {
+                    "leaf": true,
+                    "id": 1863,
+                    "level": 0,
+                    "text": "Registerförteckning",
+                    "children": null
+                },
+                {
+                    "leaf": false,
+                    "id": 1661,
+                    "level": 0,
+                    "text": "Dokumentation",
+                    "children": [...]
+                },
+                {
+                    "leaf": false,
+                    "id": 1856,
+                    "level": 0,
+                    "text": "Administration",
+                    "children": [
+                        {
+                            "leaf": true,
+                            "id": 1336,
+                            "level": 1,
+                            "text": "Dina resurser",
+                            "children": null
+                        },
+                        {
+                            "leaf": true,
+                            "id": 2126,
+                            "level": 1,
+                            "text": "Registerutdrag",
+                            "children": null
+                        }
+                    ]
+                },
+                {
+                    "leaf": false,
+                    "id": 1743,
+                    "level": 0,
+                    "text": "Internt",
+                    "children": [...]
+                }
+            ],
+            "success": true,
+            "message": null,
+            "code": 0
+        }
 
 ## Applikationsnavigation [/api/configurations/navigation/scoped/{aSiteID}]
-> ___Stark autentisering krävs___
+> __Det här avsnittet är under uppbyggnad.__
 
 Navigation för registreringsapplikationen. Se avsnittet om [sidadressering](#reference/sidadressering) för en förklaring till attributet `PageScope`.
-Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt när man startar registrerinsapplikationen. Denna navigation  
-är en flat struktur till skillnad från [huvudnavigationen](#reference/ovrigt/huvudnavigation) som kan vara hierarkisk.
+Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt när man startar registreringsapplikationen. Denna navigation är en flat struktur 
+till skillnad från [huvudnavigationen](#reference/ovrigt/huvudnavigation) som kan vara hierarkisk.
 
 ### Hämta[GET]
 + Parameters
     + aSiteID: `100` (number) - Webbplatsens identifierare.
 + Response 200 (application/json)
 
-        [
-            {
-                "PageID": 1797,
-                "PageTitle": "Vår sida",
-                "PageScope": 1
-            },
-            {
-                "PageID": 2057,
-                "PageTitle": "Information",
-                "PageScope": 2
-            }
-        ]
+        {
+            "data": [
+                {
+                    "PageID": 1797,
+                    "PageTitle": "Vår sida",
+                    "PageScope": 1
+                },
+                {
+                    "PageID": 2057,
+                    "PageTitle": "Information",
+                    "PageScope": 2
+                }
+            ],
+            "success": true,
+            "message": null,
+            "code": 0
+        }
 
 # Group Komponenter
-> _Obs! Denna sektion är bara påbörjad._
-
-`TODO beskrivning av widgets`
 
 ## Komponenter [/api/widgets]
-> _Obs! Denna sektion är bara påbörjad._
-
-`TODO Komponenter`
+> __Det här avsnittet är under uppbyggnad.__
 
 ### Hämta[GET]
 + Response 200 (application/json)
@@ -1797,9 +2101,6 @@ Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt nä
         }
 
 # Group Bjudningar
-> _Obs! Denna sektion är bara påbörjad._
-
-`TODO beskrivning av proxies`
 
 Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”ReplyStatus”):
 
@@ -1814,12 +2115,11 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 |12     |2:a påminnelse skickad
 |99     |Utgår
 |100    |Besvarad
-|110    |Avbruten
+|110    |Avbruten (manuellt)
+|111    |Avbruten (automatiskt)
 
 ## Bjudningar [/api/proxies]
-> _Obs! Denna sektion är bara påbörjad._
-
-`TODO Bjudningar`
+> __Det här avsnittet är under uppbyggnad.__
 
 ### Hämta[GET]
 + Response 200 (application/json)
@@ -1830,7 +2130,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 # Group Sidadressering
 Alla adresser i Stratum gåt att direktadressera, det vill säga en URL kan kopieras från en webbläsare till en annan och rätt innehåll kommer att visas
 (under förutsättning att autentiseringen är korrekt och behörighet finns).
-Sidor kan också finnas i olika sammanhang (se [förklaring av](#PageScope) av `PageScope` och av entiteten [`Sida`](#reference/metadata/sida)).
+Sidor kan också finnas i olika sammanhang (se förklaring av [`PageScope`](#PageScope) och av entiteten [`Sida`](#reference/metadata/sida)).
 
 Vid direktadressering kommer tillhörande Stratum-funktioner laddas in automatiskt om de inte redan är inladdade. Utöver sidinnehåll kan även tomma 
 registreringsformulär och befintliga registreringar adresseras för både patientbundna och enhetsbundna registreringar. Generellt gäller 
