@@ -1716,11 +1716,14 @@ och ställa samman egna resultat från dessa.
 
 Med aggregat menas här resultat där rådata delas in i grupper och ett värde för varje grupp beräknas genom en aggregatfunktion, 
 till exempel medelvärde, summa eller antal. Gruppering kan göras på en eller två nivåer eller för alla värden (totalvärde).
+Denna typ av statistik är mycket vanlig i kvalitetsregistersammanhang. 
 
-Ett exempel på aggregat är medelvärde av BMI per sjukhus och kön. Medelvärde är här aggregatfunktionen, BMI aggregerad variabel och sjukhus/kön grupperande variabler.
-Resultatet utgör då en hierarki med tre nivåer - sjukhus, kön och själva BMI-värdet för gruppen.
-Denna typ av statistik är mycket vanlig i kvalitetsregistersammanhang. Aggregat tas alltid fram för antingen riket, landstinget eller vårdenheten. 
-Någon annan filtrering är inte möjlig.
+Ett exempel på aggregat är ”medelvärde av BMI per sjukhus och kön”. Medelvärde är här aggregatfunktionen, BMI aggregerad variabel och sjukhus/kön grupperande variabler.
+Resultatet utgör då en hierarki med tre nivåer - sjukhus, kön och själva BMI-värdet för gruppen (kombinationen sjukhus/kön i detta fall).
+Aggregat tas alltid fram för antingen riket, landstinget eller vårdenheten. 
+Utöver användning av [brytpunkt och värdelista](#Breakpoint) är inte någon annan filtrering möjlig.
+Vilket landsting och vårdenhet ges av den kontext anroparen är inloggad som,
+och i fallet för anonyma användare, av den vårdenhet som api-nyckeln är utgiven till.
 
 Innan aggregatet beräknas görs en samkörning av relaterad data på så sätt att en *underliggande* registrering 
 har tillgång till sin *överliggande* registrerings data. 
@@ -1738,28 +1741,22 @@ Adressering av aggregat görs på formen:
 /api/aggregate/<Register>/<Formulärnamn>/<Omfång>/<Aggregator>/<X-variabel>/<Y-variabel>
 ```
 
-Man kan se retunerat resultat som en korstabell. Man kan ange både X- och Y-variabel eller enbart X *eller* ingen grupperande variabel alls. 
-Om både X- och Y-variabel anges blir resultat i ”tvådimensionellt” enligt strukturen:
-|x/y|y1 |y2 |y3 |...
-|-  |-  |-  |-  |-
-|x1 |5  |6  |3  |...
-|x2 |2  |8  |4  |...
-|x3 |0  |1  |6  |...
-|...|...|...|...|...
+|Segment        |Förklaring
+|-              |-
+|Register       |Registrets kortnamn, till exempel ”LVR”, ”SHPR”, ”BOA”.
+|Formulärnamn   |Namn på formuläret som aggregatet utgår från, till exempel ”Visit”, ”Operation”.
+|Omfång         |Underlagets omfång - riket (`total`), landstinget (`county`) eller vårdenheten (`unit`).
+|Aggregator     |Den variabel som skall aggregeras tillsammans med [aggregerande funktion](#Aggregator).
+|X-variabel     |Första variabel att gruppera efter.
+|Y-variabel     |Andra variabel att gruppera efter.
 
-|Segment                |Förklaring
-|-                      |-
-|Register               |Registrets kortnam, till exempel ”LVR”, ”SHPR”, ”BOA”.
-|Formulärnamn           |Namn på formuläret som aggregatet skall utgå ifrån, till exempel ”Visit”. Notera att även samtliga variabler i överliggande formulär finns tillgängliga.
-|Omfång                 |Vilket omfång dataunderlaget skall ha - riket (`total`), egna landstinget (`county`) eller egna vårdenheten (`unit`).
-|Aggregator             |Den variabel som skall aggregeras tillsammans med aggregerande funktion. Om man enbart skall räkna antal registreringar kan denna uteslutas. Se beskrivning av aggregator nedan.
-|X-variabel             |Första variabel att gruppera efter (ej obligatorisk).
-|Y-variabel             |Andra variabel att gruppera efter (ej obligatorisk).
+Man kan ange både X- och Y-variabel eller enbart X *eller* ingen grupperande variabel alls. 
+Resultat kan ses som en matris om både X- och Y-variabel anges, som en vektor med enbart X-variabel, och som ett enskilt värde om ingen av variablerna anges (totalvärde).
 
-
+<a name="Aggregator"></a>
 #### Aggregator
-En aggregator används för att dels specificera vad som skall beräknas, dels på vilken variabel. I vissa fall kan man även dela in data från underliggande variabel 
-med brytpunkt eller lista av värden. Formen för en aggregator är:
+En aggregator används dels för att specificera vad som skall beräknas, dels på vilken variabel. I vissa fall kan man även avgränsa data från underliggande variabel 
+med en [brytpunkt eller värdelista](#Breakpoint). Formen för en aggregator är:
 <!--
 ```
 <aggregator> :: <aggregatingFunction>([<aggregatorExpression>])
@@ -1773,22 +1770,45 @@ med brytpunkt eller lista av värden. Formen för en aggregator är:
 <AggregatorFunktion>([<Aggregatorvariabel>[({<Brytpunkt>|<ListVärde1>,<ListVärde2>,...}])])
 ```
 
-|Aggregatorfunktion |Värde för aktuell gruppering
+|Aggregatorfunktion |Gruppvärde
 |-                  |-
 |count              |Antal registreringar
+|share              |Andel av totala antalet
 |subjectcount       |Antal subjekt (patienter)
 |usercount          |Antal användare
 |unitcount          |Antal vårdenheter
-|transfercount      |Antal direktöverförda registreringar (via rollen Dataleverantör)
+|transfercount      |Antal direktöverförda registreringar (registrerade i rollen Dataleverantör)
 |mean               |Medelvärde
 |sum                |Summa
 |min                |Minsta värde
 |max                |Största värde
 |stdev              |Standardavvikelse
 
-För alla `count`-funktioner
+De aggregatfunktioner som räknar antal kan alla anropas utan någon variabelparameter. För övriga är det ett krav.
+Då en variabel specificeras för `count`-funktionerna så avgränsas underlaget till de registreringar som har värden på aktuell variabel,
+till exempel om `count` returnerar antal registreringar, innebär `count(x)` antal registreringar _där variabel x har ett värde_.
 
-`TODO: exempel`
+När man adresserar tidsvariabler (datum och tidsstämpel) finns en del datumfunktioner tillgängliga:
+
+|Datumfunktion      |Förklaring
+|-                  |-
+|`year(x)`          |Årtal, till exempel `2017`
+|`quarter(x)`       |Årtal och kvartal, till exempel `2017-Q1`
+|`month(x)`         |Årtal och månad, till exempel `2017-12`
+|`week(x)`          |Årtal och vecka, till exempel `2017-45`
+
+<a name="Breakpoint"></a>
+##### Brytpunkt och värdelista
+För `share`- och `count`-funktioner så kan man utöver att specificera en variabel också ange en brytpunkt eller en uppräkning av värden.
+I båda fallen så avgränsas underlaget till de registreringar som har värden under brytpunkten respektive inom listan av värden.
+Till exempel `count(x(4.2))` avser antal registreringar där `x` ligger under (_men inte på_) värdet `4.2`.
+Uttrycket `count(x(3,4,5))` avser på liknande sätt antal registreringar där `x` har värdet 3, 4 eller 5.
+
+Som brytpunkt kan även `null` anges och betyder registreringar där variabelvärde saknas, till exempel `count(x(null))` returnerar
+antal registreringar som saknar värde på `x`. Metoden kan användas för att analysera saknade värden för 
+väsentliga variabler, till exempel uppdelat på vårdenhet.
+
+> `TODO: exempel`
 
 ### Hämta [GET /api/aggregate/{aShortName}/{aFormName}/{aScopeSpecifier}?apikey={APIKey}]
 + Parameters
@@ -1965,8 +1985,6 @@ Alla parametrar överförs som textsträngar.
 # Group Konfigurationer
 
 ## Basfunktioner [/api/configurations/globals]
-> __Det här avsnittet är under uppbyggnad.__
-
 En uppsättning funktioner av generisk karaktär i Stratum, till exempel datumkonvertering, ålders-/könsberäkning, ägarregistrering, underregistreringar. 
 Dessa används ofta av beräknings- och valideringskript i bland annat Stratums registreringsapplikation och diverse [promgramkomponenter](#reference/komponenter).
 Inkluderar även Stratumversion och aktuellt produktionsläge. API-nyckel behöves inte för detta anrop.
@@ -1986,7 +2004,9 @@ Inkluderar även Stratumversion och aktuellt produktionsläge. API-nyckel behöv
         }
 
 ## Huvudnavigation [/api/configurations/navigation/{aSiteID}?apikey={anAPIKey}]
-Hierarkisk navigation för ett registers webbplats. 
+Navigation för ett registers webbplats. Attributet `level` anger vilken nivå i navigationen en sida förekommer.
+Navigationen kan vara hierarkisk och undersdior finns i attributet `children`.
+Själva sidinnehållet kan hämtas upp med `id` och anrop till metadata-api:et, se [exempel](#reference/metadata/sida/hamta).
 
 ### Hämta[GET]
 + Parameters
@@ -2060,11 +2080,9 @@ Hierarkisk navigation för ett registers webbplats.
         }
 
 ## Applikationsnavigation [/api/configurations/navigation/scoped/{aSiteID}]
-> __Det här avsnittet är under uppbyggnad.__
-
-Navigation för registreringsapplikationen. Se avsnittet om [sidadressering](#reference/sidadressering) för en förklaring till attributet `PageScope`.
+Navigation för sidor specifika för registreringsapplikationen. Se avsnittet om [sidadressering](#reference/sidadressering) för en förklaring till attributet `PageScope`.
 Minst en sida med `PageScope 1` måste finnas, eftersom denna visas initialt när man startar registreringsapplikationen. Denna navigation är en flat struktur 
-till skillnad från [huvudnavigationen](#reference/ovrigt/huvudnavigation) som kan vara hierarkisk.
+till skillnad från [huvudnavigationen](#reference/konfigurationer/huvudnavigation) som kan vara hierarkisk.
 
 ### Hämta[GET]
 + Parameters
@@ -2101,6 +2119,7 @@ till skillnad från [huvudnavigationen](#reference/ovrigt/huvudnavigation) som k
         }
 
 # Group Bjudningar
+> __Det här avsnittet är under uppbyggnad.__
 
 Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”ReplyStatus”):
 
@@ -2119,7 +2138,6 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 |111    |Avbruten (automatiskt)
 
 ## Bjudningar [/api/proxies]
-> __Det här avsnittet är under uppbyggnad.__
 
 ### Hämta[GET]
 + Response 200 (application/json)
