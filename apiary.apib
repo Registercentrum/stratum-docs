@@ -982,18 +982,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ## Sida [/api/metadata/pages]
 Entiteten `Page` används för att visa ett HTML-innehåll. Eftersom vanliga sidor (numera) hanteras via [Stratums CMS-system](https://cms.registercentrum.se)
-så används sidor endast i registrerinsapplikationen, och mestadels för att agera container åt programkomponenter. En programkomponent på en sida
-läggs in enligt nedanstående mönster:
-```
-...
-<div id="{{ Namn på komponentcontainer }}"></div>
-<script type="text/javascript">
-   // Kod som renderar en eller flera komponenter i komponentcontainern ovan.
-//! {{ Beskrivning av komponent som är begriplig av andra }}
-//# sourceURL="{{ Systemunikt komponentnamn på formen <ShortName>/<WidgetName> }}"
-</script>
-...
-```
+så används sidor endast i registrerinsapplikationen, och mestadels för att agera container åt programkomponenter (se [”komponenter”](/#reference/komponenter) nedan). 
 
 <a name="PageScope"></a>
 Det finns tre olika sammanhang en sida kan visas i, och som bestäms av attributet `PageScope`:
@@ -1813,15 +1802,15 @@ väsentliga variabler, till exempel uppdelat på vårdenhet.
 
 <!-- http://stratum.registercentrum.se/api/aggregate/TON/TonsilSurgeryOp/total/count?apikey=bK3H9bwaG4o= -->
 
-Några exempel från Tonsilloperationsregistret. Notera att
-om anroparen är tvåfaktorautentiserad så hämtas användare, vårdenhet och landsting från aktuella kontexten. 
+Nedan följer några exempel från Tonsilloperationsregistret. Notera att
+om anroparen är tvåfaktorautentiserad så hämtas vårdenhet och landsting från den aktuella kontexten. 
 I annat fall hämtas motsvarande från den api-nyckel som används.
 
 I exemplen nedan används en api-nyckel som är utställd på Registercentrum Västra Götaland och kan därför ge
 ett annat resultat än vad siffrorna i exemplen visar.
 
 
-### Antal registreringar [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count?apikey=J6b-GSKrkfk=]
+### Antal registreringar [GET /api/aggregate/TON/TonsilSurgeryOp/total/count?apikey=J6b-GSKrkfk=]
 Total antal registreringar i Tonsilloperationsregistrets operationsformulär.
 + Response 200 (application/json)
 
@@ -1832,7 +1821,7 @@ Total antal registreringar i Tonsilloperationsregistrets operationsformulär.
             "code": 0
         }
 
-### Antal registreringar för landstinget [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/county/count?apikey=J6b-GSKrkfk=]
+### Antal registreringar för landstinget [GET /api/aggregate/TON/TonsilSurgeryOp/county/count?apikey=J6b-GSKrkfk=]
 Antal registreringar för landstinget i Tonsilloperationsregistrets operationsformulär.
 + Response 200 (application/json)
 
@@ -1843,7 +1832,7 @@ Antal registreringar för landstinget i Tonsilloperationsregistrets operationsfo
             "code": 0
         }
 
-### Antal registreringar för vårdenheten [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/unit/count?apikey=J6b-GSKrkfk=]
+### Antal registreringar för vårdenheten [GET /api/aggregate/TON/TonsilSurgeryOp/unit/count?apikey=J6b-GSKrkfk=]
 Antal registreringar för vårdenheten i Tonsilloperationsregistrets operationsformulär.
 + Response 200 (application/json)
 
@@ -1854,7 +1843,7 @@ Antal registreringar för vårdenheten i Tonsilloperationsregistrets operationsf
             "code": 0
         }
 
-### Antal registreringar med vårdform ifylld [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count(CareForm)?apikey=J6b-GSKrkfk=]
+### Antal registreringar med vårdform ifylld [GET /api/aggregate/TON/TonsilSurgeryOp/total/count(CareForm)?apikey=J6b-GSKrkfk=]
 Antal registreringar i Tonsilloperationsregistrets operationsformulär där variabeln Vårdform är ifylld (det vill säga ”saknar *inte* värde”).
 + Response 200 (application/json)
 
@@ -1865,7 +1854,7 @@ Antal registreringar i Tonsilloperationsregistrets operationsformulär där vari
             "code": 0
         }
 
-### Andel registreringar där vårdform saknas [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/share(CareForm(null))?apikey=J6b-GSKrkfk=]
+### Andel registreringar där vårdform saknas [GET /api/aggregate/TON/TonsilSurgeryOp/total/share(CareForm(null))?apikey=J6b-GSKrkfk=]
 Andel (*inte* antal) registreringar i Tonsilloperationsregistrets operationsformulär där värde på variabeln Vårdform saknas.
 + Response 200 (application/json)
 
@@ -1877,7 +1866,7 @@ Andel (*inte* antal) registreringar i Tonsilloperationsregistrets operationsform
         }
 
 
-### Antal registreringar där vårdformen är slutenvård [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count(CareForm(2,3,4))?apikey=J6b-GSKrkfk=]
+### Antal registreringar där vårdformen är slutenvård [GET /api/aggregate/TON/TonsilSurgeryOp/total/count(CareForm(2,3,4))?apikey=J6b-GSKrkfk=]
 Antal registreringar i Tonsilloperationsregistrets operationsformulär där variabeln Vårdform har värdet 2, 3 eller 4 (slutenvård eller dagkirurgi konverterad till slutenvård).
 + Response 200 (application/json)
 
@@ -1888,16 +1877,107 @@ Antal registreringar i Tonsilloperationsregistrets operationsformulär där vari
             "code": 0
         }
 
-### Antal registreringar uppdelade på vårdform [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count/CareForm?apikey=J6b-GSKrkfk=]
-Antal registreringar i Tonsilloperationsregistrets operationsformulär där variabeln Vårdform har värdet 2, 3 eller 4 (slutenvård eller dagkirurgi konverterad till slutenvård).
+### Antal registreringar per vårdform [GET /api/aggregate/TON/TonsilSurgeryOp/total/count/CareForm?apikey=J6b-GSKrkfk=]
+Antal registreringar i Tonsilloperationsregistrets operationsformulär uppdelat på vårdform. Notera att även en post inkluderas för de som saknar värde (”null”).
 + Response 200 (application/json)
 
         {
-            "data": 31854,
+            "data": {
+                "null": 2082,
+                "Dagkirurgi": 56048,
+                "Dagkirurgi konverterad till slutenvård": 569,
+                "Slutenvård": 31252,
+                "Slutenvård som förlängts": 33
+            },
             "success": true,
             "message": null,
             "code": 0
         }
+    
+### Antal registreringar per operationsmetod och kön [GET /api/aggregate/TON/TonsilSurgeryOp/total/count/OpMethod/Sex?apikey=J6b-GSKrkfk=]
+Antal registreringar i Tonsilloperationsregistrets operationsformulär uppdelat på kön och operationsmetod. 
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "null": {
+                    "Kvinna": 708,
+                    "Man": 703
+                },
+                "Tonsillektomi + abrasio EMB20": {
+                    "Kvinna": 6219,
+                    "Man": 7632
+                },
+                "Tonsillektomi EMB10": {
+                    "Kvinna": 22461,
+                    "Man": 15575
+                },
+                "Tonsillotomi + abrasio EMB15+EMB30": {
+                    "Kvinna": 13288,
+                    "Man": 17867
+                },
+                "Tonsillotomi EMB15": {
+                    "Kvinna": 2684,
+                    "Man": 2847
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
+### Andel kvinnor per operationsmetod  [GET /api/aggregate/TON/TonsilSurgeryOp/total/share(Sex(2))/OpMethod?apikey=J6b-GSKrkfk=]
+Andel registreringar i Tonsilloperationsregistrets operationsformulär där registrerat kön är Kvinna (2), uppdelat operationsmetod. 
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "null": 0.5017717930545712,
+                "Tonsillektomi + abrasio EMB20": 0.44899285250162441,
+                "Tonsillektomi EMB10": 0.59051950783468288,
+                "Tonsillotomi + abrasio EMB15+EMB30": 0.42651259829882843,
+                "Tonsillotomi EMB15": 0.48526487072862051
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
+### Genomsnittligt tid till blödning efter operation per operationsmetod  [GET /api/aggregate/TON/TonsilSurgery30/total/mean(BleedPostOp)/OpMethod?apikey=J6b-GSKrkfk=]
+Medelvärde av variabeln `BleedPostOp` (”Hur många dagar efter operationen började det blöda?”) uppdelat på operationsmetod.
+*Notera att denna fråga utgår från uppföljningsformuläret (30 dagar) men använder en variabel i tillhörande operationsformulär (`OpMethod`).*
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "Tonsillektomi + abrasio EMB20": 0.62985237834882446,
+                "Tonsillektomi EMB10": 1.4284405350925418,
+                "Tonsillotomi + abrasio EMB15+EMB30": 0.2111361441905375,
+                "Tonsillotomi EMB15": 0.40361445783132532
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
+### Genomsnittlig ålder per huvudsaklig indikation  [GET /api/aggregate/TON/TonsilSurgeryOp/total/mean(OpAge)/MainIndication?apikey=J6b-GSKrkfk=]
+Medelvärde av ålder vid operation (`OpAge`) uppdelat på huvudsaklig indikation (`MainIndication`). Median finns inte tillgänglig.
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "Annat": 27.997279651795431,
+                "Kronisk tonsillit": 22.559285131089538,
+                "Luftvägsobstruktion/snarkning/hypertrofa tonsiller": 7.6889308036539816,
+                "Peritonsillit": 26.490990990990991,
+                "Systemkomplikation till tonsillit": 20.554455445544555,
+                "Upprepade tonsilliter": 18.3834247762056
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
 
 ## Skräddarsydd statistik [/api/statistics]
 
@@ -2197,12 +2277,82 @@ till skillnad från [huvudnavigationen](#reference/konfigurationer/huvudnavigati
 ## Komponenter [/api/widgets]
 > __Det här avsnittet är under uppbyggnad.__
 
-### Hämta[GET]
+För att kunna erbjuda flexibilitet i en applikationsplattform som Stratum behövs möjligheten att kunna skjuta in ny funktionalitet utan att behöva förändra plattformen i sig.
+Våra programkomponenter, eller ”widgets” som de också kallas, erbjuder just detta.
+Komponenter kan antingen vara generiska, så att de kan återanvändas till flera register, eller skräddarsydda för att lösa ett registers specifika behov.
+Exempel på generiska komponenter är Patientöversikten och Användarhanteraren. Dessa återanvänds mellan register och kan konfigureras för att passa varje enskilt register.
+
+De flesta register som göra är dock skräddarsydda för registerspecifika ändamål. Typexemplet är presentationer och visualiseringar av registerdata &mdash; allt från enstaka diagram till 
+hela ”dashboards”, ofta med sofistikerade, pedagogiska användargränssnitt för att bli så tillgängliga som möjligt för registrens användare. Andra exempel är att
+administrera patientlistor, registrera implantatkomponenter eller utföra beräkningar utifrån data som matas in.
+
+Programkoden bakom varje komponent finns på en [sida](/#reference/metadata/sida), och en sida kan innehålla mer än en komponent. 
+På sidan läggs den in enligt nedanstående mönster:
+```
+...
+<div id="{{ Namn på komponentcontainer }}"></div>
+<script type="text/javascript">
+   // Kod som renderar en eller flera komponenter i komponentcontainern ovan.
+//! {{ Beskrivning av komponent som är begriplig av andra }}
+//# sourceURL="{{ Systemunikt komponentnamn på formen <Registerförkortning>/<Komponentnamn> }}"
+</script>
+...
+```
+
+
+
+### Hämta alla [GET]
 + Response 200 (application/json)
 
         {
+          "data": [
+            {
+              "PageID": 1836,
+              "WidgetSlug": "BOA/ResearchOverview",
+              "Description": "Projektdatabasen - information om planerade, pågående och publicerade projekt med utgångspunkt i register anslutna till Registercentrum Västra Götaland. Registerbaserad forskning. Vetenskapliga artiklar.\r"
+            },
+            {
+              "PageID": 2315,
+              "WidgetSlug": "HNSV/AudiologyBaseline",
+              "Description": ""
+            },
+            {
+              "PageID": 2539,
+              "WidgetSlug": "KRH/ComponentsUsed",
+              "Description": "SHPRs företagsmodul: volymer"
+            },
+            {
+              "PageID": 2576,
+              "WidgetSlug": "KRH/RevisionScope",
+              "Description": "SHPRs företagsmodul: revisionsutfall"
+            },
+            {
+              "PageID": 2007,
+              "WidgetSlug": "LVR/TransfersPerMonth",
+              "Description": "Statistik över vårdenheter med direktöverförda registreringar i LVR.\r"
+            },
+            {
+              "PageID": 1001,
+              "WidgetSlug": "RC/NumberOfRegistrations",
+              "Description": "Visar diagram över antal registreringar i Stratum per månad senaste året."
+            },
+            {
+              "PageID": 1808,
+              "WidgetSlug": "RC/ProjectDatabase",
+              "Description": "Projektdatabasen - information om planerade, pågående och publicerade projekt med utgångspunkt i register anslutna till Registercentrum Västra Götaland. Registerbaserad forskning. Vetenskapliga artiklar."
+            },
+            {
+              "PageID": 1728,
+              "WidgetSlug": "RC/SubjectOverview",
+              "Description": "Generisk registreringsöversikt som i listform visar ett fast antal filtrerbara och sorterbara värden från samtliga registreringar på aktuell vårdenhet"
+            }
+          ],
+          "success": true,
+          "message": null,
+          "code": 0
         }
-
+        
+        
 # Group Bjudningar
 > __Det här avsnittet är under uppbyggnad.__
 
