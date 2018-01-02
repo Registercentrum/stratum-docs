@@ -1735,6 +1735,9 @@ från det att ett register startar och de första registreringarna kommit in.
 Behövs större flexibilitet kan [skräddarsydd statistik](/#reference/statistik/skraddarsydd-statistik) användas
 men då behöver skript tas fram av statistiker för varje resultat.
 
+> Observera att för värden bundna till uppräkningsdomän så används alltid namnet på värdet istället för dess kod. 
+> På så sätt blir det enklare att arbeta med begripliga texter i till exempel ett användargränsnitt utan att manuellt behöva översätta kodade värden.
+
 Adressering av aggregat görs på formen:
 
 ```
@@ -1808,21 +1811,92 @@ Som brytpunkt kan även `null` anges och betyder registreringar där variabelvä
 antal registreringar som saknar värde på `x`. Metoden kan användas för att analysera saknade värden för 
 väsentliga variabler, till exempel uppdelat på vårdenhet.
 
-> `TODO: exempel`
+<!-- http://stratum.registercentrum.se/api/aggregate/TON/TonsilSurgeryOp/total/count?apikey=bK3H9bwaG4o= -->
 
-### Hämta [GET /api/aggregate/{aShortName}/{aFormName}/{aScopeSpecifier}?apikey={APIKey}]
-+ Parameters
-    + aShortName: `LVR` (string) - Registrets kortnamn.
-    + aFormName: `Visit` (string) - Formulär att utgå från (variabler från överliggande formulär finns också tillgängliga).
-    + aScopeSpecifier: `total` (enum[string]) - Urvalets avgränsning (riket, landstinget eller vårdenheten).
-        + Members
-            + `total`
-            + `county`
-            + `unit`
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+Några exempel från Tonsilloperationsregistret. Notera att
+om anroparen är tvåfaktorautentiserad så hämtas användare, vårdenhet och landsting från aktuella kontexten. 
+I annat fall hämtas motsvarande från den api-nyckel som används.
+
+I exemplen nedan används en api-nyckel som är utställd på Registercentrum Västra Götaland och kan därför ge
+ett annat resultat än vad siffrorna i exemplen visar.
+
+
+### Antal registreringar [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count?apikey=J6b-GSKrkfk=]
+Total antal registreringar i Tonsilloperationsregistrets operationsformulär.
 + Response 200 (application/json)
 
         {
+            "data": 89984,
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Antal registreringar för landstinget [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/county/count?apikey=J6b-GSKrkfk=]
+Antal registreringar för landstinget i Tonsilloperationsregistrets operationsformulär.
++ Response 200 (application/json)
+
+        {
+            "data": 14233,
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Antal registreringar för vårdenheten [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/unit/count?apikey=J6b-GSKrkfk=]
+Antal registreringar för vårdenheten i Tonsilloperationsregistrets operationsformulär.
++ Response 200 (application/json)
+
+        {
+            "data": 3576,
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Antal registreringar med vårdform ifylld [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count(CareForm)?apikey=J6b-GSKrkfk=]
+Antal registreringar i Tonsilloperationsregistrets operationsformulär där variabeln Vårdform är ifylld (det vill säga ”saknar *inte* värde”).
++ Response 200 (application/json)
+
+        {
+            "data": 87902,
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Andel registreringar där vårdform saknas [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/share(CareForm(null))?apikey=J6b-GSKrkfk=]
+Andel (*inte* antal) registreringar i Tonsilloperationsregistrets operationsformulär där värde på variabeln Vårdform saknas.
++ Response 200 (application/json)
+
+        {
+            "data": 0.023137446657183498,
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+
+### Antal registreringar där vårdformen är slutenvård [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count(CareForm(2,3,4))?apikey=J6b-GSKrkfk=]
+Antal registreringar i Tonsilloperationsregistrets operationsformulär där variabeln Vårdform har värdet 2, 3 eller 4 (slutenvård eller dagkirurgi konverterad till slutenvård).
++ Response 200 (application/json)
+
+        {
+            "data": 31854,
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Antal registreringar uppdelade på vårdform [GET /api/aggregate/api/aggregate/TON/TonsilSurgeryOp/total/count/CareForm?apikey=J6b-GSKrkfk=]
+Antal registreringar i Tonsilloperationsregistrets operationsformulär där variabeln Vårdform har värdet 2, 3 eller 4 (slutenvård eller dagkirurgi konverterad till slutenvård).
++ Response 200 (application/json)
+
+        {
+            "data": 31854,
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
 ## Skräddarsydd statistik [/api/statistics]
@@ -1892,11 +1966,18 @@ Parametrar som överförs är versalkänsliga, till exempel om Run-funktionen i 
 fungerar det inte att göra anrop med `/api/statistics/brimp/test?Diagnos=M16.1`.
 Alla parametrar överförs som textsträngar.
 
-### Exempel 1 - antal registreringar per status rökning i LVR [GET /api/statistics/{aShortName}/{aScriptName}?apikey={anAPIKey}]
-+ Parameters
-    + aShortName: `LVR` (string) - Registrets kortnamn.
-    + aScriptName: `test` (string) - R-skript att exekvera (utan .R i slutet).
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+Exempel på anrop:
+
+### Antal registreringar per status rökning i LVR [GET /api/statistics/LVR/test?apikey=J6b-GSKrkfk=]
+R-skript som exekveras:
+```
+Run <- function() {
+  Load("LVR/.RData")
+  Scope <<- 1
+  table(Map(data$Smoking))
+}
+```
+
 + Response 200 (application/json)
 
         {
@@ -1914,12 +1995,16 @@ Alla parametrar överförs som textsträngar.
           "code": 0
         }
         
-### Exempel 2 - antal registreringar per led och kön i BOA [GET /api/statistics/{aShortName}/{aScriptName}/{aVersion}?apikey={anAPIKey}]
-+ Parameters
-    + aShortName: `BOA` (string) - Registrets kortnamn.
-    + aScriptName: `test` (string) - R-skript att exekvera (utan .R i slutet).
-    + aVersion: `492` (optional, number) - Version av R-skript (senasta versionen om den utelämnas).
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+### Antal registreringar per led och kön i BOA [GET /api/statistics/BOA/test?apikey=J6b-GSKrkfk=]
+R-skript som exekveras:
+```
+Run <- function() {
+  Load("BOA/.RData"); 
+  Scope <<- 1; 
+  KV(table(Map(data$FVPat_WorstJoint), Map(data$FVPat_Sex)))
+}
+```
+
 + Response 200 (application/json)
 
         {
