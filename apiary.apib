@@ -1261,10 +1261,10 @@ På så sätt kan registreringar i två olika register länkas samman.
 
 ***Notera att med api-nyckel går det *inte* att skapa eller förändra registreringar.***
 
-### Hämta specifik registrering [GET /api/registrations/{anEventID}?apikey={anAPIKey}]
+### Hämta specifik registrering [GET /api/registrations/{EventID}?apikey={APIKey}]
 + Parameters
-    + anEventID: `10115713` (string, required) - Identifierare för aktuell registreringshändelse.
-    + anAPIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
+    + EventID: `10115713` (string, required) - Identifierare för aktuell registreringshändelse.
+    + APIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
@@ -1313,11 +1313,11 @@ På så sätt kan registreringar i två olika register länkas samman.
             "code": 0
         }
         
-### Hämta registreringar enligt sökkriterier [GET /api/registrations/form/{aFormID}?query={aQuery}&apikey={anAPIKey}]
+### Hämta registreringar enligt sökkriterier [GET /api/registrations/form/{FormID}?query={Query}&apikey={APIKey}]
 + Parameters
-    + aFormID: `2224` (string, required) - Identifierare för aktuellt formulär.
-    + aQuery: `C_StratumCode eq 215` (string) - Sökkriterier (se [förklaring](#Query)).
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel (för enhetsbundna registreringar).
+    + FormID: `2224` (string, required) - Identifierare för aktuellt formulär.
+    + Query: `C_StratumCode eq 215` (string) - Sökkriterier (se [förklaring](#Query)).
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
@@ -1356,12 +1356,12 @@ På så sätt kan registreringar i två olika register länkas samman.
             "code": 0
         }
         
-### Hämta mallformaterade registreringar [GET /api/registrations/form/{aFormID}?template={aTemplate}&query={aQuery}&apikey={anAPIKey}]
+### Hämta mallformaterade registreringar [GET /api/registrations/form/{FormID}?template={Template}&query={Query}&apikey={APIKey}]
 + Parameters
-    + aFormID: `2224` (string, required) - Identifierare för aktuellt formulär.
-    + aTemplate: `{C_ArticleNumber} - {C_Description}` (string, required) - Formateringmall (se [förklaring](#Template)).
-    + aQuery: `C_IsHalf eq 1,C_IsTotal eq 0` (string) - Sökkriterier (se [förklaring](#Query)).
-    + anAPIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
+    + FormID: `2224` (string, required) - Identifierare för aktuellt formulär.
+    + Template: `{C_ArticleNumber} - {C_Description}` (string, required) - Formateringmall (se [förklaring](#Template)).
+    + Query: `C_IsHalf eq 1,C_IsTotal eq 0` (string) - Sökkriterier (se [förklaring](#Query)).
+    + APIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
@@ -1376,10 +1376,10 @@ På så sätt kan registreringar i två olika register länkas samman.
           "code": 0
         }
 
-### Hämta alla registreringar för ett formulär [GET /api/registrations/form/{aFormID}?apikey={anAPIKey}]
+### Hämta alla registreringar för ett formulär [GET /api/registrations/form/{FormID}?apikey={APIKey}]
 + Parameters
-    + aFormID: `2187` (string, required) - Identifierare för aktuellt formulär.
-    + anAPIKey: `1YcBDBtMoKk=` (string) - API-nyckel (vid enhetsbundna registreringar).
+    + FormID: `2187` (string, required) - Identifierare för aktuellt formulär.
+    + APIKey: `1YcBDBtMoKk=` (string) - API-nyckel (vid enhetsbundna registreringar).
 + Response 200 (application/json)
 
         {
@@ -1432,10 +1432,10 @@ På så sätt kan registreringar i två olika register länkas samman.
         }
     
 
-### Skapa registrering via bjudning [POST /api/registrations?apikey={anAPIKey}&token={aToken}]
+### Skapa registrering via bjudning [POST /api/registrations?token={Token}&apikey={APIKey}]
 + Parameters
-    + anAPIKey: `J6b-GSKrkfk=` (string, required) - API-nyckel.
-    + aToken: `jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8` (string, required) - Identifierare till bjudning.
+    + Token: `jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8` (string, required) - Identifierare till bjudning.
+    + APIKey: `J6b-GSKrkfk=` (string, required) - API-nyckel.
 + Response 200 (application/json)
 
         {
@@ -1449,10 +1449,10 @@ På så sätt kan registreringar i två olika register länkas samman.
             "code": 0
         }
 
-### Uppdatera registrering [PUT /api/registrations/{anEventID}?apikey={anAPIKey}]
+### Uppdatera registrering [PUT /api/registrations/{EventID}?apikey={APIKey}]
 + Parameters
-    + anEventID: `10115713` (string) - Aktuell händelseidentifierare.
-    + anAPIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + EventID: `10115713` (string) - Aktuell händelseidentifierare.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
         {
@@ -2168,15 +2168,15 @@ Inkluderar även Stratumversion och aktuellt produktionsläge. API-nyckel behöv
             "code": 0
         }
 
-## Huvudnavigation [/api/configurations/navigation/{aSiteID}?apikey={anAPIKey}]
+## Huvudnavigation [/api/configurations/navigation/{SiteID}?apikey={APIKey}]
 Navigation för ett registers webbplats. Attributet `level` anger vilken nivå i navigationen en sida förekommer.
 Navigationen kan vara hierarkisk och undersdior finns i attributet `children`.
 Själva sidinnehållet kan hämtas upp med `id` och anrop till metadata-api:et, se [exempel](#reference/metadata/sida/hamta).
 
 ### Hämta[GET]
 + Parameters
-    + aSiteID: `100` (number) - Webbplatsens identifierare.
-    + anAPIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
+    + SiteID: `100` (number) - Webbplatsens identifierare.
+    + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
 
         {
@@ -2567,25 +2567,35 @@ Returnerar en lista med kort beskrivning av varje komponent som finns i Stratum.
 
 I Stratum finns diverse stöd för att hantera [patientrapporterade mått](http://rcso.se/patientmedverkan/prom/),
 eller PROM som det brukar kallas (efter ”Patient Reported Outcome Measures”). 
-PROM används till att mäta hur patienten själv upplever sin hälsa och används flitigt av kvalitetsregister
+PROM används flitigt av kvalitetsregister
 för att belysa patientens egen uppfattning om sin hälsa, till exempel före och efter en behandling.
-Detta mäter hälsoförbättring utifrån patientens eget perpektiv. 
+Detta mäter hälsoförändring utifrån patientens eget perpektiv. 
 När denna förändring relateras till kliniska faktorer i behandlingen kan det vara vägledande i rekommendation av 
-olika metoder, läkemedel eller material som bör används före, efter och under behandlingen.
+olika metoder, läkemedel eller material som bör används före, under och efter behandlingen.
 
 PROM kan vara både planerat, ofta efter någon typ av ingrepp eller besök, eller göras spontant vid besök 
 på en mottagning eller vårdcentral. För att veta vilka patienter som är föremål för PROM-enkät används något vi kallar bjudningar.
-En bjudning håller information om vilken patient som skall bjudas, vilken uppsättning frågor som vi vill få besvarade, 
+En bjudning håller information om vilken patient som skall bjudas, vilken uppsättning frågor registret vill få besvarade, 
 svarsstatus och eventuellt vilken registrering som initierat bjudningen.
 
-En av funktionerna i Stratum är att automatiskt generera bjudningar utifrån registerspecifika kriterier.
-Exempel kan vara 1-årsuppföljning efter höftprotesoperation eller 30-dagarsuppföljning efter tonsilloperation.
+En av funktionerna i Stratum är att automatiskt generera bjudningar utifrån registerspecifika kriterier,
+till exempel 1-årsuppföljning efter höftprotesoperation eller 30-dagarsuppföljning efter tonsilloperation.
 Vilka faktorer som skall trigga en bjudning konfigureras efter registrets behov. 
-Systemet också sköter att bjudningar tas bort där svar inte inkommit efter viss tid eller att patienten avlidit.
-I de flesta fall så görs bjudningar elektroniskt, det vill säga skicka ut via e-post.
+Systemet tar också automatiskt bort bjudningar där svar inte inkommit efter viss tid eller då patienten avlidit.
 
-Den andra formen av bjudningar
+I de flesta fall så görs bjudningar elektroniskt, det vill säga skickas ut via e-post. Stratum har ingen inbyggd hantering
+av e-postadresser så det är upp till registret att lagra dessa själva. Ofta gör det vid första PROM (som då hanteras manuellt) 
+eller vid initial registrering efter besök eller operation.
 
+Den andra formen av bjudningar är manuell vilket innebär att en patient som kommer till en mottagning kan bjudas PROM-enkät direkt 
+på plats via dator eller mobil enhet. Manuella bjudningar kan också göras av vårdpersonal som senare skickar ut dessa via 
+vanlig post.
+
+Oavsett bjudningssätt kan PROM besvaras antingen via den så kallade [PROM-applikationen](http://stratum.registercentrum.se/apps/publicregistrator/app.html) 
+av patienten själv, eller registreras som vanliga formulär via Stratums registreringsapplikation av vårdpersonal. 
+Det senare är ofta fallet om PROM besvaras via pappersformulär.
+
+<a name="ReplyStatus"></a>
 Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”ReplyStatus”):
 
 |Värde  |Betydelse
@@ -2602,11 +2612,166 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 |110    |Avbruten (manuellt)
 |111    |Avbruten (automatiskt)
 
-### Hämta[GET]
+### Hämta [GET /api/proxies/{ProxyID}]
++ Parameters
+    + ProxyID: `123456` (number) - Identifierare för aktuell bjudning.
++ Response 200 (application/json)
+    + Attributes
+        + data (Proxy)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta alla på vårdenehten [GET /api/proxies]
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Proxy])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta enkätunderlag [GET /api/proxies/survey?token={Token}&apikey={APIKey}]
++ Parameters
+    + Token: `jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8` (string) - Krypterad identifierare till aktuell bjudning.
+    + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
 
         {
+          "data": {
+            "Form": {
+              "FormID": 1008,
+              "FormName": "ThreeMonthsPatient",
+              "FormTitle": "Uppföljning 3 mån – patient",
+              "HelpNote": null,
+              "ValidationScript": null,
+              "Register": {
+                "RegisterID": 104,
+                "RegisterName": "BOA-registret",
+                "RegisterNameInEnglish": "The BOA Register",
+                "ShortName": "BOA",
+                "IsLookupBound": true,
+                "IsSubjectBound": true,
+                "IsUnderDevelopment": false,
+                "Site": {
+                  "SiteID": 204,
+                  "SiteName": "BOA-registret",
+                  "ThemeSettings": "{BaseColor:\"#18B3EC\",HeaderLogo:30230,HeaderTile:30225,BodyTile:30227,Skin:\"Light\"}",
+                  "Language": "sv",
+                  "Country": "SE",
+                  "StartPage": {
+                    "PageID": 1148,
+                    "PageTitle": "Registret flyttat",
+                    "PageLevel": 0,
+                    "PageOrder": 4,
+                    "PageScope": 0,
+                    "ModifiedAt": "2017-02-22T10:02:13.48"
+                  },
+                  "FirstPage": {
+                    "PageID": 1557,
+                    "PageTitle": "Översikt",
+                    "PageLevel": 0,
+                    "PageOrder": 20,
+                    "PageScope": 1,
+                    "ModifiedAt": "2017-03-07T11:31:42.337"
+                  }
+                }
+              },
+              "Questions": [
+                {
+                  "QuestionID": 22679,
+                  "ColumnName": "M3Pat_Date",
+                  "MappedTo": "EventDate",
+                  "PrefixText": "Datum för uppföljning",
+                  "SuffixText": null,
+                  "RunOnce": false,
+                  "Sequence": 20,
+                  "Position": 0,
+                  "Span": 6,
+                  "IsMandatory": true,
+                  "IsIdentifier": true,
+                  "DataType": "smalldatetime",
+                  "Level": 3,
+                  "HelpNote": null,
+                  "CalculationScript": null,
+                  "ValidationScript": "if (Global.ParentOf(Parent, History).StatPa_Status != 1) {\r\nreturn 'Patienten har avbrutit, uppdateringar är därför inte tillåtna.';\r\n}\r\n\r\nif (Global.ParseDate(Current.M3Pat_Date) < new Date(2007,11,31)) {\r\n\treturn 'Du kan inte registrera ett besöksdatum innan 2007-12-31';\r\n}\r\n\r\nvar currDate = Global.ParseDate(Current.M3Pat_Date);\r\nvar parDate = Global.ParseDate(Parent.FVPat_Date);\r\n\r\nvar currDateMo = (currDate)/1000/60/60/24;\r\nvar parDateMo = (parDate)/1000/60/60/24;\r\nvar parDateMo1 = parDateMo + 30;\r\nvar parDateMo6 = parDateMo + 184;\r\n\r\nif ((currDateMo < parDateMo1) || (currDateMo > parDateMo6)){\r\n\treturn 'Kontrollera datum för uppföljning. Ska vara max 6 månader från datum för första besök.';\r\n} else {\r\n\treturn true;\r\n}",
+                  "ControlScript": null,
+                  "Domain": {
+                    "DomainID": 1030,
+                    "DomainName": "Date",
+                    "DomainTitle": "Datum",
+                    "IsInteger": false,
+                    "IsEnumerated": false
+                  },
+                  "Form": {...}
+                },
+                {
+                  "QuestionID": 116511,
+                  "ColumnName": "M3Pat_Foot",
+                  "MappedTo": null,
+                  "PrefixText": "Fot",
+                  "SuffixText": null,
+                  "RunOnce": false,
+                  "Sequence": 80,
+                  "Position": 16,
+                  "Span": 5,
+                  "IsMandatory": false,
+                  "IsIdentifier": false,
+                  "DataType": "int",
+                  "Level": 1,
+                  "HelpNote": null,
+                  "CalculationScript": null,
+                  "ValidationScript": null,
+                  "ControlScript": null,
+                  "Domain": {
+                    "DomainID": 4028,
+                    "DomainName": "Sida",
+                    "DomainTitle": "Sida",
+                    "IsInteger": true,
+                    "IsEnumerated": true
+                  },
+                  "Form": {...}
+                }
+              ]
+            },
+            "Unit": "{...},
+            "Methods": "{...}",
+            "Initials": {
+              "M3Pat_StillPain": 1
+            },
+            "IsOngoing": false,
+            "ReplyStatus": 110,
+            "StatusDate": "2017-05-16T08:57:52"
+          },
+          "success": true,
+          "message": null,
+          "code": 0
         }
+        
+### Skapa [POST /api/proxies]
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + SubjectKey: `19620831-5116` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
+        + SourceEvent (Event) - Registrering som triggat bjudning (vid automatiskt genererade bjudningar).
+        + Subject (Subject) - Personnummer (för bjudningar som inte triggas av annan registrering).
+        + Form (Form, required) - Formulär som skall bjudas.
+        + Context (Context, required) - Kontext som skall tillskrivas patientens kommande registrering (den som är ”proxy”).
++ Response 200 (application/json)
+    + Attributes
+        + data (Proxy)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Uppdatera [PUT /api/proxies/{ProxyID}]
++ Parameters
+    + ProxyID: `123456` (number) - Identifierare för aktuell bjudning.
++ Response 200 (application/json)
+    + Attributes
+        + data (Proxy)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 
 # Group Sidadressering
 Alla adresser i Stratum gåt att direktadressera, det vill säga en URL kan kopieras från en webbläsare till en annan och rätt innehåll kommer att visas
@@ -2844,6 +3009,26 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + LogTypeID: `1031` (number, required) - Typ av loggrad (se [förklaring](#LogType)).
 + Context (Context, required) - Kontext som orsakat loggningen
 
+## Event (object)
++ EventID: `12345` (number, required) - Unik identifierare.
++ EventDate: `2027-08-31` (string) - Datum då händelsen inträffade i vårdprocessen.
++ InsertedAt: `2017-08-09 11:14:43` (string) - Tidstämpel när registreringen skapades.
++ ModifiedAt: `2017-08-09 11:14:43` (string) - Tidstämpel när registreringen senast uppdaterades.
++ IsClosed: `false` (boolean, required) - Om registreringen är klarmarkerad (tillval).
++ Context (Context, required) - Kontext som senast sparat registreringen.
++ Form (Form, required) - Formulär registreringen tillhör.
++ Subject (Subject, required) - Subjekt (patient) registreringen är bunden till.
++ ParentEvent (Event) - Eventuell överliggande registrering (för hierarkiska registrerinfskedjor).
+  
+## Proxy (object)
++ ProxyID: `123456` (number, required) - Unik identifierare.
++ SubjectKey: `19620831-5116` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
++ ReplyStatus: `100` (number, required) - Aktuell status (se [förklaring](#ReplyStatus)).
++ StatusDate: `2017-08-09 11:14:43` (string, required) - Tidsstämpel då status senast ändrades.
++ SourceEvent (Event) - Registrering som triggat bjudning (vid automatiskt genererade bjudningar).
++ Subject (Subject) - Personnummer (för bjudningar som inte triggas av annan registrering).
++ Form (Form, required) - Formulär som skall bjudas.
++ Context (Context, required) - Kontext som skall tillskrivas patientens kommande registrering (den som är ”proxy”).
 
 ## Externa entiteter
 
