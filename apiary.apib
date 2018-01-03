@@ -2274,34 +2274,230 @@ till skillnad från [huvudnavigationen](#reference/konfigurationer/huvudnavigati
 
 # Group Komponenter
 
-## Komponenter [/api/widgets]
-> __Det här avsnittet är under uppbyggnad.__
-
+## Programkomponenter [/api/widgets]
 För att kunna erbjuda flexibilitet i en applikationsplattform som Stratum behövs möjligheten att kunna skjuta in ny funktionalitet utan att behöva förändra plattformen i sig.
 Våra programkomponenter, eller ”widgets” som de också kallas, erbjuder just detta.
 Komponenter kan antingen vara generiska, så att de kan återanvändas till flera register, eller skräddarsydda för att lösa ett registers specifika behov.
 Exempel på generiska komponenter är Patientöversikten och Användarhanteraren. Dessa återanvänds mellan register och kan konfigureras för att passa varje enskilt register.
 
-De flesta register som göra är dock skräddarsydda för registerspecifika ändamål. Typexemplet är presentationer och visualiseringar av registerdata &mdash; allt från enstaka diagram till 
+De flesta komponenter som tas fram är dock skräddarsydda för registerspecifika ändamål. Typexemplet är presentationer och visualiseringar av registerdata &mdash; allt från enstaka diagram till 
 hela ”dashboards”, ofta med sofistikerade, pedagogiska användargränssnitt för att bli så tillgängliga som möjligt för registrens användare. Andra exempel är att
 administrera patientlistor, registrera implantatkomponenter eller utföra beräkningar utifrån data som matas in.
 
 Programkoden bakom varje komponent finns på en [sida](/#reference/metadata/sida), och en sida kan innehålla mer än en komponent. 
-På sidan läggs den in enligt nedanstående mönster:
+På sidan läggs den in enligt nedanstående mönster. Notera att själva komponenten utgörs av JavaScriptkoden mellan `<script>`-taggarna:
 ```
 ...
 <div id="{{ Namn på komponentcontainer }}"></div>
 <script type="text/javascript">
-   // Kod som renderar en eller flera komponenter i komponentcontainern ovan.
-//! {{ Beskrivning av komponent som är begriplig av andra }}
+    
+   // JavaScriptkod som typiskt interagerar med Stratums api:er och renderar en eller flera komponenter i containern ovan.
+   
+//! {{ En beskrivning av komponenten som din farmor skulle begripa }}
 //# sourceURL="{{ Systemunikt komponentnamn på formen <Registerförkortning>/<Komponentnamn> }}"
 </script>
 ...
 ```
+Vid utveckling av komponenter används lämpligen [ExtJS](https://www.sencha.com/products/extjs/#overview) eftersom detta JavaScript-ramverk används till stor del av Stratums ”front-end”
+och därför oftast finns tillgängligt automatiskt. 
+ExtJS är att det är ett av de få heltäckande ramverken som finns på marknaden för avancerad applikationsutveckling. 
+
+Beroende på vilken typ av webbplats som ett register använder är ExtJS mer eller mindre förvalt. 
+För de mest moderna webbplatserna, som använder [React](https://reactjs.org/), kan alternativa ramverk användas eftersom 
+beroendet till ExtJS inte är inbyggt. För övriga är ExtJS oftast mest lämpligt.
+
+Exempel på komponent som visar ett stapeldiagram över kumulativt antal registrererade skadetillfällen i Svenska Frakturregistret i Stratum per månad:
+```
+// Bar chart with cumulative distribution.
+var linearChart = Ext.create('Ext.chart.Chart', {
+    renderTo: Ext.getBody(), // Byts ut mot namnet på den container
+    width: '100%',
+    height: 300,
+    insetPadding: 30,
+       animation: false,
+    border: false,
+    style: {
+        borderWidth: '1px',
+        borderColor: '#ddd',
+        borderStyle: 'solid',
+        borderRadius: '5px',
+        opacity: 0
+    },
+    background: '#eee',
+    store: {
+        autoLoad: true,
+        proxy: {
+            type: 'ajax',
+            url: 'https://stratum.registercentrum.se/api/statistics/sfr/test?apikey=bK3H9bwaG4o=',
+            reader: 'objecttoarray.cumulative' // <-- Using cumulative reader.
+        },
+        fields: [
+            { name: 'key',    type: 'string'},
+            { name: 'value',  type: 'float' } 
+        ],
+        listeners: {
+            load: function(aStore, aList) {
+                linearChart.animate({
+                    duration: 500,
+                    to: { opacity: 1 }
+                });
+            }
+        }
+    },
+    axes: [{
+        type: 'numeric',
+        position: 'left',
+        fields: ['value'],
+        grid: {
+            odd: {
+                opacity: 0.5,
+                fill: '#ddd'
+            }
+        },
+        label: {
+            renderer: Ext.util.Format.numberRenderer('0,0')
+        }
+    },{
+        type: 'category',
+        position: 'bottom',
+        fields: ['key']
+    }],
+    series: [{
+        type: 'bar',
+        xField: 'key',
+        yField: 'value',
+        style: {
+            fillOpacity: 0.7
+        }
+    }]
+});
+```
+
+Denna komponent finns i en [JSFiddle](http://jsfiddle.net/medicor/Lut8ad58/).
+
+### Hämta komponent [GET /api/widgets/registers/{RegisterShortName}/{SlugName}]
++ Parameters
+    + RegisterShortName: `RC` (string) - Kortnamn på register som innehåller komponenten (för generiska komponenter används ”RC”).
+    + SlugName: `NumberOfRegistrations` (string) - Namnet på komponenten.
++ Response 200 (text/javascript)
 
 
+        (function() {
+            var container = Stratum.containers && Stratum.containers['RC/NumberOfRegistrations'] || 'sw-container1',
+                chart;
+        
+            chart = Ext.widget('cartesian', {
+                renderTo: container, 
+                width: '100%',
+                height: 300,
+                insetPadding: 30,
+                interactions: 'itemhighlight',
+                animation: false,
+                border: false,
+                plugins: {
+                    ptype: 'chartitemevents'
+                },
+                style: {
+                    borderWidth: '1px',
+                    borderColor: '#ddd',
+                    borderStyle: 'solid',
+                    borderRadius: '5px',
+                    opacity: 0
+                },
+                background: '#eee',
+                store: {
+                    storeId: 'chartStore',
+                    autoLoad: true,
+                    proxy: {
+                        type: 'ajax',
+                        url: '/stratum/api/overview/monthly?apikey=9-ufjxVFXgc=',
+                        reader: {
+                            type: 'json',
+                            rootProperty: 'data'
+                        }
+                    },
+                    fields: [
+                        'Year', 
+                        'Month', 
+                        'Count', 
+                        {
+                            name: 'Label',
+                            type: 'string',
+                            convert: function(n,m) {
+                                return m.get('Year') + '-' + (m.get('Month') < 10 ? '0'+m.get('Month') : m.get('Month'));
+                            }
+                        }
+                    ],
+                    listeners: {
+                        beforeload: function() {
+                            spin(container, 'Hämtar senaste uppgifterna');
+                        },
+                        load: function() {
+                            unspin();
+                            chart.setAnimation(true);
+                            chart.animate({
+                                duration: 500,
+                                from:  { opacity: 0 },
+                                to:    { opacity: 1 }
+                            });
+                        }
+                    }
+                },
+                axes: [{
+                    type: 'numeric',
+                    position: 'left',
+                    renderer: Ext.util.Format.numberRenderer('0,0'),
+                    grid: {
+                        odd: {
+                            opacity: 0.5,
+                            fill: '#ddd'
+                        }
+                    },
+                    label: {
+                        rotate: {
+                            degrees: 0
+                        }
+                    }
+                }, {
+                    type: 'category',
+                    position: 'bottom',
+                    label: {
+                        rotate: {
+                            degrees: 270
+                        }
+                    }
+                }],
+                series: [{
+                    type: 'bar',
+                    axis: 'left',
+                    xField: 'Label',
+                    yField: 'Count',
+                    highlight: {
+                        opacity: 1.0,
+                        fill: '#E98300',
+                        stroke: 'transparent'
+                    },
+                    style: {
+                        opacity: 0.7,
+                        fill: '#E98300',
+                        stroke: 'transparent',
+                        minGapWidth: 10
+                    }
+                }],
+                listeners: {
+                    itemclick: function(aSeries, anItem) {
+                        anItem.record.hidden = true; // Store item visibility state in store record (is used in filter function).
+                        Ext.data.StoreManager.lookup('chartStore').filterBy(function(se) {
+                            return !se.hidden;
+                        });
+                    }
+                }
+            });
+        })();
+        //! Visar diagram över antal registreringar i Stratum per månad senaste året.
+        //# sourceURL=RC/NumberOfRegistrations
 
-### Hämta alla [GET]
+### Hämta lista med beskrivningar [GET /api/widgets]
 + Response 200 (application/json)
 
         {
