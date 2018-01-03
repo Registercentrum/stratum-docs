@@ -2274,15 +2274,15 @@ till skillnad från [huvudnavigationen](#reference/konfigurationer/huvudnavigati
 
 # Group Komponenter
 
-## Programkomponenter [/api/widgets]
-För att kunna erbjuda flexibilitet i en applikationsplattform som Stratum behövs möjligheten att kunna skjuta in ny funktionalitet utan att behöva förändra plattformen i sig.
-Våra programkomponenter, eller ”widgets” som de också kallas, erbjuder just detta.
-Komponenter kan antingen vara generiska, så att de kan återanvändas till flera register, eller skräddarsydda för att lösa ett registers specifika behov.
+## Inbäddningsbara programkomponenter [/api/widgets]
+För att kunna erbjuda flexibilitet i en applikationsplattform likt Stratum behövs möjligheten att kunna skjuta in ny funktionalitet utan att behöva förändra plattformen i sig.
+Våra programkomponenter, eller ”widgets” som de också kallas, ger just den möjligheten.
+Komponenter kan antingen vara generiska, som kan återanvändas till flera register, eller skräddarsydda för att lösa ett registers specifika behov.
 Exempel på generiska komponenter är Patientöversikten och Användarhanteraren. Dessa återanvänds mellan register och kan konfigureras för att passa varje enskilt register.
 
-De flesta komponenter som tas fram är dock skräddarsydda för registerspecifika ändamål. Typexemplet är presentationer och visualiseringar av registerdata &mdash; allt från enstaka diagram till 
-hela ”dashboards”, ofta med sofistikerade, pedagogiska användargränssnitt för att bli så tillgängliga som möjligt för registrens användare. Andra exempel är att
-administrera patientlistor, registrera implantatkomponenter eller utföra beräkningar utifrån data som matas in.
+De flesta komponenter som tas fram är skräddarsydda för registerspecifika ändamål. Typexemplet är presentationer och visualiseringar av registerdata &mdash; allt från enstaka diagram till 
+”dashboards” med sofistikerade användargränssnitt för att bli så tillgängliga som möjligt för registrens användare. Andra exempel är att
+administration av patientlistor eller registrering av implantatkomponenter.
 
 Programkoden bakom varje komponent finns på en [sida](/#reference/metadata/sida), och en sida kan innehålla mer än en komponent. 
 På sidan läggs den in enligt nedanstående mönster. Notera att själva komponenten utgörs av JavaScriptkoden mellan `<script>`-taggarna:
@@ -2298,6 +2298,11 @@ På sidan läggs den in enligt nedanstående mönster. Notera att själva kompon
 </script>
 ...
 ```
+
+Även om en komponent finns på en sida så är det inget som hindrar att den används på andra sidor. 
+På så sätt görs en generisk komponent, den definieras på en sida som tillhör 
+Registercentrum Västra Götaland internt men länkas in från diverse andra sidor.
+
 Vid utveckling av komponenter används lämpligen [ExtJS](https://www.sencha.com/products/extjs/#overview) eftersom detta JavaScript-ramverk används till stor del av Stratums ”front-end”
 och därför oftast finns tillgängligt automatiskt. 
 ExtJS är att det är ett av de få heltäckande ramverken som finns på marknaden för avancerad applikationsutveckling. 
@@ -2310,7 +2315,7 @@ Exempel på komponent som visar ett stapeldiagram över kumulativt antal registr
 ```
 // Bar chart with cumulative distribution.
 var linearChart = Ext.create('Ext.chart.Chart', {
-    renderTo: Ext.getBody(), // Byts ut mot namnet på den container
+    renderTo: Ext.getBody(), // <-- Byt ut mot namnet på den container där innehållet skall renderas.
     width: '100%',
     height: 300,
     insetPadding: 30,
@@ -2375,7 +2380,13 @@ var linearChart = Ext.create('Ext.chart.Chart', {
 
 Denna komponent finns i en [JSFiddle](http://jsfiddle.net/medicor/Lut8ad58/).
 
-### Hämta komponent [GET /api/widgets/registers/{RegisterShortName}/{SlugName}]
+### Hämta JavaScriptkod för en komponent [GET /api/widgets/registers/{RegisterShortName}/{SlugName}]
+Returnerar JavaScriptkod för en widget. Notera att en komponent kan bäddas in med hjälp av api-anrop 
+genom 
+```
+<script src="/api/widgets/registers/RC/NumberOfRegistrations"></script>
+```
+för att på så sätt kunna återanvändas på flera sidor.
 + Parameters
     + RegisterShortName: `RC` (string) - Kortnamn på register som innehåller komponenten (för generiska komponenter används ”RC”).
     + SlugName: `NumberOfRegistrations` (string) - Namnet på komponenten.
@@ -2497,7 +2508,8 @@ Denna komponent finns i en [JSFiddle](http://jsfiddle.net/medicor/Lut8ad58/).
         //! Visar diagram över antal registreringar i Stratum per månad senaste året.
         //# sourceURL=RC/NumberOfRegistrations
 
-### Hämta lista med beskrivningar [GET /api/widgets]
+### Hämta lista med beskrivning av alla komponenter [GET /api/widgets]
+Returnerar en lista med kort beskrivning av varje komponent som finns i Stratum.
 + Response 200 (application/json)
 
         {
@@ -2550,7 +2562,29 @@ Denna komponent finns i en [JSFiddle](http://jsfiddle.net/medicor/Lut8ad58/).
         
         
 # Group Bjudningar
-> __Det här avsnittet är under uppbyggnad.__
+
+## PROM-inbjudningar till patient [/api/proxies]
+
+I Stratum finns diverse stöd för att hantera [patientrapporterade mått](http://rcso.se/patientmedverkan/prom/),
+eller PROM som det brukar kallas (efter ”Patient Reported Outcome Measures”). 
+PROM används till att mäta hur patienten själv upplever sin hälsa och används flitigt av kvalitetsregister
+för att belysa patientens egen uppfattning om sin hälsa, till exempel före och efter en behandling.
+Detta mäter hälsoförbättring utifrån patientens eget perpektiv. 
+När denna förändring relateras till kliniska faktorer i behandlingen kan det vara vägledande i rekommendation av 
+olika metoder, läkemedel eller material som bör används före, efter och under behandlingen.
+
+PROM kan vara både planerat, ofta efter någon typ av ingrepp eller besök, eller göras spontant vid besök 
+på en mottagning eller vårdcentral. För att veta vilka patienter som är föremål för PROM-enkät används något vi kallar bjudningar.
+En bjudning håller information om vilken patient som skall bjudas, vilken uppsättning frågor som vi vill få besvarade, 
+svarsstatus och eventuellt vilken registrering som initierat bjudningen.
+
+En av funktionerna i Stratum är att automatiskt generera bjudningar utifrån registerspecifika kriterier.
+Exempel kan vara 1-årsuppföljning efter höftprotesoperation eller 30-dagarsuppföljning efter tonsilloperation.
+Vilka faktorer som skall trigga en bjudning konfigureras efter registrets behov. 
+Systemet också sköter att bjudningar tas bort där svar inte inkommit efter viss tid eller att patienten avlidit.
+I de flesta fall så görs bjudningar elektroniskt, det vill säga skicka ut via e-post.
+
+Den andra formen av bjudningar
 
 Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”ReplyStatus”):
 
@@ -2567,8 +2601,6 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 |100    |Besvarad
 |110    |Avbruten (manuellt)
 |111    |Avbruten (automatiskt)
-
-## Bjudningar [/api/proxies]
 
 ### Hämta[GET]
 + Response 200 (application/json)
