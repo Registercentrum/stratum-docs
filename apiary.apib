@@ -4,31 +4,28 @@ HOST: https://stratum.registercentrum.se/
 # Öppna data från Stratum
 
 ## Vad är Stratum?
-Stratum är en teknisk plattform för att beskriva, samla in och presentera data från kvalitetsregister inom hälso- och sjukvård och 
-förser ett register och dess användare med bland annat en avancerad formulärapplikation och verktyg för att administrera registreringar. 
+Stratum är en teknisk plattform för att beskriva, samla in och presentera data från [kvalitetsregister inom hälso- och sjukvård](http://www.kvalitetsregister.se/) och 
+förser ett register och dess användare med bland annat en formulärapplikation och verktyg för att administrera registreringar. 
 Visualisering av registerdata utvecklas (av oss eller tredje part) via ett tillägg till Chrome Devtools som vi kallar 
 [SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension)
 och skjuts in direkt på webbplatsen. 
-Statistiker kan ta fram skript som exekveras via vår R-server och levererar tillbaka data genom Stratum i JSON-format.
-Stratum kan också automatiskt generera datalager från registerdata, särskilt utformade för att vara underlag till statistiska analyser
+Statistiker kan ta fram skript som exekveras via vår R-server och levererar tillbaka data i JSON-format.
+Datalager kan automatiskt genereras från registerdata, särskilt utformade för att vara underlag till statistiska analyser
 och annan dataleverans. 
-Det mesta av både data och metadata är åtkomligt via våra öppna api:er och denna dokumentation beskriver i första hand dessa.
-
-Mer information om Nationella Kvalitetsregister finns på [SKL:s webbplats för kvalitetsregister](http://www.kvalitetsregister.se/). 
 
 ## Stratums API
-De flesta api-anrop kräver en api-nyckel och kan fås på begäran via mejl till [oss i Stratum-gruppen](mailto:stratum@registercentrum.se). 
-En del anrop kräver stark autentisering och det framgår i så fall av respektive anropsexempel. 
+De flesta api-anrop kräver en api-nyckel och en sådan kan fås på begäran via mejl till [oss i Stratum-gruppen](mailto:stratum@registercentrum.se). 
+En del anrop kräver stark autentisering och det framgår i så fall av respektive anropsexempel genom att api-nyckel inte finns med som parameter. 
 En del anrop fungerar endast med https, andra över både http och https. Vid stark autentisering används alltid https.
 
 Vissa api:er är mer REST-orienterade än andra. Eftersom alla api:er inte är bundna till ”statiska”
 resurser, som till exempel [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) (registerstatistik på aggregerad nivå), är dessa
 mer dynamiska i strukturen och URI-schemat för dessa anrop är beroende av hur ett register är konfigurerat. 
-[Metadata](#reference/metadata) å andra sidan, som är ett api för beskrivande information, följer mer REST då det avspeglar ”statiska” resurser
-som register, formulär, frågor och svarsalternativ, som alla är statiska, entydigt definerade entiteter i Stratum.
+API:et för [metadata](#reference/metadata) å andra sidan mer REST då det avspeglar resurser 
+så som register, formulär, frågor och svarsalternativ, som alla är entiteter med statisk struktur.
 
 Våra api:er kan anropas med api-nyckel och/eller så kallad inloggningskontext. En inloggningskontext fås efter stark [autentisering](#reference/autentisering)
-och skickas automatiskt med vid varje anrop till Stratum.
+och skickas automatiskt med vid varje anrop.
 I de fall båda existerar, det vill säga api-anrop görs med api-nyckel i ett scenario där användaren är starkt autentiserad, 
 är det oftast inloggningskontexten som har högre prioritet men det finns
 enstaka fall då det motsatta gäller. Detta är i så fall noterat under respektive anrop.
@@ -2630,7 +2627,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta enkätunderlag [GET /api/proxies/survey?token={Token}&apikey={APIKey}]
+### Hämta enkätunderlag via token [GET /api/proxies/survey?token={Token}&apikey={APIKey}]
 + Parameters
     + Token: `jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8` (string) - Krypterad identifierare till aktuell bjudning.
     + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
@@ -2865,10 +2862,9 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
           "code": 0
         }
         
-### Hämta token till bjudning [GET /api/proxies/token/{ProxyID}&apikey={APIKey}]
+### Hämta token till bjudning [GET /api/proxies/token/{ProxyID}]
 + Parameters
     + ProxyID: `151611` (string) - Unik identifierare till bjudning.
-    + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
         
         {
