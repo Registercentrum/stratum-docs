@@ -2693,7 +2693,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
                   "Level": 3,
                   "HelpNote": null,
                   "CalculationScript": null,
-                  "ValidationScript": "if (Global.ParentOf(Parent, History).StatPa_Status != 1) {\r\nreturn 'Patienten har avbrutit, uppdateringar är därför inte tillåtna.';\r\n}\r\n\r\nif (Global.ParseDate(Current.M3Pat_Date) < new Date(2007,11,31)) {\r\n\treturn 'Du kan inte registrera ett besöksdatum innan 2007-12-31';\r\n}\r\n\r\nvar currDate = Global.ParseDate(Current.M3Pat_Date);\r\nvar parDate = Global.ParseDate(Parent.FVPat_Date);\r\n\r\nvar currDateMo = (currDate)/1000/60/60/24;\r\nvar parDateMo = (parDate)/1000/60/60/24;\r\nvar parDateMo1 = parDateMo + 30;\r\nvar parDateMo6 = parDateMo + 184;\r\n\r\nif ((currDateMo < parDateMo1) || (currDateMo > parDateMo6)){\r\n\treturn 'Kontrollera datum för uppföljning. Ska vara max 6 månader från datum för första besök.';\r\n} else {\r\n\treturn true;\r\n}",
+                  "ValidationScript": null,
                   "ControlScript": null,
                   "Domain": {
                     "DomainID": 1030,
@@ -2747,6 +2747,137 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
           "code": 0
         }
         
+### Hämta enkätunderlag via personnummer och PIN [GET /api/proxies/survey?subject={SubjectKey}&pin={PIN}&apikey={APIKey}]
++ Parameters
+    + SubjectKey: `19620831-5116` (string) - Personnummer vars enkätunderlag skall hämtas upp.
+    + PIN: `7321` (number) - PIN-kod till bjudning.
+    + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
++ Response 200 (application/json)
+
+        {
+          "data": {
+            "Form": {
+              "FormID": 1008,
+              "FormName": "ThreeMonthsPatient",
+              "FormTitle": "Uppföljning 3 mån – patient",
+              "HelpNote": null,
+              "ValidationScript": null,
+              "Register": {
+                "RegisterID": 104,
+                "RegisterName": "BOA-registret",
+                "RegisterNameInEnglish": "The BOA Register",
+                "ShortName": "BOA",
+                "IsLookupBound": true,
+                "IsSubjectBound": true,
+                "IsUnderDevelopment": false,
+                "Site": {
+                  "SiteID": 204,
+                  "SiteName": "BOA-registret",
+                  "ThemeSettings": "{BaseColor:\"#18B3EC\",HeaderLogo:30230,HeaderTile:30225,BodyTile:30227,Skin:\"Light\"}",
+                  "Language": "sv",
+                  "Country": "SE",
+                  "StartPage": {
+                    "PageID": 1148,
+                    "PageTitle": "Registret flyttat",
+                    "PageLevel": 0,
+                    "PageOrder": 4,
+                    "PageScope": 0,
+                    "ModifiedAt": "2017-02-22T10:02:13.48"
+                  },
+                  "FirstPage": {
+                    "PageID": 1557,
+                    "PageTitle": "Översikt",
+                    "PageLevel": 0,
+                    "PageOrder": 20,
+                    "PageScope": 1,
+                    "ModifiedAt": "2017-03-07T11:31:42.337"
+                  }
+                }
+              },
+              "Questions": [
+                {
+                  "QuestionID": 22679,
+                  "ColumnName": "M3Pat_Date",
+                  "MappedTo": "EventDate",
+                  "PrefixText": "Datum för uppföljning",
+                  "SuffixText": null,
+                  "RunOnce": false,
+                  "Sequence": 20,
+                  "Position": 0,
+                  "Span": 6,
+                  "IsMandatory": true,
+                  "IsIdentifier": true,
+                  "DataType": "smalldatetime",
+                  "Level": 3,
+                  "HelpNote": null,
+                  "CalculationScript": null,
+                  "ValidationScript": null,
+                  "ControlScript": null,
+                  "Domain": {
+                    "DomainID": 1030,
+                    "DomainName": "Date",
+                    "DomainTitle": "Datum",
+                    "IsInteger": false,
+                    "IsEnumerated": false
+                  },
+                  "Form": "{...}"
+                },
+                {
+                  "QuestionID": 116511,
+                  "ColumnName": "M3Pat_Foot",
+                  "MappedTo": null,
+                  "PrefixText": "Fot",
+                  "SuffixText": null,
+                  "RunOnce": false,
+                  "Sequence": 80,
+                  "Position": 16,
+                  "Span": 5,
+                  "IsMandatory": false,
+                  "IsIdentifier": false,
+                  "DataType": "int",
+                  "Level": 1,
+                  "HelpNote": null,
+                  "CalculationScript": null,
+                  "ValidationScript": null,
+                  "ControlScript": null,
+                  "Domain": {
+                    "DomainID": 4028,
+                    "DomainName": "Sida",
+                    "DomainTitle": "Sida",
+                    "IsInteger": true,
+                    "IsEnumerated": true
+                  },
+                  "Form": "{...}"
+                }
+              ]
+            },
+            "Unit": "{...}",
+            "Methods": "{...}",
+            "Initials": {
+              "M3Pat_StillPain": 1
+            },
+            "IsOngoing": false,
+            "ReplyStatus": 110,
+            "StatusDate": "2017-05-16T08:57:52"
+          },
+          "success": true,
+          "message": null,
+          "code": 0
+        }
+        
+### Hämta token till bjudning [GET /api/proxies/token/{ProxyID}&apikey={APIKey}]
++ Parameters
+    + ProxyID: `151611` (string) - Unik identifierare till bjudning.
+    + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
++ Response 200 (application/json)
+        
+        {
+            "data": "jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8",
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
 ### Skapa [POST /api/proxies]
 + Request (application/x-www-form-urlencoded)
     + Attributes
