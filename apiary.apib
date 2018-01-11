@@ -22,10 +22,10 @@ De flesta api-anrop kräver en api-nyckel och en sådan kan fås på begäran vi
 En del anrop kräver stark autentisering och det framgår i så fall av respektive anropsexempel genom att api-nyckel inte finns med som parameter. 
 En del anrop fungerar endast med https, andra över både http och https. Vid stark autentisering används alltid https.
 
-Vissa api:er är mer REST-orienterade än andra. Eftersom alla api:er inte är bundna till ”statiska”
-resurser, som till exempel [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) (registerstatistik på aggregerad nivå), är dessa
+Vissa api:er är mer REST-orienterade än andra. Eftersom en del api:er inte är bundna till ”statiska”
+resurser (exempelvis [aggregat](#reference/statistik/fordefinierad-aggregatstatistik) (registerstatistik på aggregerad nivå)), så är dessa
 mer dynamiska i strukturen och URI-schemat för dessa anrop är beroende av hur ett register är konfigurerat. 
-API:et för [metadata](#reference/metadata) å andra sidan mer REST då det avspeglar resurser 
+API:et för [metadata](#reference/metadata) är å andra sidan mer REST då det avspeglar resurser 
 så som register, formulär, frågor och svarsalternativ, som alla är entiteter med statisk struktur.
 
 Våra api:er kan anropas med api-nyckel och/eller så kallad inloggningskontext. En inloggningskontext fås efter stark [autentisering](#reference/autentisering)
