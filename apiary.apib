@@ -5,13 +5,17 @@ HOST: https://stratum.registercentrum.se/
 
 ## Vad är Stratum?
 Stratum är en teknisk plattform för att beskriva, samla in och presentera data från [kvalitetsregister inom hälso- och sjukvård](http://www.kvalitetsregister.se/) och 
-förser ett register och dess användare med bland annat en formulärapplikation och verktyg för att administrera registreringar. 
-Visualisering av registerdata utvecklas (av oss eller tredje part) via ett tillägg till Chrome Devtools som vi kallar 
-[SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension)
-och skjuts in direkt på webbplatsen. 
-Statistiker kan ta fram skript som exekveras via vår R-server och levererar tillbaka data i JSON-format.
-Datalager kan automatiskt genereras från registerdata, särskilt utformade för att vara underlag till statistiska analyser
-och annan dataleverans. 
+förser ett register och dess användare med en rad färdiga funktioner, bland annat en avancerad formulärapplikation och verktyg för att administrera registreringar. 
+
+För att bygga specifika tillämpningar, till exempel rapporter och visualisering av registerdata, utvecklas programkomponenter. 
+Sådana komponenter tas med fördel fram med hjälp av vårt tillägg till Chrome Devtools som vi kallar 
+[SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension),
+vilket kan spara en komponent direkt på ett register webbplats för att på så sätt ge omedelbar återkoppling till användare.
+
+Datalager genereras automatiskt från registerdata, särskilt utformade för att vara underlag till statistiska analyser och annan dataleverans. 
+Statistiker kan via R-skript, som exekveras av vår R-server, leverera tillbaka resultat från analyser i JSON-format.
+Resultat kan på så sätt direkt brukas av utvecklare för presentation av data, eller av
+extern part om det handlar om öppna data.
 
 ## Stratums API
 De flesta api-anrop kräver en api-nyckel och en sådan kan fås på begäran via mejl till [oss i Stratum-gruppen](mailto:stratum@registercentrum.se). 
