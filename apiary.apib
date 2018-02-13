@@ -10,7 +10,7 @@ förser ett register och dess användare med en rad färdiga funktioner, bland a
 För att bygga specifika tillämpningar, till exempel rapporter och visualisering av registerdata, utvecklas programkomponenter. 
 Sådana komponenter tas med fördel fram med hjälp av vårt tillägg till Chrome Devtools som vi kallar 
 [SWIX](https://chrome.google.com/webstore/detail/stratum-widget-extension/lbjhgdnnkllndpjdkdpdjglkcpmimbnc?hl=sv) (Stratum Widget Extension),
-vilket kan spara en komponent direkt på ett register webbplats för att på så sätt göra uppdateringar tillgängliga utan fördröjning.
+vilket kan spara en komponent direkt på ett registers webbplats för att på så sätt göra ny funktionalitet tillgänglig utan fördröjning.
 
 Datalager genereras automatiskt från registerdata, särskilt utformade för att vara underlag till statistiska analyser och annan dataleverans. 
 Statistiker kan via R-skript, som exekveras av vår R-server, leverera tillbaka resultat från analyser i JSON-format.
@@ -1474,8 +1474,8 @@ används ofta, bland annat i registreringsapplikationen och generiska programkom
 generell karaktär och kan med fördel användas i skräddarsydda programkomponenter.
 
 ### Hämta registreringshistorik för subjekt [GET /api/overview/history/{aSubjectKey}]
-Returnerar alla formulär, med tillhörande registreringar som är utförda på aktuell kontexts vårdenhet, för ett specifikt subjekt. 
-Även en del metadata finns med i resultatet som beskriver aktuellt formulär. Om anropande 
+Returnerar alla subjektbundna formulär, med tillhörande registreringar som är utförda på aktuell kontexts vårdenhet, för ett specifikt subjekt. 
+Även en del metadata finns med i resultatet som beskriver varje formulär. Om anropande 
 kontext har rollen Koordinator *eller* om ett formulär är markerat som ”cross-border” (se <a href="#FormScope">FormScope</a>)
 så kommer även registreringar från andra vårdenheter med. I fallet ”cross-border” inkluderas endast de variabler som är 
 markerade som identifierare och denna typ av formulär får endast användas efter överrenskommelse med Västra Götalandsregionens jurist.
@@ -1523,6 +1523,46 @@ Denna funktion driver bland annat registreringsapplikationen.
             "code": 0
         }
 
+### Hämta vårdenhetens profilregistreringar [GET /api/overview/history]
+Returnerar alla *enhetsbundna* formulär, med tillhörande registreringar som är utförda på aktuell kontexts vårdenhet. 
+Även en del metadata finns med i resultatet som beskriver varje formulär. 
+
+Denna funktion driver bland annat registreringsapplikationen.
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "Subject": null,
+                "History": {
+                    "Project": {
+                        "FormID": 1082,
+                        "FormName": "Project",
+                        "FormTitle": "Projekt",
+                        "Sequence": 10,
+                        "ValidationScript": null,
+                        "IsSubjectBound": false,
+                        "IsSingleMapped": false,
+                        "IsCrossBorder": false,
+                        "ParentForm": null,
+                        "Identifiers": [
+                            "ProjectName"
+                        ],
+                        "MappedEventDate": "ChangedDate",
+                        "MappedUnitCode": "Registrar",
+                        "MappedIsClosed": null,
+                        "MappedHSAID": null,
+                        "MappedPARID": null,
+                        "MappedModifiedAt": null,
+                        "MappedInsertedAt": null,
+                        "Registrations": []
+                    }
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
 ### Hämta vårdenhetens registreringshistorik [GET /api/overview/subject]
 Returnerar alla registreringar som är utförda på aktuell kontexts vårdenhet. Endast registreringar levereras tillbaka 
 och likt en avbildning (”hash map”) som gör den lämplig att traversera stora mängder data snabbt när man utgår från ett
