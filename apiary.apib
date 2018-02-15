@@ -1469,16 +1469,18 @@ På så sätt kan registreringar i två olika register länkas samman.
         
 
 ## Specialkollektioner [/api/overview]
-Eftersom registreringar är en så central del av systemet finns stöd för några specialiserade funktioner som 
+Eftersom registreringar är en så central del av systemet så finns några specialiserade funktioner som 
 används ofta, bland annat i registreringsapplikationen och generiska programkomponenter. Dessa är dock av 
 generell karaktär och kan med fördel användas i skräddarsydda programkomponenter.
 
 ### Hämta registreringshistorik för subjekt [GET /api/overview/history/{aSubjectKey}]
-Returnerar alla subjektbundna formulär, med tillhörande registreringar som är utförda på aktuell kontexts vårdenhet, för ett specifikt subjekt. 
-Även en del metadata finns med i resultatet som beskriver varje formulär. Om anropande 
-kontext har rollen Koordinator *eller* om ett formulär är markerat som ”cross-border” (se <a href="#FormScope">FormScope</a>)
-så kommer även registreringar från andra vårdenheter med. I fallet ”cross-border” inkluderas endast de variabler som är 
+Returnerar alla registreringar för ett specifikt subjekt uppdelat på formulär. 
+Även en del metadata finns med i resultatet som beskriver varje formulär. 
+I normalfallet så begränsas resultatet till registreringar utförda på aktuell kontexts vårdenhet. 
+Om anropande kontext har rollen Koordinator *eller* om ett formulär är markerat som ”cross-border” (se <a href="#FormScope">FormScope</a>)
+så kommer även registreringar från andra vårdenheter med. För ”cross-border”-registreringar inkluderas endast de variabler som är 
 markerade som identifierare och denna typ av formulär får endast användas efter överrenskommelse med Västra Götalandsregionens jurist.
+För koordinatorer returneras alla registreringar och alla variabler.
 
 Denna funktion driver bland annat registreringsapplikationen.
 + Parameters
@@ -1524,7 +1526,7 @@ Denna funktion driver bland annat registreringsapplikationen.
         }
 
 ### Hämta vårdenhetens profilregistreringar [GET /api/overview/history]
-Returnerar alla *enhetsbundna* formulär, med tillhörande registreringar som är utförda på aktuell kontexts vårdenhet. 
+Returnerar alla *enhetsbundna* registreringar som är utförda på aktuell kontexts vårdenhet, uppdelat på formulär. 
 Även en del metadata finns med i resultatet som beskriver varje formulär. 
 
 Denna funktion driver bland annat registreringsapplikationen.
@@ -1642,7 +1644,7 @@ Denna funktion driver bland annat patientöversikten.
                         "ModifiedAt": "2017-08-16T07:26:15.01",
                         "TestDat": "2014-05-09T00:00:00",
                         "Ja": 0,
-                        "Text": "__.__.__.__.__@__.__.__.__.__.this_is_my_email_address__.se",
+                        "Text": "x@this_is_my_email_address__.se",
                         "Boolesk": false,
                         "Kommentar": null,
                         "Datum": null,
