@@ -989,9 +989,9 @@ så används sidor endast i registrerinsapplikationen, och mestadels för att ag
 Det finns tre olika sammanhang en sida kan visas i, och som bestäms av attributet `PageScope`:
 |Kod |Sammanhang och användningsområde
 |-   |-
-|0   |Sidor som visas i den ”yttre” navigationen. Kan associeras med behörigheter för att endast visas för vissa målgrupper. __Denna typ används inte längre utan hanteras via CMS-systemet.__
-|1   |Sidor som visas direkt när man visar registreringsapplkationen. Minst en sådan sida måste finnas, och den med lägst `PageOrder` utgör ”startsida”.
-|2   |Sidor som visas efter att man sökt upp en patient. Kan till exempel innehålla programkomponent för att visa subjekt-relaterat innehåll.
+|0   |Sidor som visas i den ”yttre” navigationen. Kan associeras med behörigheter för att endast visas för vissa målgrupper. Minst en sådan sida måste finnas, och den med lägst `PageOrder` utgör startsida.
+|1   |Sidor som kan navigeras till i registreringsapplikationen. Minst en sådan sida måste finnas, och den med lägst `PageOrder` utgör startsida efter att applikationen startats. Typiskt innehåll är en registreringsöversikt (en generisk programkomponent).
+|2   |Sidor som kan navigeras till efter att man sökt upp ett subjekt, under händelsepanelen. Typiskt innehåll är en programkomponent som visar subjekt-relaterat innehåll, till exempel en patientprofil.
 
 + Attributes
     + Page (Page)
@@ -3141,7 +3141,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + IsPermittedToLogin: `false` (boolean) - Om inloggning är tillåten (endast läsning).
 + IsPermittedToRegister: `false` (boolean) - Om registrering i register är tillåten.
 + IsPermittedToViewHistory: `false` (boolean) - Om registreringshistorik får visas.
-+ IsPermittedToAdminister: `false` (boolean) - Om administration av register 'r tillåten.
++ IsPermittedToAdminister: `false` (boolean) - Om administration av register är tillåten.
 + IsPermittedToCrossBorder: `false` (boolean) - Om överbryggning av vårdenhetsgränser är tillåten.
 
 ## Resource (object)
@@ -3158,10 +3158,10 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + PageID: `1001` (number, required) - Unik identifierare.
 + PageTitle: `Om Stratum` (string) - Titel i navigation.
 + PageContent: `Detta är portalsidan för <a href="http://www.registercentrum.se">Registercentrum Västra Götalands</a> tekniska plattform Stratum.` (string) - Sidinnehåll i HTML. Kan även innehålla [programkomponent(er)](#reference/metadata/komponenter) och JavaScript i största allmänhet.
-+ PageLevel: `0` (number) - För att skapa hierarkier av sidor. Allt på samma `PageLevel` är grupperat under föregående sida med närmast lägre `PageLevel` när sidorna sorteras med avseende på `PageOrder`. Används inte längre då detta hanteras av CMS-systemet.
-+ PageOrder: `1` (number) - Sidans ordningsnummer.
++ PageLevel: `0` (number) - För att skapa hierarkier av sidor. Allt på samma `PageLevel` är grupperat under föregående sida med närmast lägre `PageLevel` när sidorna sorteras med avseende på `PageOrder`. Typiskt värde är `0`.
++ PageOrder: `1` (number) - Sidans ordningsnummer (alla bör vara unika för att inte skapa oklarheter kring ordning).
 + PageScope: `0` (number) - Sammanhang där sidan skall visas (se [förklaring](#PageScope)).
-+ ModifiedAt: `2017-07-05 13:39:00` (string) - Tidsstämpel för senaste uppdatering.
++ ModifiedAt: `2017-07-05 13:39:00` (string) - Tidsstämpel för senaste uppdatering (endast läsning).
 + Site (Site, required) - Tillhörande webbplats
 
 ## Subject (object)
