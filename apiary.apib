@@ -1047,10 +1047,10 @@ Attributet `StatusDate` (och det härledda `DateOfDeath` för avlidna) innehåll
 via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas saknade datumdelar enligt nedan, och `DateCorrectness` avgör vad som ersatts:
 |Kod |Åtgärd vid statuskontroll
 |-   |-
-|0   |År, månad och dag tilldelat från dagens datum.
-|1   |Månad och dag tilldelat från dagens datum.
-|2   |Dag tilldelat från dagens datum.
-|3   |Ingen åtgärd (komplett datum).
+|0   |Datum är okänt och har tilldelats datum då kontroll gjordes.
+|1   |Månad och dag är okända och har tilldelats från datum då kontroll gjordes.
+|2   |Dag okänd och har tilldelats från datum då kontroll gjordes.
+|3   |Komplett datum.
 
 + Attributes
     + Subject (Subject)
