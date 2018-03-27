@@ -587,6 +587,7 @@ Se nedan under [Hämta alla gemensamma](#reference/metadata/doman/hamta-alla-gem
 Fördefinierade domäner:
 |ID   |Namn|Typ|Kommentar
 |-    |-|-|-
+|1010 |Subjektnyckel|varchar(80)|Textfält med elementär syntaxkontroll för subjektnyckel (personnummer) på formen ”CCYYMMDD-AAAA”.
 |1015 |Boolesk|bit|Kryssruta för ja/nej-svar utan validering och hantering av saknat värde. Rekommenderat är att använda fördefinierad uppräkningsdomän för Ja/Nej (4001) om detta behövs.
 |1020 |Text|varchar(80)|Textfält upp till 80 tecken.
 |1021 |Kommentar|varchar(max)|Textfält ”utan begräsning”. Presenteras på tre rader.
@@ -635,11 +636,168 @@ Fördefinierade domäner:
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
-    + Attributes
-        + data (array[Domain])
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
+
+        {
+            "data": {
+                "Region": {},
+                "State": {},
+                "County": {
+                    "10": "Blekinge",
+                    "12": "Skåne",
+                    "13": "Halland",
+                    "14": "Västra Götaland",
+                    "17": "Värmland",
+                    "18": "Örebro",
+                    "19": "Västmanland",
+                    "20": "Dalarna",
+                    "21": "Gävleborg",
+                    "22": "Västernorrland",
+                    "23": "Jämtland",
+                    "24": "Västerbotten",
+                    "25": "Norrbotten",
+                    "01": "Stockholm",
+                    "03": "Uppsala",
+                    "04": "Sörmland",
+                    "05": "Östergötland",
+                    "06": "Jönköping",
+                    "07": "Kronoberg",
+                    "08": "Kalmar",
+                    "09": "Gotland"
+                },
+                "Municipality": {},
+                "LevelOfCare": {
+                    "1": "Inneliggande vård",
+                    "2": "Specialiserad öppenvård",
+                    "3": "Primärvård"
+                },
+                "TypeOfHospital": {
+                    "1": "Universitets- eller regionssjukhus",
+                    "2": "Länssjukhus",
+                    "3": "Länsdelsjukhus",
+                    "4": "Privatsjukhus"
+                },
+                "ReplyStatus": {
+                    "0": "Upplagd",
+                    "1": "Första utskick gjort elektroniskt",
+                    "2": "Första utskick gjort via post",
+                    "6": "1:a påminnelse upplagd",
+                    "7": "2:a påminnelse upplagd",
+                    "11": "1:a påminnelse skickad",
+                    "12": "2:a påminnelse skickad",
+                    "99": "Utgår",
+                    "100": "Besvarad",
+                    "110": "Avbruten",
+                    "111": "Automatiskt avbruten"
+                },
+                "YesNo": {
+                    "0": "Nej",
+                    "1": "Ja"
+                },
+                "YesNoUnknown": {
+                    "0": "Nej",
+                    "1": "Ja",
+                    "9": "Okänt"
+                },
+                "reserved1": {},
+                "reserved2": {},
+                "Laterality": {
+                    "1": "Höger",
+                    "2": "Vänster"
+                },
+                "Gender": {
+                    "1": "Man",
+                    "2": "Kvinna"
+                },
+                "EQ5D-Rörlighet": {
+                    "1": "Jag går utan svårigheter",
+                    "2": "Jag kan gå men med viss svårighet",
+                    "3": "Jag är sängliggande"
+                },
+                "EQ5D-Hygien": {
+                    "1": "Jag behöver ingen hjälp med min dagliga hygien, mat eller påklädning",
+                    "2": "Jag har vissa problem att tvätta eller klä mig själv",
+                    "3": "Jag kan inte tvätta eller klä mig själv"
+                },
+                "EQ5D-Huvudsakliga aktiviteter": {
+                    "1": "Jag klarar av mina huvudsakliga aktiviteter",
+                    "2": "Jag har vissa problem med att klara av mina huvudsakliga aktiviteter",
+                    "3": "Jag klarar inte av mina huvudsakliga aktiviteter"
+                },
+                "EQ5D-Smärtor": {
+                    "1": "Jag har varken smärtor eller besvär",
+                    "2": "Jag har måttliga smärtor eller besvär",
+                    "3": "Jag har svåra smärtor eller besvär"
+                },
+                "EQ5D-Oro": {
+                    "1": "Jag är inte orolig eller nedstämd",
+                    "2": "Jag är orolig eller nedstämd i viss utsträckning",
+                    "3": "Jag är i högsta grad orolig eller nedstämd"
+                },
+                "EQ5D-Mobility": {
+                    "1": "I have no problems walking about.",
+                    "2": "I have some problems walking about.",
+                    "3": "I am confined to bed."
+                },
+                "EQ5D-Self-care": {
+                    "1": "I have no problems with self-care.",
+                    "2": "I have some problems washing or dressing myself.",
+                    "3": "I am unable to wash or dress myself."
+                },
+                "EQ5D-Activities": {
+                    "1": "I have no problems with performing my usual activities.",
+                    "2": "I have some problems with performing my usual activities.",
+                    "3": "I am unable to perform my usual activities."
+                },
+                "EQ5D-Pain": {
+                    "1": "I have no pain or discomfort.",
+                    "2": "I have moderate pain or discomfort.",
+                    "3": "I have extreme pain or discomfort."
+                },
+                "EQ5D-Anxiety": {
+                    "1": "I am not anxious or depressed.",
+                    "2": "I am moderately anxious or depressed.",
+                    "3": "I am extremly anxious or depressed."
+                },
+                "EQ5D_5L_Mobility": {
+                    "1": "Jag har inga svårigheter med att gå omkring",
+                    "2": "Jag har lite svårigheter med att gå omkring",
+                    "3": "Jag har måttliga svårigheter med att gå omkring",
+                    "4": "Jag har stora svårigheter med att gå omkring",
+                    "5": "Jag kan inte gå omkring"
+                },
+                "EQ5D_5L_Self_Care": {
+                    "1": "Jag har inga svårigheter med att tvätta mig eller klä mig",
+                    "2": "Jag har lite svårigheter med att tvätta mig eller klä mig",
+                    "3": "Jag har måttliga svårigheter med att tvätta mig eller klä mig",
+                    "4": "Jag har stora svårigheter med att tvätta mig eller klä mig",
+                    "5": "Jag kan inte tvätta mig eller klä mig"
+                },
+                "EQ5D_5L_Activities": {
+                    "1": "Jag har inga svårigheter med att utföra mina vanliga aktiviteter",
+                    "2": "Jag har lite svårigheter med att utföra mina vanliga aktiviteter",
+                    "3": "Jag har måttliga svårigheter med att utföra mina vanliga aktiviteter",
+                    "4": "Jag har stora svårigheter med att utföra mina vanliga aktiviteter",
+                    "5": "Jag kan inte utföra mina vanliga aktiviteter"
+                },
+                "EQ5D_5L_Pain": {
+                    "1": "Jag har varken smärtor eller besvär",
+                    "2": "Jag har lätta smärtor eller besvär",
+                    "3": "Jag har måttliga smärtor eller besvär",
+                    "4": "Jag har svåra smärtor eller besvär",
+                    "5": "Jag har extrema smärtor eller besvär"
+                },
+                "EQ5D_5L_Anxiety": {
+                    "1": "Jag är varken orolig eller nedstämd",
+                    "2": "Jag är lite orolig eller nedstämd",
+                    "3": "Jag är ganska orolig eller nedstämd",
+                    "4": "Jag är mycket orolig eller nedstämd",
+                    "5": "Jag är extremt orolig eller nedstämd"
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
 
 ### Hämta alla för ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
 + Parameters
@@ -657,11 +815,165 @@ Fördefinierade domäner:
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + RegisterID: `100` (number, required) - Identifierare för ett register.
 + Response 200 (application/json)
-    + Attributes
-        + data (array[Domain])
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
+
+        {
+            "data": {
+                "ProjectStatus": {
+                    "1": "Planeras",
+                    "2": "Pågår",
+                    "5": "Avslutat",
+                    "6": "Publicerat"
+                },
+                "ResearchContract": {
+                    "1": "Saknas",
+                    "2": "Etablerat",
+                    "3": "Godkänt"
+                },
+                "EthicsApproval": {
+                    "1": "Saknas",
+                    "2": "Inskickat",
+                    "3": "Avslaget",
+                    "4": "Godkänt"
+                },
+                "Merging": {
+                    "1": "Ej aktuellt",
+                    "2": "Planeras",
+                    "3": "Utförd"
+                },
+                "Diagnosis": {
+                    "T84.8F": "Andra spec kompl av inre ortopediska proteser",
+                    "M94.8": "Andra spec sjukdomar i brosk",
+                    "M24.6F": "Ankylotisk led",
+                    "M33.1": "Annan dermatomysit",
+                    "M87.3F": "Annan sekundär osteonekros",
+                    "M91.8": "Annan spec juvenil osteokondros i höft och bäcken",
+                    "M00.8": "Artrit och polyartrit ors av annan spec bakterie",
+                    "M00.9F": "Artrit UNS",
+                    "M13.8": "Artrit, annan specificerad",
+                    "M36.2": "Artropati vid hemofili",
+                    "M45.9": "Bechterew, morbus",
+                    "M90.7F": "Benfraktur vid tumörsjukdom",
+                    "D16.2": "Benign tumör i nedre extremiteterna",
+                    "S72.00": "Collumfraktur",
+                    "T93.1": "Collumfraktur, sena besvär efter",
+                    "M91.2": "Coxa plana (sen diagnos) ",
+                    "M21.0F": "Coxa valga",
+                    "M21.1F": "Coxa vara",
+                    "M84.0F": "Felläkning av fraktur",
+                    "S32.40": "Fraktur på acetabulum",
+                    "S72.30": "Fraktur på femurskaftet",
+                    "M84.2F": "Fördröjd frakturläkning",
+                    "M93.0": "Förskjuten övre femurepifys (icke traumatisk)",
+                    "T84.5F": "Infektion efter inre ledprotes",
+                    "T84.6F": "Infektion efter osteosyntes",
+                    "M16.3": "Koxartros, annan dysplastisk",
+                    "M16.5": "Koxartros, annan posttraumatisk",
+                    "M16.7": "Koxartros, annan sekundär",
+                    "M16.6": "Koxartros, annan sekundär dubbelsidig",
+                    "M16.2": "Koxartros, orsakad av dysplasi, dubbelsidig",
+                    "M16.9": "Koxartros, ospecificerad",
+                    "M16.4": "Koxartros, posttraumatisk dubbelsidig",
+                    "M16.1": "Koxartros, primär",
+                    "M16.0": "Koxartros, primär dubbelsidig",
+                    "M25.5F": "Ledvärk",
+                    "S73.0": "Luxation i höft",
+                    "C41.4": "Malign tumör i bäckenben, sakrum och coccyx",
+                    "C40.2": "Malign tumör i nedre extremiteternas långa ben",
+                    "T84.3F": "Mek kompl av andra instrument, implantat",
+                    "T84.1": "Mek kompl instr för inre fix av extremitetsben",
+                    "T84.0": "Mekanisk komplikation av inre ledprotes",
+                    "C90.0": "Myelomatos",
+                    "M65.9F": "Ospecifik synovit",
+                    "M87.2F": "Ostenekros efter tidigare skada",
+                    "M93.2F": "Osteochondrosis dissecans",
+                    "M89.5": "Osteolys",
+                    "M86.6F": "Osteomyelit, annan specificerad kronisk",
+                    "M87.0F": "Osteonekros",
+                    "M87.1F": "Osteonekros orsakad av läkemedel",
+                    "M88.8": "Pagets sjukdom i andra specificerade ben",
+                    "M84.4F": "Patologisk fraktur UNS",
+                    "M91.1": "Perthes sjukdom",
+                    "S72.10": "Pertrokantär fraktur",
+                    "M15.0": "Polyartros",
+                    "M96.0F": "Pseudartros efter artrodes",
+                    "M07.3F": "Psoriasisartrit",
+                    "M02.9F": "Reaktiv artrit UNS",
+                    "M24.4F": "Recidiverande lux och sublux i led",
+                    "M08.0F": "Reumatoid artrit juvenil",
+                    "M05.8F": "Reumatoid artrit seropos.",
+                    "M06.9F": "Reumatoid artrit UNS",
+                    "C79.5": "Sek malign tumör (metastas) i ben och benmärg",
+                    "T91.2": "Sena besvär av annan frakt på br-korgen o bäckenet",
+                    "M05.9F": "Seropositiv reumatoid artrit, ospec",
+                    "M89.9": "Sjukdom i benvävnad, ospecificerad",
+                    "M79.6F": "Smärta ospecifik",
+                    "M84.3F": "Stressfraktur",
+                    "S72.20": "Subtrokantär fraktur",
+                    "D21.2": "Synovial chondromatos",
+                    "M32.9": "Systemisk lupus etrythematosus, ospec",
+                    "M90.0F": "TBC i benvävnad",
+                    "D48.0": "Tumör av osäker el. okänd natur i ben och ledbrosk",
+                    "M84.1F": "Utebliven läkning/pseudartros",
+                    "M12.2F": "Villonodulär synovit",
+                    "M80.0F": "Åldersosteoporos m fraktur"
+                },
+                "DiagnosisGroup": {
+                    "1": "Artros",
+                    "2": "Infektion",
+                    "3": "Luxation"
+                },
+                "ProjectType": {
+                    "1": "Forskningsprojekt",
+                    "2": "Studentprojekt",
+                    "3": "ST-projekt"
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Hämta vissa som avbildning [GET /api/metadata/domains/map/{DomainList}?apikey={APIKey}]
++ Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + DomainList: `3003,3005` (string, required) - Kommaseparerad lista av domänidentifierare.
++ Response 200 (application/json)
+
+        {
+            "data": {
+                "County": {
+                    "10": "Blekinge",
+                    "12": "Skåne",
+                    "13": "Halland",
+                    "14": "Västra Götaland",
+                    "17": "Värmland",
+                    "18": "Örebro",
+                    "19": "Västmanland",
+                    "20": "Dalarna",
+                    "21": "Gävleborg",
+                    "22": "Västernorrland",
+                    "23": "Jämtland",
+                    "24": "Västerbotten",
+                    "25": "Norrbotten",
+                    "01": "Stockholm",
+                    "03": "Uppsala",
+                    "04": "Sörmland",
+                    "05": "Östergötland",
+                    "06": "Jönköping",
+                    "07": "Kronoberg",
+                    "08": "Kalmar",
+                    "09": "Gotland"
+                },
+                "LevelOfCare": {
+                    "1": "Inneliggande vård",
+                    "2": "Specialiserad öppenvård",
+                    "3": "Primärvård"
+                }
+            },
+            "success": true,
+            "message": null,
+            "code": 0
+        }
 
 ### Skapa [POST /api/metadata/domains]
 + Response 200 (application/json)
