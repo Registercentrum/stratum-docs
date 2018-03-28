@@ -136,7 +136,6 @@ Vid status 400 returneras i attribut `code`:
 + Response 400 (application/json)
 
 ### Begär inloggning och bind till konto [POST]
-
 Genomför inloggning med medskickat SITHS-certifikat och knyter användarkonto till certifikatinformation. 
 Efter godkänd autentisering returneras även begäran om tilldelning av  sessioncookie på klienten.
 
@@ -165,7 +164,6 @@ Detta anrop finns även tillgängligt i GET-version via `GET /api/authentication
 ## Utloggning [/api/authentication/logout]
 
 ### Begär utloggning [GET]
-
 Genomför utloggning genom att returnera begäran om att ta bort sessioncookie på klienten.
 
 + Response 200 (application/json)
@@ -175,7 +173,6 @@ Genomför utloggning genom att returnera begäran om att ta bort sessioncookie p
 ## Sessionstid [/api/authentication/timeleft]
 
 ### Tid som återstår av session [GET]
-
 Returnerar den tid som återstår innan aktuell session löper ut. Kan användas av en klient för att implementera utloggning på grund 
 av inaktivitet. Räknaren nollställs på varje anrop till Stratum som kräver autentisering.
 
@@ -189,7 +186,6 @@ av inaktivitet. Räknaren nollställs på varje anrop till Stratum som kräver a
 ## Mobilt BankID [/api/authentication/bid]
 
 ### Autentiseringsbegäran [GET /api/authentication/bid/order/{NIN}]
-
 Initierar en begäran om autentisering via BID. Teknisk dokumentation finns hos [BankID](https://www.bankid.com/bankid_i_dina_tjanster/rp_info).
 
 + Parameters
@@ -202,7 +198,6 @@ Initierar en begäran om autentisering via BID. Teknisk dokumentation finns hos 
         + code: `0` (number)
 
 ### Statuskontroll [GET /api/authentication/bid/collect/{OrderRef}]
-
 Hämtar aktuell status för en utestående autentiseringsbegäran. 
 När returnerat status är ”COMPLETED” kommer en sessionscookie med spårningsnyckel att sättas på klienten. För att inloggningen skall fungera
 optimalt är det därför nödvändigt att klienten tillåter sessionscookies. I annat fall kommer användaren att behöva logga in varje gång
@@ -233,7 +228,6 @@ Vid status 400 returneras i attribut `code`:
 ## Aktuell kontext [/api/authentication/context]
 
 ### Hämta [GET]
-
 Returnerar aktuell kontext för den som begär anropet. Kan användas för att kontrollera om anroparen är starkt autentiserad.
 
 + Response 200 (application/json)
@@ -243,10 +237,18 @@ Returnerar aktuell kontext för den som begär anropet. Kan användas för att k
         + message: `null` (string)
         + code: `0` (number)
 
+### Hämta alla inloggningsbara [GET /api/authentication/contexts]
+Returnerar lista av alla kontexter som autentiserad användare kan logga in på.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Context])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 ### Byt [PUT]
-
 Genomför ett kontextbyte.
-
 Vid status 400 returneras i attribut `code`:
 |Kod    |Förklaring
 |-      |-
@@ -1255,7 +1257,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för en användare [GET /api/metadata/contexts/use/{UserID}]
+### Hämta alla för en användare [GET /api/metadata/contexts/user/{UserID}]
 + Parameters
     + UserID: `90000` (number, required) - Identifierare för användare som kontexterna skall tillhöra.
 + Response 200 (application/json)
