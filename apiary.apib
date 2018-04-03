@@ -225,9 +225,9 @@ Vid status 400 returneras i attribut `code`:
         + message: `null` (string)
         + code: `0` (number)
 
-## Aktuell kontext [/api/authentication/context]
+## Kontexter [/api/authentication/context]
 
-### Hämta [GET]
+### Hämta aktuell [GET]
 Returnerar aktuell kontext för den som begär anropet. Kan användas för att kontrollera om anroparen är starkt autentiserad.
 
 + Response 200 (application/json)
@@ -237,18 +237,8 @@ Returnerar aktuell kontext för den som begär anropet. Kan användas för att k
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla inloggningsbara [GET /api/authentication/contexts]
-Returnerar lista av alla kontexter som autentiserad användare kan logga in på.
-
-+ Response 200 (application/json)
-    + Attributes
-        + data (array[Context])
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Byt [PUT]
-Genomför ett kontextbyte.
+### Byt aktuell [PUT]
+Sätter aktuell kontext (genomför kontextbyte).
 Vid status 400 returneras i attribut `code`:
 |Kod    |Förklaring
 |-      |-
@@ -272,16 +262,47 @@ Vid status 400 returneras i attribut `code`:
 
 + Response 400 (application/json)
 
+### Säkerställ som dataleverantör [PUT /api/authentication/context/ensure/{UnitID}]
+För de register som har `allowAutoUser` satt i sin registerkonfiguration kommer detta anrop se till att användare och kontext som dataleverantör finns upplagda. 
+Om inloggningsbar kontext i registrerande roll redan finns så läggs ingen ny som dataleverantör upp. 
+I annat fall skapas användare och/eller kontext.
+Anropet måste göras med giltigt SITHS-certifikat. 
+Vid status 400 returneras i attribut `code`:
+|Kod    |Förklaring
+|-      |-
+|1      |Ogiltig certifikat
+|2      |Ogiltig vårdenhetsidentifierare
+|3      |Automatisk uppläggning inte tillåten i registret
+
++ Parameters
+    + UnitID: `20000` (number) - Identifierare till vårdenhet som kontext begärs för.
++ Response 200 (application/json)
+
+        null
+        
++ Response 400 (application/json)
+
+### Hämta alla inloggningsbara [GET /api/authentication/contexts]
+Returnerar lista av alla kontexter som autentiserad användare kan logga in på.
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Context])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 # Group Metadata
 Metadata i Stratum utgörs av entiteter som beskriver våra register, till exempel formulär, frågor och svarsalternativ, men även användare, roller och 
 vårdenheter &mdash; själva byggstenarna i en registerbeskrivning. 
 
-Vissa regler gäller för hur returnerade entiteter exponeras. Dessa regler är fasta och kan inte förändras genom till exempel parametrar.
-En instans innehåller alltid samtliga attribut men attribut som utgör en annan entitet är realiserad enbart till första nivån. 
-För en samling av entiteter är varje attribut av atomär typ realiserat men inte relaterade entiteter. 
+När dessa entititeter returneras gäller vissa regler. 
+En instans (enstaka entitet) innehåller samtliga attribut men attribut vars värde är en annan entitet är realiserad enbart till första nivån. 
+För en kollektion (samling av entiteter) är varje attribut av atomär typ realiserat men inte relaterade entiteter. 
 Detta för att minska storleken och komplexiteten på resultatet.
+Dessa regler är fasta och kan inte förändras genom till exempel parametrar.
 
-I dagsläget tillåter vi *inte* att brukare skapar eller förändrar metadata via api-nycklar.
+I dagsläget tillåter vi endast brukare i rollen Systemutvecklare att skapa eller förändra metadata, inte via api-nyckel.
 
 ## Register­ [/api/metadata/registers]
 `Register` är sammanhållande för registerrelaterade entiteter till exempel formulär, frågor, svar och svarsalternativ.
