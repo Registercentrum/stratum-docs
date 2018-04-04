@@ -275,7 +275,7 @@ Vid status 400 returneras i attribut `code`:
 |3      |Automatisk uppläggning inte tillåten i registret
 
 + Parameters
-    + UnitID: `20000` (number) - Identifierare till vårdenhet som kontext begärs för.
+    + UnitID: `2000` (number) - Identifierare till vårdenhet som kontext begärs för.
 + Response 200 (application/json)
 
         null
@@ -1220,11 +1220,12 @@ Användare läggs upp och administreras av koordinatorer via komponenten ”Anv�
         + message: `null` (string)
         + code: `0` (number)
 
-## Kontext [/api/metadata/contexts/{ContextID}?contextid={CallerContextID}]
-En kontext är den entitet som beskriver den auktoriseringsinformation, vilket i detta sammanhang betyder en användare, en roll och en vårdenhet. 
-Vid varje autentiserat anrop (starkt såväl som via api-nyckel) så är det den aktuella kontexten som avgör användarens behörighet.
-Det spelar alltså ingen roll om en användare har tillgång till en annan kontext som ger behörighet, det är den
-kontexten som medföljer vid anrop som gäller vid auktorisering. 
+## Kontext [/api/metadata/contexts]
+Kontext är den entitet som beskriver auktoriseringsinformation, vilket i detta sammanhang betyder en användare, en roll och en vårdenhet. 
+Vid varje autentiserat anrop (starkt såväl som via api-nyckel) så är det den **aktiva** kontexten som avgör behörigheten.
+Det spelar ingen roll om en användare har tillgång till flera kontexter, det är alltid den
+aktiva kontexten som avgör vad ett anrop tillåts göra. 
+För att till exempel göra anrop som en annan vårdenhet behöver man därför först [byta aktiv kontext](#reference/autentisering/kontexter/byt-aktuell). 
 
 Vad som är aktuell kontext avgörs med hjälp av två sessionscookies, som gör det möjligt att vara autentiserad på olika sätt 
 i olika webbläsare eller flera flikar i samma webbläsare.
