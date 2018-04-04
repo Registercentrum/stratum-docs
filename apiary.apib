@@ -1222,15 +1222,20 @@ Användare läggs upp och administreras av koordinatorer via komponenten ”Anv�
 
 ## Kontext [/api/metadata/contexts]
 Kontext är den entitet som beskriver auktoriseringsinformation, vilket i detta sammanhang betyder en användare, en roll och en vårdenhet. 
-Vid varje autentiserat anrop (starkt såväl som via api-nyckel) så är det den **aktiva** kontexten som avgör behörigheten.
-Det spelar ingen roll om en användare har tillgång till flera kontexter, det är alltid den
-aktiva kontexten som avgör vad ett anrop tillåts göra. 
+
+Vid varje starkt autentiserat anrop så är det den **aktiva** kontexten som avgör behörigheten.
+Det spelar ingen roll om en användare har tillgång till flera kontexter, det är alltid den aktiva kontexten som avgör vad ett anrop tillåts göra. 
 För att till exempel göra anrop som en annan vårdenhet behöver man därför först [byta aktiv kontext](#reference/autentisering/kontexter/byt-aktuell). 
 
-Vad som är aktuell kontext avgörs med hjälp av två sessionscookies, som gör det möjligt att vara autentiserad på olika sätt 
-i olika webbläsare eller flera flikar i samma webbläsare.
+Vad som är aktuell kontext spåras efter autentisering med sessionskakor. Anropande program behöver därför ha stöd för kakor.
+Det är också möjligt att vara autentiserad med olika kontexter i flera webbläsare eller i flera flikar i samma webbläsare.
 
-En inaktiverad kontext förhindrar att inloggning sker på kontexten och den kan heller inte användas för auktorisering via till exempel api-anrop.
+För anrop med api-nyckel (svag autentisering) så finns ingen aktiv kontext, utan kontextinformationen finns i själva api-nyckeln.
+Det är därför möjligt att ”byta vårdenhet” genom att använda en annan api-nyckel, utgiven för aktuell vårdenhet.
+
+Patientbunden data kräver alltid stark autentisering.
+
+Attributet `IsActive` avgör om inloggning och api-anrop är tillåtna.
 
 <a name="RolesTable"></a>
 Roller:
