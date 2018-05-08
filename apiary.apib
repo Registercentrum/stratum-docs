@@ -1240,11 +1240,12 @@ Attributet `IsActive` avgör om inloggning och api-anrop är tillåtna.
 <a name="RolesTable"></a>
 Roller:
 |ID |Roll             |Kategori         |Inloggning? |Syfte
-|-        |-                |-                |-           |-
+|-  |-                |-                |-           |-
 |903|Koordinator      |Registerpersonal |ja          |Registrera och hämta data över vårdgivargränser samt administrera register
 |902|Plusregistrerare |Vårdpersonal     |ja          |Registrerare med något större befogenheter
 |901|Registrerare     |Vårdpersonal     |ja          |Registrera och hämta data för vårdenheten
-|101|Dataleverantör   |System           |ja F         |Leverera data till Stratum, till exempel via webbtjänst eller api
+|901|Observatör       |Vårdpersonal     |ja          |Hämta data för vårdenheten
+|101|Dataleverantör   |System           |ja          |Leverera data till Stratum, till exempel via webbtjänst eller api
 |301|Integratör       |System           |nej         |Hämta registreringar tvärs över vårdgivargränser i syfte att integrera system
 |201|API-brukare      |System           |nej         |Hämta öppna data
 |906|Systemutvecklare |System           |nej         |Kan spara programkomponenter och skapa register
@@ -1256,6 +1257,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 |Koordinator      |ja, gränslöst |ja, gränslöst      |ja, gränslöst        |ja, enhetens med personnummer
 |Plusregistrerare |ja, enhetens  |ja, på enheten     |nej                  |ja, enhetens med personnummer
 |Registrerare     |ja, enhetens  |ja, på enheten     |nej                  |ja, enhetens *utan* personnummer
+|Observatör       |ja, enhetens  |nej                |nej                  |ja, enhetens *utan* personnummer
 |Dataleverantör   |nej           |ja, på enheten     |nej                  |nej
 |Integratör       |ja, gränslöst |nej                |nej                  |nej
 |API-brukare      |nej           |nej                |nej                  |nej
