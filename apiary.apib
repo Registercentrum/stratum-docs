@@ -1910,11 +1910,14 @@ Denna funktion driver bland annat registreringsapplikationen.
         }
         
 ### Hämta vårdenhetens registreringshistorik [GET /api/overview/subject]
-Returnerar alla registreringar som är utförda på aktuell kontexts vårdenhet. Endast registreringar levereras tillbaka 
-och likt en avbildning (”hash map”) som gör den lämplig att traversera stora mängder data snabbt när man utgår från ett
-personnummer och vill ha fram alla tillhörande registreringar.
+Returnerar alla registreringar som är utförda på aktuell kontexts vårdenhet. Resultatet levereras som 
+en avbildning (”hash map”) där subjektidentitet är nyckel på översta nivån och händelseidentitet 
+på nivå under. Detta gör att kollektionen kan traverseras utifrån subjektidentitet samtidigt som 
+direktaddressering av enskilda subjekt och tillhörande registreringar kan göras. 
+Relationer mellan registreringar finns också representerade (”parent-child”).
+Denna form gör det möjligt att relativt snabbt hantera stora mängder data.
 
-Denna funktion driver bland annat patientöversikten.
+Denna funktion driver bland annat den generiska programkomponenten för patientöversikt.
 + Response 200 (application/json)
 
         {
@@ -2021,7 +2024,7 @@ Returnerar samtliga registreringar, oberoende av register för ett specifikt sub
 ”Patient” som har behörighet att göra anropet. Denna roll är inte implementerad ännu, så på begäran från en patient kan vi tillfälligt 
 ställa om så att någon internt kan använda funktionen för en patients räkning. 
 
-Denna funktion driver programkomponenten för e-utdrag.
+Denna funktion driver den generiska programkomponenten för e-utdrag.
 + Parameters
     + aSubjectKey: `19410321-9202` (string) - A subject key.
 + Response 200 (application/json)
