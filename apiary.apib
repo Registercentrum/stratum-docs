@@ -1912,10 +1912,8 @@ Denna funktion driver bland annat registreringsapplikationen.
 ### Hämta vårdenhetens registreringshistorik [GET /api/overview/subject]
 Returnerar alla registreringar som är utförda på aktuell kontexts vårdenhet. Resultatet levereras som 
 en avbildning (”hash map”) där subjektidentitet är nyckel på översta nivån och händelseidentitet 
-på nivå under. Detta gör att kollektionen kan traverseras utifrån subjektidentitet samtidigt som 
-direktaddressering av enskilda subjekt och tillhörande registreringar kan göras. 
-Relationer mellan registreringar finns också representerade (”parent-child”).
-Denna form gör det möjligt att relativt snabbt hantera stora mängder data.
+(registreringar) på nivån under. Detta gör att kollektionen kan traverseras utifrån subjektidentitet samtidigt som 
+direktadressering av enskilda subjekt och tillhörande registreringar kan göras (Uinklusive registreringskedjor).
 
 Denna funktion driver bland annat den generiska programkomponenten för patientöversikt.
 + Response 200 (application/json)
