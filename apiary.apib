@@ -1087,6 +1087,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta alla för ett register [GET /api/metadata/units/register/{RegisterID}?apikey={APIKey}]
 + Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + RegisterID: `100` (number, required) - Unik identifierare för register.
 + Response 200 (application/json)
     + Attributes
@@ -1097,6 +1098,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta alla för ett register med enhetsgrupperingar [GET /api/metadata/units/bindings/{RegisterID}?apikey={APIKey}]
 + Parameters
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + RegisterID: `100` (number, required) - Unik identifierare för register.
 + Response 200 (application/json)
     + Body
@@ -1124,7 +1126,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
                 code: 0
             }
 
-### Skapa [POST /api/metadata/units?apikey={APIKey}]
+### Skapa [POST /api/metadata/units]
 + Response 200 (application/json)
     + Attributes
         + data (Unit)
