@@ -1146,10 +1146,12 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 
 ## Användare [/api/metadata/users/{UserID}?query={QueryString}]
-Vårdpersonal som registrerar, koordinatorer, api-brukare, dataleverantörer och integratörer är alla upplagda som användare, 
-även om det är [kontexten](#reference/metadata/kontext) som är den huvudsakliga entiteten som beskriver vad en användare kan göra i systemet vid ett givet tillfälle.
-En användare måste ha minst en kontext men kan ha flera. 
-Användare läggs upp och administreras av koordinatorer via komponenten ”Användarhanteraren” och är gemensamma för alla register i Stratum. 
+Vårdpersonal som registrerar, externa tjänster som levererar in data eller api-brukare är alla exempel på användare.
+Vad en användare kan göra vid varje givet tillfälle avgörs av [kontexten](#reference/metadata/kontext),
+som knyter ihop en användare med en [roll](#reference/metadata/kontext) och en [vårdenhet](#reference/metadata/vardenhet). 
+Eftersom vårdenheter är registerspecifika, pekar vårdenheten indirekt ut register.
+En användare måste ha minst en kontext men kan ha flera, även i olika register. 
+Användare administreras av koordinatorer via programkomponenten ”Användarhanteraren”. 
 
 + Attributes
     + User (User)
