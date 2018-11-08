@@ -1438,9 +1438,8 @@ och av vem och när en registrering skapades. Detta av juridiska skäl.
 En del loggningar görs även i syfte att kartlägga hur systemet används, till exempel anrop till våra REST-api:n. 
 <a name="LogType"></a>
 Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
-|Kod |Åtgärd vid statuskontroll
+|Kod |Förklaring
 |-   |-
-|1000|Reserved
 |1001|Registration created
 |1002|Registration updated
 |1003|Registration deleted
@@ -1450,24 +1449,25 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1008|Registration history delivered
 |1009|Registration failure
 |1010|Patient lookup performed
-|1011|Patient wildcard search performed
 |1012|Registration moved
+|1013|Registration context changed
+|1014|Registration subject changed
 |1021|Notification sent
-|1031|API request served
 |1041|Data layer delivered
 |1052|Subject overview delivered
 |1053|Subject excerpt delivered
 |1101|User authenticated by credentials
 |1102|User authenticated by certificate (SITHS)
-|1103|User switched context
 |1104|User authenticated by SAML
-|1105|User authenticated by certificate (RC)
+|1105|User authenticated by RC
+|1106|User authenticated by EFOS
 |1113|User authentication failed
+|1140|Certificate assigned
+|1141|Certificate assigment failed
+|1103|User switched context
 |1121|User created
 |1122|User updated
 |1123|User deleted
-|1140|SITHS certificate assigned
-|1141|SITHS certificate assigment failed
 |1201|Context created
 |1202|Context disabled
 |1203|Context enabled
@@ -1524,7 +1524,7 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 
 
 # Group Registreringar
-Registreringar i detta perspektiv är de data som sparas för ett registers räkning av en vårdenhet, 
+dRegistreringar i detta perspektiv är de data som sparas för ett registers räkning av en vårdenhet, 
 antingen manuellt via webbgränssnitt eller automatiserat via direktöverföring från andra it-system.
 Den vanligaste formen av registrering är den som görs på en patient (så kallad ”subjektbunden registrering”) 
 och som fångar information vid ett specifikt tillfälle i en vårdprocess för en patient. 
