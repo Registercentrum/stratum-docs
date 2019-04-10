@@ -1300,6 +1300,16 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + message: `null` (string)
         + code: `0` (number)
 
+### Hämta alla för ett register [GET /api/metadata/contexts/register/{RegisterID}]
++ Parameters
+    + RegisterID: `100` (number, required) - Identifierare för registret som kontexterna skall tillhöra.
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Context])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 ### Hämta för en registrering [GET /api/metadata/contexts/registration/{EventID}]
 + Parameters
     + EventID: `10115713` (number, required) - Identifierare för registrering vars kontext skall returneras.
