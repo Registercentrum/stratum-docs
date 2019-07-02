@@ -1442,9 +1442,8 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
 
 
 ## Loggrad [/api/metadata/logentries]
-I Stratum loggas i första hand händelser som används för att avgöra vem som gjort vad, till exempel vem som loggat in 
-och av vem och när en registrering skapades. Detta av juridiska skäl.
-En del loggningar görs även i syfte att kartlägga hur systemet används, till exempel anrop till våra REST-api:n. 
+I Stratum loggas i första hand händelser av juridiskt intresse, till exempel vem som loggat in 
+och av vem och när en registrering skapades. 
 <a name="LogType"></a>
 Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |Kod |Förklaring
@@ -1458,22 +1457,24 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1008|Registration history delivered
 |1009|Registration failure
 |1010|Patient lookup performed
-|1012|Registration moved
 |1013|Registration context changed
 |1014|Registration subject changed
+|1018|NKRR data delivered
 |1021|Notification sent
 |1041|Data layer delivered
 |1052|Subject overview delivered
 |1053|Subject excerpt delivered
+|1060|Statistics delivered
+|1065|Aggregate delivered
 |1101|User authenticated by credentials
-|1102|User authenticated by certificate (SITHS)
+|1102|User authenticated by SITHS
+|1103|User switched context
 |1104|User authenticated by SAML
 |1105|User authenticated by RC
 |1106|User authenticated by EFOS
 |1113|User authentication failed
 |1140|Certificate assigned
 |1141|Certificate assigment failed
-|1103|User switched context
 |1121|User created
 |1122|User updated
 |1123|User deleted
@@ -1481,6 +1482,7 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1202|Context disabled
 |1203|Context enabled
 |1204|Context updated
+|1205|Context activated
 |1301|Resource created
 |1302|Resource updated
 |1303|Resource deleted
@@ -1517,6 +1519,8 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |2043|Proxy delete
 |2044|Proxy URL sent by email
 |2045|Proxy URL sent by postal service
+|2046|Proxies for unit delivered
+|2047|Token by PIN delivered
 
 + Attributes
     + LogEntry (LogEntry)
@@ -1526,19 +1530,41 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
     + EventID: `10115713` (number, required) - Identifierare för registrering vars loggrader skall returneras.
 + Response 200 (application/json)
     + Attributes
-        + data (LogEntry)
+        + data (array[LogEntry])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
+### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}]
++ Parameters
+    + ContextID: `20000` (number, required) - Identifierare för kontext vars loggrader skall returneras.
++ Response 200 (application/json)
+    + Attributes
+        + data (array[LogEntry])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+
+### Hämta senaste loggraden per loggtyp och kontext [GET /api/metadata/logentries/latest/logtype/{LogTypeID}]
++ Parameters
+    + LogTypeID: `1001` (number, required) - Identifierare för loggtyp vars loggrader skall returneras.
++ Response 200 (application/json)
+    + Attributes
+        + data (array[LogEntry])
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
 
 
 # Group Registreringar
-dRegistreringar i detta perspektiv är de data som sparas för ett registers räkning av en vårdenhet, 
+Registreringar i detta perspektiv är de data som sparas för ett registers räkning av en vårdenhet, 
 antingen manuellt via webbgränssnitt eller automatiserat via direktöverföring från andra it-system.
 Den vanligaste formen av registrering är den som görs på en patient (så kallad ”subjektbunden registrering”) 
 och som fångar information vid ett specifikt tillfälle i en vårdprocess för en patient. 
 
-Den andra formen av registrering är inte är knuten till en patient utan direkt till en vårdenhet (så kallad ”enhetsbunden registrering”). 
+Den andra formen av registrering är inte är knuten till en patient utan till en vårdenhet (så kallad ”enhetsbunden registrering”). 
 Dessa registreringar används typiskt till att beskriva karaktäristika hos ett registers vårdenheter 
 (till exempel operationsmiljö eller utbildningsnivå hos personal). Ett annat använddningsområde är till metaregister, 
 till exempel ”Kvartalen” som sammanställer Västra götalandsregionens data på aggregerad nivå från många olika kvalitetsregister. 
@@ -3488,7 +3514,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + DomainName: `TypeOfProject` (string) - Giltig identifierare i strängform.
 + DomainTitle: `Projektdatabasen: typ av projekt` (string) - Titel.
 + IsInteger: `true` (boolean) - Om domänens tillhörande värden begränsas till heltal.
-+ Register (Register) - Tillhörande register (saknas om generisk domän).
++ Register (Register) - Tillhörande register [saknas om generisk domän].
 
 ## DomainValue (object)
 + DomainValueID: `50018` (number, required) - Identifierare.
@@ -3502,9 +3528,9 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + UnitID: `2000` (number, required) - Unik identifierare.
 + UnitCode: `26` (number, required) - Registrets kod för  vårdenheten.
 + UnitName: `Testkliniken` (string) - Registrets namn på vårdenheten.
-+ IsActive: `true` (optional, boolean) - Om aktiv (kan döljas i listor av vårdenheter om ej aktiv).
-+ HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (administreras av registret).
-+ PARID: `null` (string) - ID i Patientregistret (administreras av registret).
++ IsActive: `true` (optional, boolean) - Om aktiv [kan döljas i listor av vårdenheter om ej aktiv].
++ HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister [administreras av registret].
++ PARID: `null` (string) - ID i Patientregistret [administreras av registret].
 + Register (Register, required) - Registertillhörighet.
 + Bindings (array[UnitBinding], optional) - Lista av egenskaper, till exempel landsting eller vårdnivå.
 
@@ -3514,7 +3540,7 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 
 ## User (object)
 + UserID: `90000` (number, required) - Unik identifierare.
-+ Username: `roger@medicor.se` (string, required) - Unikt användarnamn (helst e-post).
++ Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-post].
 + HSAID: `SE2321000131-E000000007501` (string) - ID för kopplas autentisering (HSAID, namn eller personnummer).
 + FirstName: `Roger` (string) - Förnamn.
 + LastName: `Salomonsson` (string) - Efternamn.
@@ -3524,11 +3550,14 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 + PostalNumber: `413 45` (string) - Arbetsplatsens postnummer.
 + PostalOffice: `Göteborg` (string) - Arbetsplatsens postort.
 + Email: `roger@medicor.se` (string) - E-postadress.
++ Extra: `?` (string) - Extra attribut på användare [registerspecikt innehåll].
 + DefaultContextID (Context) - Kontext vid senaste inloggningen.
 
 ## Context (object)
 + ContextID: `30730` (number, required) - Unik identifierare.
 + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
++ ActivatedAt: `2019-07-02 10:34:01` (string) - Datum och tid för senast aktiv.
++ ExpireDate: `2027-08-31 00:00:01` (string) - Datum när kontexten automatiskt inaktiveras.
 + Role (Role, required) - Tillhörande roll.
 + Unit (Unit, required) - Tillhörande vårdenhet.
 + User (User, required) - Tillhörande anändare.
