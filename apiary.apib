@@ -136,7 +136,8 @@ Vid status 400 returneras i attribut `code`:
 + Response 400 (application/json)
 
 ### Begär inloggning och bind till konto [POST]
-Genomför inloggning med medskickat SITHS-certifikat och knyter användarkonto till certifikatinformation. 
+Genomför inloggning med medskickat SITHS-certifikat. 
+Om det är första gången kontot används knyts automatiskt certifikatet till detta. 
 Efter godkänd autentisering returneras även begäran om tilldelning av  sessioncookie på klienten.
 
 Vid status 400 returneras i attribut `code`:
@@ -1598,6 +1599,48 @@ generella och på så sätt återanvändas mellan olika register.
 När ett datalager tas fram, samkörs registerdata med systemgemensamma data 
 till en enklare flatfilsstruktur, bättre lämpad för statistisk bearbetning (men suboptimal för lagring). 
 
+## Att sätta upp testmiljö
+
+Stratum har ingen test-miljö utan för detta ändåmål används demo-miljön. 
+Denna är i de allra flesta avseenden en kopia av produktionsmiljön, så ett fungerande test är lätt att överföra till produktionsmiljön.
+
+Tänk på att demo-miljön inte är en sluten test-miljö. 
+**Registreringar som görs i demo-miljön kan ses av alla** så var noga med att inte skicka in riktiga patientuppgifter. 
+Notera också att demo-databasen nollställs varje natt vad gäller registreringar.
+
+För att läsa och skriva patientregistreringar krävs autentisering. API-nyckel är till för öppna data och går inte att använda i detta sammanhang.
+Till skillnad från produktionsmiljöns krav på tvåfaktorautentisering kan man i demo-miljön använda enkla användarnamn och lösenord.
+Efter autentisering görs övriga anrop på samma sätt oavsett miljö.
+
+Klienten som anropar behöver kunna hantera sessions-cookies. 
+Första anropet som görs är [`GET /api/authentication/assign`](#reference/autentisering/inloggning/begar-inloggning-och-bind-till-konto),
+som är identiskt med `POST /api/authentication/login`. 
+I demo-miljön genereras automatiskt behörigheter där användarnamn bildas genom att ta ett registers kortnamn och lägga på ändelsen ”demo”,
+exempelvis ”LVRdemo”, ”SFRdemo” eller ”BOAdemo”. Lösenordet är alltid ”demo”.
+Inloggning görs då via (exempel för till Luftvägsregistret):
+
+```
+GET /api/authentication/assign?username=LVRdemo&password=demo
+```
+
+På returen sätts två session-cookies som måste följa med i alla efterföljande anrop. 
+Om autentiseringen gått bra innehåller returvärdet information om den aktiva kontexten. 
+
+I Stratum har varje autentiserad användare en aktiv kontext. 
+Om man vill byta till någon annan kontext så gör man detta via [`PUT /api/authentication/context`](#reference/autentisering/kontexter/byt-aktuell).
+Vilka kontexter man kan byta till fås genom [`GET /api/authentication/contexts`](#reference/autentisering/kontexter/hamta-alla-inloggningsbara)
+
+Registreringar skapas via [`POST /api/registrations`](#reference/registreringar/generella-funktioner/skapa-registrering) 
+genom att skicka med ett JSON-objekt med de variabler man vill spara, tillsammans med ett objekt som anger vilket formulär det skall skrivas till 
+(exempel finns i [dokumentationen](#reference/registreringar/generella-funktioner/skapa-registrering)). 
+Registreringen läggs upp på den vårdenhet som aktiv kontext pekar ut. 
+För att veta vilka variabler man kan skicka in, tillsammans med utfallsrum för dessa, kan man använda sig av XML-schemat för registrering som finns för varje register
+(Exempel för [Luftvägsregistretregistret](http://stratum.registercentrum.se/schemas/lvr).).
+
+Varje register har också en officiell variabelbeskrivning 
+i antingen JSON- eller HTML-format (exempel för [BOA-registret](http://stratum.registercentrum.se/descriptions/boa?format=json)) i HTML-format)). 
+Samtliga dessa data finns dessutom exponerade via vårt [metadata api](#reference/metadata).
+
 ## Generella funktioner [/api/registrations]
 Dessa utgör huvudgrenen för att hämta, söka, spara och uppdatera registreringar, såväl subjektbundna som enhetsbundna.
 
@@ -1642,8 +1685,6 @@ När mallformatering används konverteras returvärdet till formen:
 `ValueName` står för den formaterade texten enligt mallen och `ValueCode` är registreringens identifierare (`EventID`).
 Formen lämpar sig särskilt väl för att mata listfält i Stratums registreringsapplikation, för att i register A kunna välja en registrering från register B.
 På så sätt kan registreringar i två olika register länkas samman.
-
-***Notera att med api-nyckel går det *inte* att skapa eller förändra registreringar.***
 
 ### Hämta specifik registrering [GET /api/registrations/{EventID}?apikey={APIKey}]
 + Parameters
