@@ -1599,14 +1599,14 @@ generella och på så sätt återanvändas mellan olika register.
 När ett datalager tas fram, samkörs registerdata med systemgemensamma data 
 till en enklare flatfilsstruktur, bättre lämpad för statistisk bearbetning (men suboptimal för lagring). 
 
-## Att sätta upp testmiljö
+## Test av dataleverans
 
-Stratum har ingen test-miljö utan för detta ändåmål används demo-miljön. 
+För att testa att skicka in registreringar använder vi vår demo-miljö. 
 Denna är i de allra flesta avseenden en kopia av produktionsmiljön, så ett fungerande test är lätt att överföra till produktionsmiljön.
 
-Tänk på att demo-miljön inte är en sluten test-miljö. 
-**Registreringar som görs i demo-miljön kan ses av alla** så var noga med att inte skicka in riktiga patientuppgifter. 
-Notera också att demo-databasen nollställs varje natt vad gäller registreringar.
+Tänk på att den är öppen så 
+**registreringar som görs i demo-miljön kan ses av alla**. Var därför noga med att inte skicka in riktiga patientuppgifter. 
+Notera också att demo-miljön töms på registreringar varje natt.
 
 För att läsa och skriva patientregistreringar krävs autentisering. API-nyckel är till för öppna data och går inte att använda i detta sammanhang.
 Till skillnad från produktionsmiljöns krav på tvåfaktorautentisering kan man i demo-miljön använda enkla användarnamn och lösenord.
