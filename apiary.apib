@@ -1540,7 +1540,7 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 ### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}?after={aFromDate}]
 + Parameters
     + ContextID: `20000` (number, required) - Identifierare för kontext vars loggrader skall returneras.
-    + aFromDate: `2019-08-14` (date, required) - Datum från när första loggraden skall returneras.
+    + aFromDate: `2019-08-14` (date) - Datum från när första loggraden skall returneras (de 1000 senaste raderna om den utelämnas).
 + Response 200 (application/json)
     + Attributes
         + data (array[LogEntry])
