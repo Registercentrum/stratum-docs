@@ -1618,11 +1618,11 @@ Första anropet som görs är [`GET /api/authentication/assign`](#reference/aute
 som är identiskt med `POST /api/authentication/login`. 
 I demo-miljön genereras automatiskt behörigheter där användarnamn bildas genom att ta ett registers kortnamn och lägga på ändelsen ”demo”,
 exempelvis ”LVRdemo”, ”SFRdemo” eller ”BOAdemo”. Lösenordet är alltid ”demo”.
-Inloggning görs då via (exempel för till Luftvägsregistret):
+Inloggning görs då via (exempel för till Luftvägsregistret) 
 
-```
-GET /api/authentication/assign?username=LVRdemo&password=demo
-```
+
+[`GET /api/authentication/assign?username=LVRdemo&password=demo`](/api/authentication/assign?username=LVRdemo&password=demo).
+
 
 På returen sätts två session-cookies som måste följa med i alla efterföljande anrop. 
 Om autentiseringen gått bra innehåller returvärdet information om den aktiva kontexten. 
@@ -1641,6 +1641,29 @@ För att veta vilka variabler man kan skicka in, tillsammans med utfallsrum för
 Varje register har också en officiell variabelbeskrivning 
 i antingen JSON- eller HTML-format (exempel för [BOA-registret](http://stratum.registercentrum.se/descriptions/boa?format=html) i HTML-format). 
 Samtliga dessa data finns dessutom exponerade via vårt [metadata api](#reference/metadata).
+
+### SOAP istället för REST?
+
+Stratum har också en SOAP-tjänst dit man kan skicka in registreringar. Det går bra att skicka en komplett registreringskedja i de fall
+registreringar är uppdelade på flera formulär, dock en registreringskedja åt gången. Beskrivning av SOAP-tjänsten når man via
+
+
+[`GET https://stratum.registercentrum.se/Services/ClinicalService.svc`](https://stratum.registercentrum.se/Services/ClinicalService.svc), 
+
+
+varifrån WSDL kan hämtas för till exempel klassgenerering.
+En registrering skickas sedan in via `POST` till `SubmitRegistration` via samma tjänst.
+
+För att veta hur en välformad registreringskedja skall se ut har varje register ett XML-schema för registrering. 
+Registreringschemat för exempelvis Luftvägsregistret hämtas via
+
+
+[`GET https://stratum.registercentrum.se/schemas/LVR`](https://stratum.registercentrum.se/schemas/LVR).
+
+
+För testning använder vi även här vår DEMO-server. Byt då ut ”stratum” i URL:erna ovan mot ”demo”. På DEMO-servern kan man även göra anrop 
+utan krypterad kanal, det vill säga ”http” istället för ”https”.
+
 
 ## Generella funktioner [/api/registrations]
 Dessa utgör huvudgrenen för att hämta, söka, spara och uppdatera registreringar, såväl subjektbundna som enhetsbundna.
