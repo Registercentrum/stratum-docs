@@ -1647,14 +1647,23 @@ Samtliga dessa data finns dessutom exponerade via vårt [metadata api](#referenc
 ### SOAP istället för REST?
 
 Stratum har också en SOAP-tjänst dit man kan skicka in registreringar. Det går bra att skicka en komplett registreringskedja i de fall
-registreringar är uppdelade på flera formulär, dock en registreringskedja åt gången. Beskrivning av SOAP-tjänsten i demo-miljön når man via
+registreringar är uppdelade på flera formulär, dock en registreringskedja åt gången. 
+
+I demo-miljön behövs inget certifikat. Detta är ett krav i produktionsmiljön. Dock behöver ett `ContextID`skickas med som pekar ut
+användare, vårdenhet och roll. Dessa skapas i demo-miljön genom att sätta ihop `901` med registrets ID-nummer (`RegisterID`) och 
+siffran `1` eller `2` för ”Testenheten” respektive ”Andra testenheten”.
+
+Exempel för LVR är `9011221`, som motsvarar en kontext som Registrerare (`901`) för LVR (`122`) och Testenheten (`1`). 
+Information om register och dess ID-nummer hämtas [via vårt REST-api](https://stratum.registercentrum.se/api/metadata/registers?apikey=J6b-GSKrkfk=).
+
+Beskrivning av SOAP-tjänsten i demo-miljön når man via
 
 
 [`GET http://demo.registercentrum.se/Services/ClinicalService.svc`](http://demo.registercentrum.se/Services/ClinicalService.svc), 
 
 
 varifrån WSDL kan hämtas för till exempel klassgenerering.
-En registrering skickas sedan in via `POST` till `SubmitRegistration` via samma tjänst.
+En registrering skickas sedan in med `POST` till metoden `SubmitRegistration`.
 
 För att veta hur en välformad registreringskedja skall se ut har varje register ett XML-schema för registrering. 
 Registreringschemat för exempelvis Luftvägsregistret hämtas via
@@ -1662,6 +1671,8 @@ Registreringschemat för exempelvis Luftvägsregistret hämtas via
 
 [`GET http://demo.registercentrum.se/schemas/LVR`](http://demo.registercentrum.se/schemas/LVR).
 
+
+Notera att registrets kortnamn används i slutet av adressen - i detta fall ”LVR”.
 
 För att göra anrop mot produktionsmiljön byts ”demo” ut mot ”stratum” och ”http” mot ”https” i URL:erna ovan.
 Det behövs också certifikat samt en eller flera kontexter. Dessa tillhandahålls efter beställning från registerledningen.
