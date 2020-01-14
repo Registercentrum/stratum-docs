@@ -1341,62 +1341,6 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + code: `0` (number)
 
 
-## Sida [/api/metadata/pages]
-Entiteten `Page` används för att visa ett HTML-innehåll och för att skapa navigation till innehållet. Eftersom vanliga sidor (numera) hanteras via [Stratums CMS-system](https://cms.registercentrum.se)
-så används sidor mestadels till att agera container åt programkomponenter (se [”komponenter”](/#reference/komponenter) nedan) och till sidor i registreringsapplikationen. 
-
-<a name="PageScope"></a>
-Det finns tre olika sammanhang en sida kan visas i, och som bestäms av attributet `PageScope`:
-|Kod |Sammanhang och användningsområde
-|-   |-
-|0   |Sidor som visas i den ”yttre” navigationen. Kan associeras med behörigheter för att endast visas för vissa målgrupper. Minst en sådan sida måste finnas, och den med lägst `PageOrder` utgör startsida.
-|1   |Sidor som kan navigeras till i registreringsapplikationen. Minst en sådan sida måste finnas, och den med lägst `PageOrder` utgör startsida efter att applikationen startats. Typiskt innehåll är en registreringsöversikt (en generisk programkomponent).
-|2   |Sidor som kan navigeras till efter att man sökt upp ett subjekt, under händelsepanelen. Typiskt innehåll är en programkomponent som visar subjekt-relaterat innehåll, till exempel en patientprofil.
-
-+ Attributes
-    + Page (Page)
-
-### Hämta [GET /api/metadata/pages/{PageID}?apikey={APIKey}]
-+ Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + PageID: `1001` (number) - Identifierare för aktuell webbsida.
-+ Response 200 (application/json)
-    + Attributes
-        + data (Page)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Hämta alla för webbplats [GET /api/metadata/pages/site/{SiteID}?apikey={APIKey}]
-+ Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + SiteID: `100` (number) - Identifierare för aktuell webbplats.
-+ Response 200 (application/json)
-    + Attributes
-        + data (array[Page])
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Skapa [POST /api/metadata/pages]
-+ Response 200 (application/json)
-    + Attributes
-        + data (Page)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-### Uppdatera [PUT /api/metadata/pages/{PageID}]
-+ Parameters
-    + PageID: `1001` (number) - Identifierare för aktuell webbsida.
-+ Response 200 (application/json)
-    + Attributes
-        + data (Page)
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-
 ## Subjekt [/api/metadata/subjects]
 Eftersom Stratum kan hantera registreringar som inte är knutna till patienter använder vi abstraktionen ”subjekt”, i bemärkelsen mätobjekt.
 I de allra flesta fall är ”subjekt” synonymt med ”patient”. Ett subjekt är unikt för ett register, vilket innebär att om en patient 
@@ -3449,27 +3393,12 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 
 
 # Group Sidadressering
-Alla adresser i Stratum gåt att direktadressera, det vill säga en URL kan kopieras från en webbläsare till en annan och rätt innehåll kommer att visas
+Alla sidor i Stratum gåt att direktadressera, det vill säga en URL kan kopieras från en webbläsare till en annan och rätt innehåll kommer att visas
 (under förutsättning att autentiseringen är korrekt och behörighet finns).
 Sidor kan också finnas i olika sammanhang (se förklaring av [`PageScope`](#PageScope) och av entiteten [`Sida`](#reference/metadata/sida)).
 
-Vid direktadressering kommer tillhörande Stratum-funktioner laddas in automatiskt om de inte redan är inladdade. Utöver sidinnehåll kan även tomma 
-registreringsformulär och befintliga registreringar adresseras för både patientbundna och enhetsbundna registreringar. Generellt gäller 
-att om efterfrågad resurs kräver auktorisering, och denna inte finns, så visas en 404-sida (”Oops!”).
-
-## Sida [/#!page?id={aPageID}?key={aSubjectKey}]
-`/#!page?id=<aPageID>?key=<aSubjectKey>`
-
-Visar sidinnehållet som idetifieras av `aPageID` och kan peka på en sida som finns i vilket `PageScope` (se [förklaring](#reference/sidadressering) ovan) som helst. 
-Om en sida finns på en annan webbplats så laddas webbplatsen först. Om sidans `PageScope` är 2 så är parametern `aSubjectKey` obligatorisk.
-
-___Stark autentisering krävs om sidans `PageScope` är 1 eller 2.___
-
-### Hämta[GET]
-+ Parameters
-    + aPageID: `1001` (number) - Sidans identifierare.
-    + aSubjectKey: `19121212-1212` (optional, string) - Personnummer (subjektnyckel).
-+ Response 200 (text/html)
+Utöver sidinnehåll kan även tomma 
+registreringsformulär och befintliga registreringar adresseras för både patientbundna och enhetsbundna registreringar. 
 
 ## Subjekt [/#!subject?key={aSubjectKey}]
 `/#!subject?key=<aSubjectKey>`
