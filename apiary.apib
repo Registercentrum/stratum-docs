@@ -1473,6 +1473,13 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
     + LogEntry (LogEntry)
 
 ### Hämta för en registrering [GET /api/metadata/logentries/event/{EventID}]
+Anropet har följande restriktioner.
+|Roll |Restriktion
+|-   |-
+|Koordinator|Får fråga om registrets alla registreringar
+|Plusregistrerare|Får fråga om vårdenhetens alla registreringar
+|Registrerare|Får fråga om om vårdenhetens alla registreringar (som plusregistrerare)
+
 + Parameters
     + EventID: `10115713` (number, required) - Identifierare för registrering vars loggrader skall returneras.
 + Response 200 (application/json)
@@ -1484,6 +1491,13 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 
 
 ### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}?after={aFromDate}]
+Anropet har följande restriktioner.
+|Roll |Restriktion
+|-   |-
+|Koordinator|Får fråga om registrets alla kontexter
+|Plusregistrerare|Får fråga om vårdenhetens alla kontexter
+|Registrerare|Får fråga om sina egna kontexter
+
 + Parameters
     + ContextID: `20000` (number, required) - Identifierare för kontext vars loggrader skall returneras.
     + aFromDate: `2019-08-14` (date) - Datum från när första loggraden skall returneras (de 1000 senaste raderna om den utelämnas).
@@ -1495,7 +1509,14 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
         + code: `0` (number)
 
 
-### Hämta senaste loggraden per loggtyp och kontext [GET /api/metadata/logentries/latest/logtype/{LogTypeID}]
+### Hämta senaste loggraden per loggtyp [GET /api/metadata/logentries/latest/logtype/{LogTypeID}]
+Resultatet har olika omfång beroende på anropande kontext.
+|Roll |Omfång
+|-   |-
+|Koordinator|Senaste loggraden för registrets alla kontexter
+|Plusregistrerare|Senaste loggraden för vårdenhetens alla kontexter
+|Registrerare|Senaste loggraden för användarens egna kontexter
+
 + Parameters
     + LogTypeID: `1001` (number, required) - Identifierare för loggtyp vars loggrader skall returneras.
 + Response 200 (application/json)
