@@ -3481,6 +3481,45 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 ### Hämta[GET]
 + Response 200 (text/html)
 
+# Group RRCT
+
+## Registerbaserade randomiserade kliniska studier [/api/rrct]
+
+Stratum har stöd för implementering av en eller flera RRCT för ett register. 
+Av flera skäl så lagras vare sig data eller metadata för en studie i Stratums databas.
+Huvudskälet är att inte blanda ihop de två olika lagrum som styr dessa olika data.
+All implementering av RRCT-stöd för ett register sker därför på klientsidan, i form av olika skript som brukar detta api.
+
+### Hämta information om studie [GET /api/rrct/{StudyID}]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Response 200 (application/json)
+
+        {
+            UnitId: '99',
+            UnitName: 'Testkliniken',
+            UnitAlias: 'Test1',
+            Enabled: true,
+            LastModified: '2020-03-03T18:01:00'
+        }
+
+
+### Hämta information om en screeningkandidat [GET /api/rrct/{StudyID}/candidates/{EventID}]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + EventID: `100000` (number) - Identifierare för screeningkandidat
++ Response 200 (application/json)
+
+        {
+            Included: true,
+            SubjectId: '1000010',
+            ReasonNotIncluded: '',
+            ReasonNotIncludedDetail: '',
+            Comment: '',
+            Screening: '',
+            SubjectKey: '19121212-1212'
+        }
+
 
 # Data Structures
 
