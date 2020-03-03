@@ -3481,16 +3481,16 @@ Vid denna adressering startas registreringsapplikationen och visar registrets en
 ### Hämta[GET]
 + Response 200 (text/html)
 
-# Group RRCT
+# Group R-RCT
 
 ## Registerbaserade randomiserade kliniska studier [/api/rrct]
 
-Stratum har stöd för implementering av en eller flera RRCT för ett register. 
+Stratum har stöd för implementering av en eller flera R-RCT för ett register. 
 Av flera skäl så lagras vare sig data eller metadata för en studie i Stratums databas.
 Huvudskälet är att inte blanda ihop de två olika lagrum som styr dessa olika data.
-All implementering av RRCT-stöd för ett register sker därför på klientsidan, i form av olika skript som brukar detta api.
+All implementering av R-RCT-stöd för ett register sker därför på klientsidan, i form av olika skript som brukar detta api.
 
-### Hämta information om studie [GET /api/rrct/{StudyID}]
+### Hämta studie [GET /api/rrct/{StudyID}]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
 + Response 200 (application/json)
@@ -3504,7 +3504,7 @@ All implementering av RRCT-stöd för ett register sker därför på klientsidan
         }
 
 
-### Hämta information om en screeningkandidat [GET /api/rrct/{StudyID}/candidates/{EventID}]
+### Hämta screeningkandidat [GET /api/rrct/{StudyID}/candidates/{EventID}]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
     + EventID: `100000` (number) - Identifierare för screeningkandidat
@@ -3512,13 +3512,42 @@ All implementering av RRCT-stöd för ett register sker därför på klientsidan
 
         {
             Included: true,
-            SubjectId: '1000010',
+            SubjectId: '231000',
             ReasonNotIncluded: '',
             ReasonNotIncludedDetail: '',
             Comment: '',
             Screening: '',
             SubjectKey: '19121212-1212'
         }
+
+### Hämta alla screeningkandidater [GET /api/rrct/{StudyID}/candidates]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Response 200 (application/json)
+
+        [{
+            Included: true,
+            SubjectId: '231000',
+            ReasonNotIncluded: '',
+            ReasonNotIncludedDetail: '',
+            Comment: '',
+            Screening: '',
+            SubjectKey: '19121212-1212'
+        }]
+        
+### Exkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/fail]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Response 200 (application/json)
+
+        {
+        }
+        
+### Inkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/pass]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Response 501 (application/json)
+
 
 
 # Data Structures
