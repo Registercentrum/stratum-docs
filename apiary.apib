@@ -3496,11 +3496,16 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            UnitId: '99',
-            UnitName: 'Testkliniken',
-            UnitAlias: 'Test1',
-            Enabled: true,
-            LastModified: '2020-03-03T18:01:00'
+            "data": {
+                UnitId: '99',
+                UnitName: 'Testkliniken',
+                UnitAlias: 'Test1',
+                Enabled: true,
+                LastModified: '2020-03-03T18:01:00'
+            },
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
 
@@ -3511,13 +3516,18 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            Included: true,
-            SubjectId: '231000',
-            ReasonNotIncluded: '',
-            ReasonNotIncludedDetail: '',
-            Comment: '',
-            Screening: '',
-            SubjectKey: '19121212-1212'
+            "data": {
+                Included: true,
+                SubjectId: '231000',
+                ReasonNotIncluded: '',
+                ReasonNotIncludedDetail: '',
+                Comment: '',
+                Screening: '',
+                SubjectKey: '19121212-1212'
+            },
+            "success": true,
+            "message": null,
+            "code": 0
         }
 
 ### Hämta alla screeningkandidater [GET /api/rrct/{StudyID}/candidates]
@@ -3525,22 +3535,31 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
 + Response 200 (application/json)
 
-        [{
-            Included: true,
-            SubjectId: '231000',
-            ReasonNotIncluded: '',
-            ReasonNotIncludedDetail: '',
-            Comment: '',
-            Screening: '',
-            SubjectKey: '19121212-1212'
-        }]
-        
+        {
+            "data": [{
+                Included: true,
+                SubjectId: '231000',
+                ReasonNotIncluded: '',
+                ReasonNotIncludedDetail: '',
+                Comment: '',
+                Screening: '',
+                SubjectKey: '19121212-1212'
+            }],
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
 ### Exkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/fail]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
 + Response 200 (application/json)
 
         {
+            "data": null,
+            "success": true,
+            "message": null,
+            "code": 0
         }
         
 ### Inkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/pass]
@@ -3548,6 +3567,12 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
 + Response 501 (application/json)
 
+        {
+            "data": null,
+            "success": false,
+            "message": "Not implemented",
+            "code": -1
+        }
 
 
 # Data Structures
