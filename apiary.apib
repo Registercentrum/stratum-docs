@@ -3650,6 +3650,37 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
             "code": 0
         }
         
+### Hämta alla datapunkter för ett subjekt [GET /api/rrct/{StudyID}/subjects/data/{SubjectKey}]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
+### Skapa datapunkter för ett subjekt [POST /api/rrct/{StudyID}/subjects/data/{SubjectKey}]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
++ Request (application/json)
+    + Attributes
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + parameters(array[DataPoint]) - Datapunkter som lista av nyckel/värde-par.
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
 
 # Data Structures
 
@@ -3660,6 +3691,10 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + success: `true` (boolean) - Om anropet lyckades.
 + message: `null` (string) - Eventuellt felmeddelande (null annars).
 + code: `0` (number) - Eventuell felkod (0 annars).
+
+## DataPoint (object)
++ id: `INIT::1::BASIC::1::UNGROUPED::1::WEIGHT` (string) - Värdeidentifierare,
++ value: `85` (string) - Värde
 
 ## KeyValue (object)
 + key: `X` (string) - Attributnamn.
