@@ -334,7 +334,7 @@ Endast användare med rollen Koordinator kan uppdatera attribut (för det regist
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/registers]
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + RegisterName: `Testregistret` (string, required) - Namn på registret (svenska).
         + RegisterNameInEnglish: `Test register` (string) - Namn på registret (engelska).
@@ -354,7 +354,7 @@ Endast användare med rollen Koordinator kan uppdatera attribut (för det regist
 ### Uppdatera [PUT /api/metadata/registers/{RegisterID}]
 + Parameters
     + RegisterID: `100` (optional, number) - Identifierare för aktuellt register.
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + RegisterName: `Testregistret` (string) - Namn på registret (svenska).
         + RegisterNameInEnglish: `Test register` (string) - Namn på registret (engelska).
@@ -423,7 +423,7 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/forms]
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + FormName: `TestForm` (string) - Giltig identifierare i strängform.
         + FormTitle: `Testformulär` (string, required) - Titel.
@@ -443,7 +443,7 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
 ### Uppdatera [PUT /api/metadata/forms/{FormID}]
 + Parameters
     + FormID: `1001` (number, required) - Identifierare för aktuellt formulär.
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + FormName: `TestForm` (string) - Giltig identifierare i strängform.
         + FormTitle: `Testformulär` (string) - Titel.
@@ -558,7 +558,7 @@ return 42
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/questions]
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + Question (Question) - 
             Observera att följande gäller för nedanstående attribut:
@@ -575,7 +575,7 @@ return 42
 ### Uppdatera [PUT /api/metadata/questions/{QuestionID}]
 + Parameters
     + QuestionID: `24205` (number) - Identifierare för aktuell variabel.
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + Question (Question) - 
             Observera att följande gäller för nedanstående attribut:
@@ -3388,7 +3388,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
         }
 
 ### Skapa [POST /api/proxies]
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
         + SubjectKey: `19121212-1212` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
         + SourceEvent (Event) - Registrering som triggat bjudning (vid automatiskt genererade bjudningar).
@@ -3553,9 +3553,9 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Exkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/fail]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum)
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
         + mainReason: `NO_INFORMED_CONSENT` (string) - Orsak till misslyckad screening (uppräkningstyp definierad i studieapplikation).
         + detailedReason: `FOREIGN_LANGUAGE` (string) - Detaljerad orsak till misslyckad screening (uppräkningstyp definierad i studieapplikation).
 + Response 200 (application/json)
@@ -3570,9 +3570,9 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Inkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/pass]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum)
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
 + Response 501 (application/json)
 
         {
@@ -3597,7 +3597,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Hämta status för randomisering av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
 + Response 200 (application/json)
 
         {
@@ -3610,7 +3610,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Hämta status för tillbakadragande av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
 + Response 200 (application/json)
 
         {
@@ -3623,7 +3623,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Sätt status för tillbakadragande av subjekt [PUT /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
 + Response 200 (application/json)
 
         {
@@ -3636,11 +3636,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Skapa lyckad screening och randomisering av subjekt [POST /api/rrct/{StudyID}/subjects]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-+ Request (application/x-www-form-urlencoded)
++ Request (application/json)
     + Attributes
-        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum)
-        + parameters(array[KeyValue])
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + parameters(array[KeyValue]) - Stratifieringsparametrar som lista av nyckel/värde-par.
 + Response 200 (application/json)
 
         {
