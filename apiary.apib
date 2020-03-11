@@ -3259,7 +3259,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
         
 ### Hämta enkätunderlag via personnummer och PIN [GET /api/proxies/survey?subject={SubjectKey}&pin={PIN}&apikey={APIKey}]
 + Parameters
-    + SubjectKey: `19620831-5116` (string) - Personnummer vars enkätunderlag skall hämtas upp.
+    + SubjectKey: `19121212-1212` (string) - Personnummer vars enkätunderlag skall hämtas upp.
     + PIN: `7321` (number) - PIN-kod till bjudning.
     + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
@@ -3390,7 +3390,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 ### Skapa [POST /api/proxies]
 + Request (application/x-www-form-urlencoded)
     + Attributes
-        + SubjectKey: `19620831-5116` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
+        + SubjectKey: `19121212-1212` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
         + SourceEvent (Event) - Registrering som triggat bjudning (vid automatiskt genererade bjudningar).
         + Subject (Subject) - Personnummer (för bjudningar som inte triggas av annan registrering).
         + Form (Form, required) - Formulär som skall bjudas.
@@ -3553,6 +3553,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Exkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/fail]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum)
+        + mainReason: `NO_INFORMED_CONSENT` (string) - Orsak till misslyckad screening (uppräkningstyp definierad i studieapplikation).
+        + detailedReason: `FOREIGN_LANGUAGE` (string) - Detaljerad orsak till misslyckad screening (uppräkningstyp definierad i studieapplikation).
 + Response 200 (application/json)
 
         {
@@ -3565,6 +3570,9 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 ### Inkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/pass]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum)
 + Response 501 (application/json)
 
         {
@@ -3574,6 +3582,74 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
             "code": -1
         }
 
+### Hämta alla subjekt för aktuell enhet [GET /api/rrct/{StudyID}/subjects]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Hämta status för randomisering av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Hämta status för tillbakadragande av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Sätt status för tillbakadragande av subjekt [PUT /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+
+### Skapa lyckad screening och randomisering av subjekt [POST /api/rrct/{StudyID}/subjects]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Request (application/x-www-form-urlencoded)
+    + Attributes
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt)
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum)
+        + parameters(array[KeyValue])
++ Response 200 (application/json)
+
+        {
+            "data": {},
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
 
 # Data Structures
 
@@ -3584,6 +3660,10 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + success: `true` (boolean) - Om anropet lyckades.
 + message: `null` (string) - Eventuellt felmeddelande (null annars).
 + code: `0` (number) - Eventuell felkod (0 annars).
+
+## KeyValue (object)
++ key: `X` (string) - Attributnamn.
++ value: `3` (string) - Attributvärde.
 
 ## Register (object)
 + RegisterID: `100` (number, required) - Unik identifierare.
@@ -3714,7 +3794,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ## Subject (object)
 + SubjectID: `1001` (number, required) - Unik identifierare.
-+ SubjectKey: `19620831-5116` (string, required) - Personnummer eller annan identifierare för mätobjekt.
++ SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare för mätobjekt.
 + IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
 + StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
 + StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectnes” anger detta attributs innehåll.
@@ -3743,7 +3823,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
   
 ## Proxy (object)
 + ProxyID: `123456` (number, required) - Unik identifierare.
-+ SubjectKey: `19620831-5116` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
++ SubjectKey: `19121212-1212` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
 + ReplyStatus: `100` (number, required) - Aktuell status (se [förklaring](#ReplyStatus)).
 + StatusDate: `2017-08-09 11:14:43` (string, required) - Tidsstämpel då status senast ändrades.
 + SourceEvent (Event) - Registrering som triggat bjudning (vid automatiskt genererade bjudningar).
