@@ -3588,10 +3588,37 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            "data": {},
-            "success": true,
-            "message": null,
-            "code": 0
+           "data":[
+              {
+                 "SubjectId": "10003",
+                 "StudyGroup": "PROTES",
+                 "Withdrawn": false,
+                 "SubjectKey": "19370119-4825",
+                 "Screening": {
+                    "EventId": "16100946",
+                    "ContextId": "29145",
+                    "UnitId": "2028",
+                    "DateConsidered": "2019-09-23T13:23:31"
+                 },
+                 "WithdrawalDetails": null
+              },
+              {
+                 "SubjectId": "20001",
+                 "StudyGroup": "OSTEOSYNTES",
+                 "Withdrawn": false,
+                 "SubjectKey": "19401228-5013",
+                 "Screening": {
+                    "EventId": "16134621",
+                    "ContextId": "20727",
+                    "UnitId": "2028",
+                    "DateConsidered": "2019-10-07T07:49:51"
+                 },
+                 "WithdrawalDetails": null
+              }
+           ],
+           "success": true,
+           "message": null,
+           "code": 0
         }
 
 ### Hämta status för randomisering av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}]
@@ -3601,10 +3628,22 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            "data": {},
-            "success": true,
-            "message": null,
-            "code": 0
+           "data": {
+              "SubjectId": "10003",
+              "StudyGroup": "PROTES",
+              "Withdrawn": false,
+              "SubjectKey": "19370119-4825",
+              "Screening": {
+                 "EventId": "16100946",
+                 "ContextId": "29145",
+                 "UnitId": "2028",
+                 "DateConsidered": "2019-09-23T13:23:31"
+              },
+              "WithdrawalDetails": null
+           },
+           "success": true,
+           "message": null,
+           "code": 0
         }
 
 ### Hämta status för tillbakadragande av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
@@ -3614,10 +3653,12 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            "data": {},
-            "success": true,
-            "message": null,
-            "code": 0
+           "data": {
+              "Withdrawn": false
+           },
+           "success": true,
+           "message": null,
+           "code": 0
         }
 
 ### Sätt status för tillbakadragande av subjekt [PUT /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
@@ -3627,7 +3668,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            "data": {},
+            "data": null,
             "success": true,
             "message": null,
             "code": 0
@@ -3640,14 +3681,26 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
     + Attributes
         + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
         + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
-        + parameters(array[KeyValue]) - Stratifieringsparametrar som lista av nyckel/värde-par.
+        + parameters(array[KeyValue]) - Randomiseringsparametrar som lista av nyckel/värde-par.
 + Response 200 (application/json)
 
         {
-            "data": {},
-            "success": true,
-            "message": null,
-            "code": 0
+           "data": {
+              "SubjectId": "10003",
+              "StudyGroup": "PROTES",
+              "Withdrawn": false,
+              "SubjectKey": "19370119-4825",
+              "Screening": {
+                 "EventId": "16100946",
+                 "ContextId": "29145",
+                 "UnitId": "2028",
+                 "DateConsidered": "2019-09-23T13:23:31"
+              },
+              "WithdrawalDetails": null
+           },
+           "success": true,
+           "message": null,
+           "code": 0
         }
         
 ### Hämta alla datapunkter för ett subjekt [GET /api/rrct/{StudyID}/subjects/data/{SubjectKey}]
@@ -3657,25 +3710,58 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Response 200 (application/json)
 
         {
-            "data": {},
+           "data": [
+              {
+                 "Id": "SE_BASELINE::1::F_BASELINE_1::1::IG_BASEL_BASELINE::1::I_BASEL_FX_XRAYDAT",
+                 "Value": "2019-09-23"
+              },
+              {
+                 "Id": "SE_BASELINE::1::F_BASELINE_1::1::IG_BASEL_BASELINE::1::I_BASEL_FX_XRAYTIME",
+                 "Value": "10:46:00"
+              },
+              {
+                 "Id": "SE_BASELINE::1::F_BASELINE_1::1::IG_BASEL_BASELINE::1::I_BASEL_INJ_AGE",
+                 "Value": "82"
+              },
+              {
+                 "Id": "SE_BASELINE::1::F_BASELINE_1::1::IG_BASEL_BASELINE::1::I_BASEL_INJ_CAUSE",
+                 "Value": "W01"
+              }
+           ],
+           "success": true,
+           "message": null,
+           "code": 0
+        }
+
+### Skapa datapunkter för ett subjekt [POST /api/rrct/{StudyID}/subjects/data]
++ Parameters
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
++ Request (application/json)
+    + Attributes
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + parameters(DataPoint) - Datapunkter som lista av nyckel/värde-par.
++ Response 200 (application/json)
+
+        {
+            "data": null,
             "success": true,
             "message": null,
             "code": 0
         }
         
-### Skapa datapunkter för ett subjekt [POST /api/rrct/{StudyID}/subjects/data/{SubjectKey}]
+### Uppdatera datapunkter för ett subjekt [PUT /api/rrct/{StudyID}/subjects/data]
 + Parameters
     + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
 + Request (application/json)
     + Attributes
         + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
         + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
-        + parameters(array[DataPoint]) - Datapunkter som lista av nyckel/värde-par.
+        + parameters(DataPoint) - Datapunkter som lista av nyckel/värde-par.
 + Response 200 (application/json)
 
         {
-            "data": {},
+            "data": null,
             "success": true,
             "message": null,
             "code": 0
@@ -3692,13 +3778,15 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + message: `null` (string) - Eventuellt felmeddelande (null annars).
 + code: `0` (number) - Eventuell felkod (0 annars).
 
-## DataPoint (object)
-+ id: `INIT::1::BASIC::1::UNGROUPED::1::WEIGHT` (string) - Värdeidentifierare,
-+ value: `85` (string) - Värde
-
 ## KeyValue (object)
-+ key: `X` (string) - Attributnamn.
-+ value: `3` (string) - Attributvärde.
++ key: `X` (string) - Identifierare.
++ value: `3` (string) - Värde.
+
+## DataPoint (object)
++ key: `INIT::1::BASIC::1::UNGROUPED::1::WEIGHT` (string) - Identifierare i ODM-format.
++ value: 85 (string) - Värde.
+            }
+        ]
 
 ## Register (object)
 + RegisterID: `100` (number, required) - Unik identifierare.
