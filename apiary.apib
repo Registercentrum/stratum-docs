@@ -560,11 +560,25 @@ return 42
 ### Skapa [POST /api/metadata/questions]
 + Request (application/json)
     + Attributes
-        + Question (Question) - 
-            Observera att följande gäller för nedanstående attribut:
-            * `QuestionID` får *inte* anges.
-            * Endast `FormID` behöver anges för `Form`-entitet.
-            * Endast `DomainID` behöver anges för `Domain`-entitet.
+        + ColumnName: `VisitDate` (string, required) - Namn på variabel (oftast namn på kolumn i databastabell).
+        + MappedTo: `EventDate` (string) - Namn på eventuell extern entitet variabeln är länkad till ([läs mer](#MappedTo)).
+        + PrefixText: `Besöksdatum` (string) - Text att visa innan variabelvärde (oftast fråga).
+        + SuffixText: `år-månad-dag` (string) - Text att visa efter variabelvärde.
+        + RunOnce: `false` (boolean, required) - Avgör om ett beräkningsscript endast beräknas initialt eller kontinuerligt ([läs mer](#RunOnce)).
+        + CalculationScript: `return new Date()` (string) - JavaScript-uttryck för beräkning.
+        + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
+        + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
+        + HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
+        + Description: ` ` (string) - officiell förklarande beskrivning utifrån statistiskt perspektiv.
+        + Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
+        + Position: `8` (number) - position på aktuell rad i formulär (1-32).
+        + Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
+        + IsMandatory: `false` (boolean) - om obligatorisk (måste anges).
+        + IsIdentifier: `false` (boolean) - om variabeln används för att identifiera en registrering (kan vara flera).
+        + Form (object, required) - Formulär variabeln skall tillhöra.
+            + FormID: `1001` (number, required) - Identifierare till formulär.
+        + Domain (object, required) - Domän variabeln skall tillhöra.
+            + DomainID: `1001` (number, required) - Identifierare till domän.
 + Response 200 (application/json)
     + Attributes
         + data (Question)
@@ -577,11 +591,25 @@ return 42
     + QuestionID: `24205` (number) - Identifierare för aktuell variabel.
 + Request (application/json)
     + Attributes
-        + Question (Question) - 
-            Observera att följande gäller för nedanstående attribut:
-            * `QuestionID` får *inte* anges.
-            * Endast `FormID` behöver anges i `Form`-entitet.
-            * `Domain` går inte att byta i dagsläget och får inte anges.
+        + ColumnName: `VisitDate` (string, required) - Namn på variabel (oftast namn på kolumn i databastabell).
+        + MappedTo: `EventDate` (string) - Namn på eventuell extern entitet variabeln är länkad till ([läs mer](#MappedTo)).
+        + PrefixText: `Besöksdatum` (string) - Text att visa innan variabelvärde (oftast fråga).
+        + SuffixText: `år-månad-dag` (string) - Text att visa efter variabelvärde.
+        + RunOnce: `false` (boolean, required) - Avgör om ett beräkningsscript endast beräknas initialt eller kontinuerligt ([läs mer](#RunOnce)).
+        + CalculationScript: `return new Date()` (string) - JavaScript-uttryck för beräkning.
+        + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
+        + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
+        + HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
+        + Description: ` ` (string) - officiell förklarande beskrivning utifrån statistiskt perspektiv.
+        + Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
+        + Position: `8` (number) - position på aktuell rad i formulär (1-32).
+        + Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
+        + IsMandatory: `false` (boolean) - om obligatorisk (måste anges).
+        + IsIdentifier: `false` (boolean) - om variabeln används för att identifiera en registrering (kan vara flera).
+        + Form (object) - Formulär variabeln skall flyttas till (utelämna annars).
+            + FormID: `1001` (number, required) - Identifierare till formulär.
+        + Domain (object) - Domän variabeln skall flyttas till (utelämna annars).
+            + DomainID: `1001` (number, required) - Identifierare till domän.
 + Response 200 (application/json)
     + Attributes
         + data (Question)
@@ -3824,7 +3852,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
 + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
 + HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
-+ Description: ` ` (string) - officiell förklarande text utifrån statistiskt perspektiv.
++ Description: ` ` (string) - officiell förklarande beskrivning utifrån statistiskt perspektiv.
 + Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
 + Position: `8` (number) - position på aktuell rad i formulär (1-32).
 + Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
