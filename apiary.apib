@@ -429,10 +429,13 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
         + FormTitle: `Testformulär` (string, required) - Titel.
         + TableName: `x1005` (string, required) - Namn på tabell i databas.
         + FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
+        + Sequence: `1` (number) - Ordningsnummer i fall formulär visas sorterade.
+        + ValidationScript: `return History.Primary.Registrations.length < 2` (string) - JavaScript-uttryck för validering av ny registrering.
+        + HelpNote: ` ` (string) - Övergripande hjälptext att visa i formulär (HTML).
         + Register (object, required) - Register formuläret skall tillhöra.
-            +  RegisterID: `100` (number)
+            +  RegisterID: `100` (number) - Identifierare till register.
         + Parent (object, optional) - Ägande formulär (saknas för rotformulär).
-            + FormID: `1001` (number)
+            + FormID: `1001` (number) - Identifierare till formulär.
 + Response 200 (application/json)
     + Attributes
         + data (Form)
@@ -449,6 +452,13 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
         + FormTitle: `Testformulär` (string) - Titel.
         + TableName: `x1005` (string) - Namn på tabell i databas.
         + FormScope: `1` (number) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
+        + Sequence: `1` (number) - Ordningsnummer i fall formulär visas sorterade.
+        + ValidationScript: `return History.Primary.Registrations.length < 2` (string) - JavaScript-uttryck för validering av ny registrering.
+        + HelpNote: ` ` (string) - Övergripande hjälptext att visa i formulär (HTML).
+        + Register (object) - Register formuläret skall byta till (utelämnas annars).
+            +  RegisterID: `100` (number) - Identifierare till register.
+        + Parent (object, optional) - Formulär att byta ägare till (utelämnas annars).
+            + FormID: `1001` (number) - Identifierare till formulär.
 + Response 200 (application/json)
     + Attributes
         + data (Form)
@@ -569,12 +579,12 @@ return 42
         + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
         + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
         + HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
-        + Description: ` ` (string) - officiell förklarande beskrivning utifrån statistiskt perspektiv.
-        + Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
-        + Position: `8` (number) - position på aktuell rad i formulär (1-32).
-        + Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
-        + IsMandatory: `false` (boolean) - om obligatorisk (måste anges).
-        + IsIdentifier: `false` (boolean) - om variabeln används för att identifiera en registrering (kan vara flera).
+        + Description: ` ` (string) - Förklarande beskrivning utifrån statistiskt perspektiv.
+        + Sequence: `1` (number) - Ordningsnummer för visning i formulär (sorteringsordning).
+        + Position: `8` (number) - Position på aktuell rad i formulär (1-32).
+        + Span: `8` (number) - Utbredning  i kolumner på formulär (1-32).
+        + IsMandatory: `false` (boolean) - Om obligatorisk (måste anges).
+        + IsIdentifier: `false` (boolean) - Om variabeln används för att identifiera en registrering (kan vara flera).
         + Form (object, required) - Formulär variabeln skall tillhöra.
             + FormID: `1001` (number, required) - Identifierare till formulär.
         + Domain (object, required) - Domän variabeln skall tillhöra.
@@ -600,12 +610,12 @@ return 42
         + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
         + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
         + HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
-        + Description: ` ` (string) - officiell förklarande beskrivning utifrån statistiskt perspektiv.
-        + Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
-        + Position: `8` (number) - position på aktuell rad i formulär (1-32).
-        + Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
-        + IsMandatory: `false` (boolean) - om obligatorisk (måste anges).
-        + IsIdentifier: `false` (boolean) - om variabeln används för att identifiera en registrering (kan vara flera).
+        + Description: ` ` (string) - Förklarande beskrivning utifrån statistiskt perspektiv.
+        + Sequence: `1` (number) - Ordningsnummer för visning i formulär (sorteringsordning).
+        + Position: `8` (number) - Position på aktuell rad i formulär (1-32).
+        + Span: `8` (number) - Utbredning  i kolumner på formulär (1-32).
+        + IsMandatory: `false` (boolean) - Om obligatorisk (måste anges).
+        + IsIdentifier: `false` (boolean) - Om variabeln används för att identifiera en registrering (kan vara flera).
         + Form (object) - Formulär variabeln skall flyttas till (utelämna annars).
             + FormID: `1001` (number, required) - Identifierare till formulär.
         + Domain (object) - Domän variabeln skall flyttas till (utelämna annars).
@@ -3834,12 +3844,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + FormTitle: `Testformulär` (string, required) - Titel.
 + TableName: `x1005` (string, required) - Namn på tabell i databas.
 + FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
-+ Sequence: `1` (number) - ordningsnummer i fall formulär visas sorterade.
++ Sequence: `1` (number) - Ordningsnummer i fall formulär visas sorterade.
 + ValidationScript: `return History.Primary.Registrations.length < 2` (string) - JavaScript-uttryck för validering av ny registrering.
-+ HelpNote: ` ` (string) - övergripande hjälptext att visa i formulär (HTML).
-+ Description: ` ` (string) - officiell förklarande text utifrån statistiskt perspektiv.
++ HelpNote: ` ` (string) - Övergripande hjälptext att visa i formulär (HTML).
 + Register (Register, required) - Tillhörande register.
-+ ParentForm (Form) - Ägande formulär (saknas för rotformulär).
++ Parent (Form) - Ägande formulär (saknas för rotformulär).
 
 ## Question (object)
 + QuestionID: `24205` (number, required) - Identifierare.
@@ -3852,12 +3861,12 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + ValidationScript: `return Current.VisitDate !== null` (string) - JavaScript-uttryck för validering.
 + ControlScript: ` ` (string) - JavaScript för att styra synlighet och liknande för övriga variabler (inte validering och beräkning).
 + HelpNote: ` ` (string) - Specifik hjälptext att visa i formulär (HTML).
-+ Description: ` ` (string) - officiell förklarande beskrivning utifrån statistiskt perspektiv.
-+ Sequence: `1` (number) - ordningsnummer för visning i formulär (sorteringsordning).
-+ Position: `8` (number) - position på aktuell rad i formulär (1-32).
-+ Span: `8` (number) - utbredning  i kolumner på formulär (1-32).
-+ IsMandatory: `false` (boolean) - om obligatorisk (måste anges).
-+ IsIdentifier: `false` (boolean) - om variabeln används för att identifiera en registrering (kan vara flera).
++ Description: ` ` (string) - Förklarande beskrivning utifrån statistiskt perspektiv.
++ Sequence: `1` (number) - Ordningsnummer för visning i formulär (sorteringsordning).
++ Position: `8` (number) - Position på aktuell rad i formulär (1-32).
++ Span: `8` (number) - Utbredning  i kolumner på formulär (1-32).
++ IsMandatory: `false` (boolean) - Om obligatorisk (måste anges).
++ IsIdentifier: `false` (boolean) - Om variabeln används för att identifiera en registrering (kan vara flera).
 + Form (Form, required) - Formulär variabeln tillhör.
 + Domain (Domain, required) - Domän (utfallsrum) variabelns värde är bundna till.
 
