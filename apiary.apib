@@ -1037,6 +1037,13 @@ Fördefinierade domäner:
         }
 
 ### Skapa [POST /api/metadata/domains]
++ Request
+    + Attributes
+        + DomainName: `TypeOfProject` (string) - Giltig identifierare i strängform.
+        + DomainTitle: `Projektdatabasen: typ av projekt` (string) - Begriplig titel.
+        + IsInteger: `true` (boolean) - Om domänens tillhörande värden begränsas till heltal.
+        + Register (object) - Register domänen skall tillhöra.
+            +  RegisterID: `100` (number) - Identifierare till register.
 + Response 200 (application/json)
     + Attributes
         + data (Domain)
@@ -1047,6 +1054,13 @@ Fördefinierade domäner:
 ### Uppdatera [PUT /api/metadata/domains/{DomainID}]
 + Parameters
     + DomainID: `4000` (number, required) - Unik identifierare för domän.
++ Request
+    + Attributes
+        + DomainName: `TypeOfProject` (string) - Giltig identifierare i strängform.
+        + DomainTitle: `Projektdatabasen: typ av projekt` (string) - Begriplig titel.
+        + IsInteger: `true` (boolean) - Om domänens tillhörande värden begränsas till heltal.
+        + Register (object) - Register domänen skall byta till (utelämnas annars).
+            +  RegisterID: `100` (number) - Identifierare till register.
 + Response 200 (application/json)
     + Attributes
         + data (Domain)
@@ -1086,6 +1100,14 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/domainvalues]
++ Request 200 (application/json)
+    + Attributes
+        + ValueName: `Jag går utan svårigheter` (string, required) - Beskrivande text för värdet.
+        + ValueCode: `1` (string, required) - Värdekod.
+        + IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
+        + Sequence: `13` (number, required) - Ordningstal för sortering.
+        + Domain (object) - Domän värdet skall tillhöra.
+            + DomainID: `1001` (number, required) - Identifierare till domän.
 + Response 200 (application/json)
     + Attributes
         + data (DomainValue)
@@ -1096,6 +1118,14 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
 ### Uppdatera [PUT /api/metadata/domainvalues/{DomainValueID}]
 + Parameters
     + DomainValueID: `55249` (number, required) - Unik identifierare för domänvärde.
++ Request 200 (application/json)
+    + Attributes
+        + ValueName: `Jag går utan svårigheter` (string, required) - Beskrivande text för värdet.
+        + ValueCode: `1` (string, required) - Värdekod.
+        + IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
+        + Sequence: `13` (number, required) - Ordningstal för sortering.
+        + Domain (object) - Domän värdet skall flyttas till (utelämna annars).
+            + DomainID: `1001` (number, required) - Identifierare till domän.
 + Response 200 (application/json)
     + Attributes
         + data (DomainValue)
@@ -1165,6 +1195,16 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
             }
 
 ### Skapa [POST /api/metadata/units]
++ Request 200 (application/json)
+    + Attributes
+        + UnitCode: `26` (number, required) - Registrets kod för  vårdenheten.
+        + UnitName: `Testkliniken` (string) - Registrets namn på vårdenheten.
+        + IsActive: `true` (optional, boolean) - Om aktiv [kan döljas i listor av vårdenheter om ej aktiv].
+        + HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (administreras av registret).
+        + PARID: `null` (string) - ID i Patientregistret (administreras av registret).
+        + Register (object, required) - Register vårdenheten skall tillhöra.
+            + RegisterID: `100` (number) - Identifierare till register.
+        + Bindings: `54907` (array[number]) - Lista av vårdenhetsbindningar, till exempel landsting eller vårdnivå.
 + Response 200 (application/json)
     + Attributes
         + data (Unit)
@@ -1173,6 +1213,16 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
         + code: `0` (number)
 
 ### Uppdatera [PUT /api/metadata/units/{UnitID}]
++ Request 200 (application/json)
+    + Attributes
+        + UnitCode: `26` (number, required) - Registrets kod för  vårdenheten.
+        + UnitName: `Testkliniken` (string) - Registrets namn på vårdenheten.
+        + IsActive: `true` (optional, boolean) - Om aktiv [kan döljas i listor av vårdenheter om ej aktiv].
+        + HSAID: `SE2321000131-E000000002241` (string) - ID i Hälso- och Sjukvårdens Adressregister (administreras av registret).
+        + PARID: `null` (string) - ID i Patientregistret (administreras av registret).
+        + Register (object, required) - Register vårdenheten skall flytta till (utelämnas annars).
+            + RegisterID: `100` (number) - Identifierare till register.
+        + Bindings: `54907` (array[number]) - Lista av vårdenhetsbindningar, till exempel landsting eller vårdnivå. Kan både läggas till och tas bort.
 + Parameters
     + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
 + Response 200 (application/json)
@@ -1245,6 +1295,19 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/users/]
++ Request
+    + Attributes
+        + Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-post].
+        + HSAID: `SE2321000131-E000000007501` (string) - ID för kopplas autentisering (HSAID, namn eller personnummer).
+        + FirstName: `Roger` (string) - Förnamn.
+        + LastName: `Salomonsson` (string) - Efternamn.
+        + WorkTitle: `Systemutvecklare` (string) - Tjänstetitel.
+        + Organization: `Registercentrum` (string) - Namn på arbetsplats.
+        + StreetAdress: `Medicinaregatan 18G` (string) - Arbetsplatsens gatuadress.
+        + PostalNumber: `413 45` (string) - Arbetsplatsens postnummer.
+        + PostalOffice: `Göteborg` (string) - Arbetsplatsens postort.
+        + Email: `roger@medicor.se` (string) - E-postadress.
+        + Extra: `{}` (string) - Extra attribut på användare [registerspecikt innehåll].
 + Response 200 (application/json)
     + Attributes
         + data (User)
@@ -1255,6 +1318,21 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 ### Uppdatera [PUT /api/metadata/users/{UserID}]
 + Parameters
     + UserID: `90000` (optional, number) - Unik identifierare för en användare.
++ Request
+    + Attributes
+        + Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-post].
+        + HSAID: `SE2321000131-E000000007501` (string) - ID för kopplas autentisering (HSAID, namn eller personnummer).
+        + FirstName: `Roger` (string) - Förnamn.
+        + LastName: `Salomonsson` (string) - Efternamn.
+        + WorkTitle: `Systemutvecklare` (string) - Tjänstetitel.
+        + Organization: `Registercentrum` (string) - Namn på arbetsplats.
+        + StreetAdress: `Medicinaregatan 18G` (string) - Arbetsplatsens gatuadress.
+        + PostalNumber: `413 45` (string) - Arbetsplatsens postnummer.
+        + PostalOffice: `Göteborg` (string) - Arbetsplatsens postort.
+        + Email: `roger@medicor.se` (string) - E-postadress.
+        + Extra: `{}` (string) - Extra attribut på användare [registerspecikt innehåll].
+        + DefaultContext (object) - Förvald kontext efter autentisering (följer senast använd).
+            + ContextID: `20000` (number) - Identifierare till kontext.
 + Response 200 (application/json)
     + Attributes
         + data (User)
@@ -1361,6 +1439,16 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/contexts]
++ Request
+    + Attributes
+        + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
+        + ExpireDate: `2027-08-31 00:00:01` (string) - Datum när kontexten automatiskt inaktiveras.
+        + Role (object, required) - Tillhörande roll (se [förklaring](#RolesTable)).
+            + RoleID: `901` (number, required) - Identifierare till roll.
+        + Unit (object, required) - Tillhörande vårdenhet.
+            + UnitID: `2000` (number, required) - Identifierare till vårdenhet.
+        + User (object, required) - Tillhörande användare.
+            + UserID: `20000` (number, required) - Identifierare till användare.
 + Response 200 (application/json)
     + Attributes
         + data (Context)
@@ -1408,16 +1496,24 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
         + code: `0` (number)
 
 ### Skapa [POST /api/metadata/subjects]
-+ Response 200 (application/json)
++ Response 501 (application/json)
     + Attributes
-        + data (Subject)
+        + data: `null`
         + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
+        + message: `A subject cannot be created separately, it is created when a registration is created.` (string)
+        + code: `-1` (number)
 
 ### Uppdatera [PUT /api/metadata/subjects/{SubjectID}]
 + Parameters
     + SubjectID: `7019535` (number) - Identifierare för aktuellt subjekt.
++ Request
+    + Attributes
+        + SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare för mätobjekt.
+        + IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
+        + StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
+        + StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectness” anger detta attributs innehåll.
+        + DateOfDeath: `2027-08-31` (string, fixed) - Dödsdatum (det vill säga ”StatusDate” då ”StatusCode” = ”AV”).
+        + DateCorrectness: `0` (number) - Avgör ”kompletthet” hos attributet ”StatusDate” (se [förklaring](#DateCorrectness)).
 + Response 200 (application/json)
     + Attributes
         + data (Subject)
@@ -3896,7 +3992,6 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Bindings (array[UnitBinding], optional) - Lista av egenskaper, till exempel landsting eller vårdnivå.
 
 ## UnitBinding (object)
-+ UnitID: `2000` (required, number) - Unik identifierare.
 + DomainValueID: `54907` (required, number) - Identifierare för egenskapsvärde (domänvärde).
 
 ## User (object)
@@ -3912,16 +4007,16 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + PostalOffice: `Göteborg` (string) - Arbetsplatsens postort.
 + Email: `roger@medicor.se` (string) - E-postadress.
 + Extra: `?` (string) - Extra attribut på användare [registerspecikt innehåll].
-+ DefaultContextID (Context) - Kontext vid senaste inloggningen.
++ DefaultContext (Context) - Förvald kontext efter autentisering (följer senast använd).
 
 ## Context (object)
 + ContextID: `30730` (number, required) - Unik identifierare.
 + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
 + ActivatedAt: `2019-07-02 10:34:01` (string) - Datum och tid för senast aktiv.
 + ExpireDate: `2027-08-31 00:00:01` (string) - Datum när kontexten automatiskt inaktiveras.
-+ Role (Role, required) - Tillhörande roll.
++ Role (Role, required) - Tillhörande roll (se [förklaring](#RolesTable)).
 + Unit (Unit, required) - Tillhörande vårdenhet.
-+ User (User, required) - Tillhörande anändare.
++ User (User, required) - Tillhörande användare.
 
 ## Role (object)
 + RoleID: `201` (number, required) - Unik identifierare.
@@ -3957,7 +4052,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare för mätobjekt.
 + IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
 + StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
-+ StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectnes” anger detta attributs innehåll.
++ StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectness” anger detta attributs innehåll.
 + DateOfDeath: `2027-08-31` (string, fixed) - Dödsdatum (det vill säga ”StatusDate” då ”StatusCode” = ”AV”).
 + DateCorrectness: `0` (number) - Avgör ”kompletthet” hos attributet ”StatusDate” (se [förklaring](#DateCorrectness)).
 + Register (Register, required) - Tillhörande register.
