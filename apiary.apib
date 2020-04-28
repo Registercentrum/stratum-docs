@@ -1317,7 +1317,7 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 
 ### Uppdatera [PUT /api/metadata/users/{UserID}]
 + Parameters
-    + UserID: `90000` (optional, number) - Unik identifierare för en användare.
+    + UserID: `90000` (optional, number) - Unik identifierare för användare.
 + Request
     + Attributes
         + Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-post].
@@ -1339,6 +1339,18 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
+
+### Ta bort [DELETE /api/metadata/users/{UserID}]
+En kontext kan inte tas bort om det finns tillhörande kontexter.
++ Parameters
+    + UserID: `90000` (optional, number) - Unik identifierare för användare.
++ Response 200 (application/json)
+    + Attributes
+        + data: `null`
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 
 ## Kontext [/api/metadata/contexts]
 Kontext är den entitet som beskriver auktoriseringsinformation, vilket i detta sammanhang betyder en användare, en roll och en vårdenhet. 
@@ -1459,9 +1471,28 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 ### Uppdatera [PUT /api/metadata/contexts/{ContextID}]
 + Parameters
     + ContextID: `20000` (optional, number) - Unik identifierare för en kontext.
++ Request
+    + Attributes
+        + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
+        + ExpireDate: `2027-08-31 00:00:01` (string) - Datum när kontexten automatiskt inaktiveras.
+        + Role (object, required) - Roll att byta till (se [förklaring](#RolesTable)).
+            + RoleID: `901` (number, required) - Identifierare till roll.
+        + Unit (object, required) - Vårdenhet att byta till.
+            + UnitID: `2000` (number, required) - Identifierare till vårdenhet.
 + Response 200 (application/json)
     + Attributes
         + data (Context)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Ta bort [DELETE /api/metadata/contexts/{ContextID}]
+Av juridiska skäl kan en kontext inte tas bort om det finns loggad aktivitet på den.
++ Parameters
+    + ContextID: `20000` (optional, number) - Unik identifierare för en kontext.
++ Response 200 (application/json)
+    + Attributes
+        + data: `null`
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
