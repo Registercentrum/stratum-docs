@@ -323,9 +323,10 @@ Endast användare med rollen Koordinator kan uppdatera attribut (för det regist
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla [GET /api/metadata/registers?apikey={APIKey}]
+### Hämta alla [GET /api/metadata/registers?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[Register])
@@ -411,10 +412,11 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för ett register [GET /api/metadata/forms/register/{RegisterID}?apikey={APIKey}]
+### Hämta alla för ett register [GET /api/metadata/forms/register/{RegisterID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
     + RegisterID: `100` (number, required) - Identifierare för aktuellt register.
+    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[Form])
@@ -556,10 +558,11 @@ return 42
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för ett formulär [GET /api/metadata/questions/form/{FormID}?apikey={APIKey}]
+### Hämta alla för ett formulär [GET /api/metadata/questions/form/{FormID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
     + FormID: `1001` (number) - Identifierare för formulär.
+    + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (Question)
@@ -860,10 +863,11 @@ Fördefinierade domäner:
             "code": 0
         }
 
-### Hämta alla för ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}]
+### Hämta alla för ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + RegisterID: `100` (number, required) - Identifierare för ett register.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[Domain])
@@ -873,8 +877,8 @@ Fördefinierade domäner:
 
 ### Hämta alla för ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + RegisterID: `100` (number, required) - Identifierare för ett register.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
         {
@@ -1079,8 +1083,8 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
 
 ### Hämta [GET /api/metadata/domainvalues/{DomainValueID}?apikey={APIKey}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + DomainValueID: `55249` (number, required) - Unik identifierare för domänvärde.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
     + Attributes
         + data (DomainValue)
@@ -1090,8 +1094,8 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
 
 ### Hämta alla för en domän [GET /api/metadata/domainvalues/domain/{DomainID}?apikey={APIKey}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + DomainID: `4000` (number, required) - Unik identifierare för domän.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
     + Attributes
         + data (array[DomainValue])
@@ -1144,8 +1148,8 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta [GET /api/metadata/units/{UnitID}?apikey={APIKey}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
     + Attributes
         + data (Unit)
@@ -1153,10 +1157,11 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för ett register [GET /api/metadata/units/register/{RegisterID}?apikey={APIKey}]
+### Hämta alla för ett register [GET /api/metadata/units/register/{RegisterID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + RegisterID: `100` (number, required) - Unik identifierare för register.
+    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[Unit])
@@ -1264,9 +1269,10 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta via sökning [GET /api/metadata/users?query={QueryString}]
+### Hämta via sökning [GET /api/metadata/users?query={QueryString}&exposeDeep={ExposeDeep}]
 + Parameters
     + QueryString: `SE23 Robert` (string) - Ett eller flera ord separerade med blanktecken. Sökning görs med OCH-villkor mellan alla ord i alla attribut. Minst ett ord med minst tre tecken krävs.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[User])
@@ -1274,9 +1280,10 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för ett register [GET /api/metadata/users/register/{RegisterID}]
+### Hämta alla för ett register [GET /api/metadata/users/register/{RegisterID}?exposeDeep={ExposeDeep}]
 + Parameters
     + RegisterID: `100` (number, required) - Unik identifierare för register.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[User])
@@ -1284,9 +1291,10 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för en vårdenhet [GET /api/metadata/users/unit/{UnitID}]
+### Hämta alla för en vårdenhet [GET /api/metadata/users/unit/{UnitID}?exposeDeep={ExposeDeep}]
 + Parameters
     + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[User])
@@ -1410,9 +1418,10 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för en vårdenhet [GET /api/metadata/contexts/unit/{UnitID}]
+### Hämta alla för en vårdenhet [GET /api/metadata/contexts/unit/{UnitID}?exposeDeep={exposeDeep}]
 + Parameters
     + UnitID: `2000` (required, number) - Identifierare för vårdenhet som kontexterna skall tillhöra.
+    + exposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[Context])
@@ -1420,9 +1429,10 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för en användare [GET /api/metadata/contexts/user/{UserID}]
+### Hämta alla för en användare [GET /api/metadata/contexts/user/{UserID}?exposeDeep={ExposeDeep}]
 + Parameters
     + UserID: `90000` (number, required) - Identifierare för användare som kontexterna skall tillhöra.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[Context])
@@ -1430,9 +1440,10 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
         + message: `null` (string)
         + code: `0` (number)
 
-### Hämta alla för ett register [GET /api/metadata/contexts/register/{RegisterID}]
+### Hämta alla för ett register [GET /api/metadata/contexts/register/{RegisterID}?exposeDeep={ExposeDeep}]
 + Parameters
     + RegisterID: `100` (number, required) - Identifierare för registret som kontexterna skall tillhöra.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.    
 + Response 200 (application/json)
     + Attributes
         + data (array[Context])
@@ -1543,7 +1554,6 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
         + IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
         + StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
         + StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectness” anger detta attributs innehåll.
-        + DateOfDeath: `2027-08-31` (string, fixed) - Dödsdatum (det vill säga ”StatusDate” då ”StatusCode” = ”AV”).
         + DateCorrectness: `0` (number) - Avgör ”kompletthet” hos attributet ”StatusDate” (se [förklaring](#DateCorrectness)).
 + Response 200 (application/json)
     + Attributes
@@ -1637,7 +1647,7 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 + Attributes
     + LogEntry (LogEntry)
 
-### Hämta för en registrering [GET /api/metadata/logentries/event/{EventID}]
+### Hämta för en registrering [GET /api/metadata/logentries/event/{EventID}?exposeDeep={ExposeDeep}]
 Anropet har följande restriktioner.
 |Roll |Restriktion
 |-   |-
@@ -1647,6 +1657,7 @@ Anropet har följande restriktioner.
 
 + Parameters
     + EventID: `10115713` (number, required) - Identifierare för registrering vars loggrader skall returneras.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[LogEntry])
@@ -1655,7 +1666,7 @@ Anropet har följande restriktioner.
         + code: `0` (number)
 
 
-### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}?after={aFromDate}]
+### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}?after={aFromDate}&exposeDeep={ExposeDeep}]
 Anropet har följande restriktioner.
 |Roll |Restriktion
 |-   |-
@@ -1666,24 +1677,7 @@ Anropet har följande restriktioner.
 + Parameters
     + ContextID: `20000` (number, required) - Identifierare för kontext vars loggrader skall returneras.
     + aFromDate: `2019-08-14` (date) - Datum från när första loggraden skall returneras (de 1000 senaste raderna om den utelämnas).
-+ Response 200 (application/json)
-    + Attributes
-        + data (array[LogEntry])
-        + success: `true` (boolean)
-        + message: `null` (string)
-        + code: `0` (number)
-
-
-### Hämta senaste loggraden per loggtyp [GET /api/metadata/logentries/latest/logtype/{LogTypeID}]
-Resultatet har olika omfång beroende på anropande kontext.
-|Roll |Omfång
-|-   |-
-|Koordinator|Senaste loggraden för registrets alla kontexter
-|Plusregistrerare|Senaste loggraden för vårdenhetens alla kontexter
-|Registrerare|Senaste loggraden för användarens egna kontexter
-
-+ Parameters
-    + LogTypeID: `1001` (number, required) - Identifierare för loggtyp vars loggrader skall returneras.
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
         + data (array[LogEntry])
