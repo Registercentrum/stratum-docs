@@ -315,7 +315,7 @@ Endast användare med rollen Koordinator kan uppdatera attribut (för det regist
 ### Hämta [GET /api/metadata/registers/{RegisterID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + RegisterID: `100` (optional, number) - Identifierare för aktuellt register.
+    + RegisterID: `100` (optional, number) - Identifierare till register.
 + Response 200 (application/json)
     + Attributes
         + data (Register)
@@ -354,7 +354,7 @@ Endast användare med rollen Koordinator kan uppdatera attribut (för det regist
 
 ### Uppdatera [PUT /api/metadata/registers/{RegisterID}]
 + Parameters
-    + RegisterID: `100` (optional, number) - Identifierare för aktuellt register.
+    + RegisterID: `100` (optional, number) - Identifierare till register.
 + Request (application/json)
     + Attributes
         + RegisterName: `Testregistret` (string) - Namn på registret (svenska).
@@ -404,7 +404,7 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
 ### Hämta [GET /api/metadata/forms/{FormID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
-    + FormID: `1001` (number, required) - Identifierare för aktuellt formulär.
+    + FormID: `1001` (number, required) - Identifierare till formulär.
 + Response 200 (application/json)
     + Attributes
         + data (Form)
@@ -414,7 +414,7 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
 
 ### Hämta alla för ett register [GET /api/metadata/forms/register/{RegisterID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + RegisterID: `100` (number, required) - Identifierare för aktuellt register.
+    + RegisterID: `100` (number, required) - Identifierare till register.
     + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
@@ -427,7 +427,7 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
 ### Skapa [POST /api/metadata/forms]
 + Request (application/json)
     + Attributes
-        + FormName: `TestForm` (string) - Giltig identifierare i strängform.
+        + FormName: `TestForm` (string) - Giltig identifierare i strängform (på engelska, i camel-case lämpligen).
         + FormTitle: `Testformulär` (string, required) - Titel.
         + TableName: `x1005` (string, required) - Namn på tabell i databas.
         + FormScope: `1` (number, required) - Anger formulärets målgrupp och användningsområde (se [tabell](#FormScope)).
@@ -447,7 +447,7 @@ Endast en koordinator kan ändra attribut i sitt registers formulär.
 
 ### Uppdatera [PUT /api/metadata/forms/{FormID}]
 + Parameters
-    + FormID: `1001` (number, required) - Identifierare för aktuellt formulär.
+    + FormID: `1001` (number, required) - Identifierare till formulär.
 + Request (application/json)
     + Attributes
         + FormName: `TestForm` (string) - Giltig identifierare i strängform.
@@ -550,7 +550,7 @@ return 42
 ### Hämta [GET /api/metadata/questions/{QuestionID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + QuestionID: `24205` (number) - Identifierare för aktuell variabel.
+    + QuestionID: `24205` (number) - Identifierare till variabel.
 + Response 200 (application/json)
     + Attributes
         + data (Question)
@@ -560,7 +560,7 @@ return 42
 
 ### Hämta alla för ett formulär [GET /api/metadata/questions/form/{FormID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + FormID: `1001` (number) - Identifierare för formulär.
+    + FormID: `1001` (number) - Identifierare till formulär.
     + APIKey: `J6b-GSKrkfk=` (string, optional) - API-nyckel.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
@@ -601,7 +601,7 @@ return 42
 
 ### Uppdatera [PUT /api/metadata/questions/{QuestionID}]
 + Parameters
-    + QuestionID: `24205` (number) - Identifierare för aktuell variabel.
+    + QuestionID: `24205` (number) - Identifierare till variabel.
 + Request (application/json)
     + Attributes
         + ColumnName: `VisitDate` (string, required) - Namn på variabel (oftast namn på kolumn i databastabell).
@@ -678,7 +678,7 @@ Fördefinierade domäner:
 ### Hämta [GET /api/metadata/domains/{DomainID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + DomainID: `4000` (number, required) - Unik identifierare för domän.
+    + DomainID: `4000` (number, required) - Identifierare till domän.
 + Response 200 (application/json)
     + Attributes
         + data (Domain)
@@ -865,7 +865,7 @@ Fördefinierade domäner:
 
 ### Hämta alla för ett register [GET /api/metadata/domains/register/{RegisterID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + RegisterID: `100` (number, required) - Identifierare för ett register.
+    + RegisterID: `100` (number, required) - Identifierare till register.
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
@@ -877,7 +877,7 @@ Fördefinierade domäner:
 
 ### Hämta alla för ett register som avbildning [GET /api/metadata/domains/map/register/{RegisterID}?apikey={APIKey}]
 + Parameters
-    + RegisterID: `100` (number, required) - Identifierare för ett register.
+    + RegisterID: `100` (number, required) - Identifierare till register.
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
 
@@ -1057,7 +1057,7 @@ Fördefinierade domäner:
 
 ### Uppdatera [PUT /api/metadata/domains/{DomainID}]
 + Parameters
-    + DomainID: `4000` (number, required) - Unik identifierare för domän.
+    + DomainID: `4000` (number, required) - Identifierare till domän.
 + Request
     + Attributes
         + DomainName: `TypeOfProject` (string) - Giltig identifierare i strängform.
@@ -1083,7 +1083,7 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
 
 ### Hämta [GET /api/metadata/domainvalues/{DomainValueID}?apikey={APIKey}]
 + Parameters
-    + DomainValueID: `55249` (number, required) - Unik identifierare för domänvärde.
+    + DomainValueID: `55249` (number, required) - Identifierare till domänvärde.
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
     + Attributes
@@ -1094,7 +1094,7 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
 
 ### Hämta alla för en domän [GET /api/metadata/domainvalues/domain/{DomainID}?apikey={APIKey}]
 + Parameters
-    + DomainID: `4000` (number, required) - Unik identifierare för domän.
+    + DomainID: `4000` (number, required) - Identifierare till domän.
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
     + Attributes
@@ -1121,7 +1121,7 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
 
 ### Uppdatera [PUT /api/metadata/domainvalues/{DomainValueID}]
 + Parameters
-    + DomainValueID: `55249` (number, required) - Unik identifierare för domänvärde.
+    + DomainValueID: `55249` (number, required) - Identifierare till domänvärde.
 + Request 200 (application/json)
     + Attributes
         + ValueName: `Jag går utan svårigheter` (string, required) - Beskrivande text för värdet.
@@ -1148,7 +1148,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta [GET /api/metadata/units/{UnitID}?apikey={APIKey}]
 + Parameters
-    + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
+    + UnitID: `2000` (number, required) - Identifierare till vårdenhet.
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
 + Response 200 (application/json)
     + Attributes
@@ -1159,7 +1159,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 
 ### Hämta alla för ett register [GET /api/metadata/units/register/{RegisterID}?apikey={APIKey}&exposeDeep={ExposeDeep}]
 + Parameters
-    + RegisterID: `100` (number, required) - Unik identifierare för register.
+    + RegisterID: `100` (number, required) - Identifierare till register.
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
@@ -1172,7 +1172,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
 ### Hämta alla för ett register med enhetsgrupperingar [GET /api/metadata/units/bindings/{RegisterID}?apikey={APIKey}]
 + Parameters
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-    + RegisterID: `100` (number, required) - Unik identifierare för register.
+    + RegisterID: `100` (number, required) - Identifierare till register.
 + Response 200 (application/json)
     + Body
 
@@ -1229,7 +1229,7 @@ lokaliseringar vara enheter, till exempel registerorganisationer, företag, med 
             + RegisterID: `100` (number) - Identifierare till register.
         + Bindings: `54907` (array[number]) - Lista av vårdenhetsbindningar, till exempel landsting eller vårdnivå. Kan både läggas till och tas bort.
 + Parameters
-    + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
+    + UnitID: `2000` (number, required) - Identifierare till vårdenhet.
 + Response 200 (application/json)
     + Attributes
         + data (Unit)
@@ -1251,7 +1251,7 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 
 ### Hämta [GET /api/metadata/users/{UserID}]
 + Parameters
-    + UserID: `90000` (optional, number) - Unik identifierare för en användare.
+    + UserID: `90000` (optional, number) - Identifierare till användare.
 + Response 200 (application/json)
     + Attributes
         + data (User)
@@ -1282,7 +1282,7 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 
 ### Hämta alla för ett register [GET /api/metadata/users/register/{RegisterID}?exposeDeep={ExposeDeep}]
 + Parameters
-    + RegisterID: `100` (number, required) - Unik identifierare för register.
+    + RegisterID: `100` (number, required) - Identifierare till register.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
@@ -1293,7 +1293,7 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 
 ### Hämta alla för en vårdenhet [GET /api/metadata/users/unit/{UnitID}?exposeDeep={ExposeDeep}]
 + Parameters
-    + UnitID: `2000` (number, required) - Unik identifierare för vårdenhet.
+    + UnitID: `2000` (number, required) - Identifierare till vårdenhet.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
@@ -1325,7 +1325,7 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 
 ### Uppdatera [PUT /api/metadata/users/{UserID}]
 + Parameters
-    + UserID: `90000` (optional, number) - Unik identifierare för användare.
+    + UserID: `90000` (optional, number) - Identifierare till användare.
 + Request
     + Attributes
         + Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-post].
@@ -1351,7 +1351,7 @@ Användare administreras av koordinatorer via programkomponenten ”Användarhan
 ### Ta bort [DELETE /api/metadata/users/{UserID}]
 En kontext kan inte tas bort om det finns tillhörande kontexter.
 + Parameters
-    + UserID: `90000` (optional, number) - Unik identifierare för användare.
+    + UserID: `90000` (optional, number) - Identifierare till användare.
 + Response 200 (application/json)
     + Attributes
         + data: `null`
@@ -1410,7 +1410,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ### Hämta [GET /api/metadata/contexts/{ContextID}]
 + Parameters
-    + ContextID: `20000` (optional, number) - Unik identifierare för en kontext.
+    + ContextID: `20000` (optional, number) - Identifierare till kontext.
 + Response 200 (application/json)
     + Attributes
         + data (Context)
@@ -1420,7 +1420,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ### Hämta alla för en vårdenhet [GET /api/metadata/contexts/unit/{UnitID}?exposeDeep={exposeDeep}]
 + Parameters
-    + UnitID: `2000` (required, number) - Identifierare för vårdenhet som kontexterna skall tillhöra.
+    + UnitID: `2000` (required, number) - Identifierare till vårdenhet.
     + exposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
@@ -1431,7 +1431,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ### Hämta alla för en användare [GET /api/metadata/contexts/user/{UserID}?exposeDeep={ExposeDeep}]
 + Parameters
-    + UserID: `90000` (number, required) - Identifierare för användare som kontexterna skall tillhöra.
+    + UserID: `90000` (number, required) - Identifierare till användare.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
@@ -1442,7 +1442,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ### Hämta alla för ett register [GET /api/metadata/contexts/register/{RegisterID}?exposeDeep={ExposeDeep}]
 + Parameters
-    + RegisterID: `100` (number, required) - Identifierare för registret som kontexterna skall tillhöra.
+    + RegisterID: `100` (number, required) - Identifierare till register.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.    
 + Response 200 (application/json)
     + Attributes
@@ -1453,7 +1453,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ### Hämta för en registrering [GET /api/metadata/contexts/registration/{EventID}]
 + Parameters
-    + EventID: `10115713` (number, required) - Identifierare för registrering vars kontext skall returneras.
+    + EventID: `10115713` (number, required) - Identifierare till registrering.
 + Response 200 (application/json)
     + Attributes
         + data (Context)
@@ -1481,7 +1481,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 
 ### Uppdatera [PUT /api/metadata/contexts/{ContextID}]
 + Parameters
-    + ContextID: `20000` (optional, number) - Unik identifierare för en kontext.
+    + ContextID: `20000` (optional, number) - Identifierare till kontext.
 + Request
     + Attributes
         + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
@@ -1500,7 +1500,7 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 ### Ta bort [DELETE /api/metadata/contexts/{ContextID}]
 Av juridiska skäl kan en kontext inte tas bort om det finns loggad aktivitet på den.
 + Parameters
-    + ContextID: `20000` (optional, number) - Unik identifierare för en kontext.
+    + ContextID: `20000` (optional, number) - Identifierare till kontext.
 + Response 200 (application/json)
     + Attributes
         + data: `null`
@@ -1529,7 +1529,7 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
 
 ### Hämta [GET /api/metadata/subjects/{SubjectID}]
 + Parameters
-    + SubjectID: `7019535` (number) - Identifierare för aktuellt subjekt.
+    + SubjectID: `7019535` (number) - Identifierare till subjekt.
 + Response 200 (application/json)
     + Attributes
         + data (Subject)
@@ -1547,10 +1547,10 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
 
 ### Uppdatera [PUT /api/metadata/subjects/{SubjectID}]
 + Parameters
-    + SubjectID: `7019535` (number) - Identifierare för aktuellt subjekt.
+    + SubjectID: `7019535` (number) - Identifierare till subjekt.
 + Request
     + Attributes
-        + SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare för mätobjekt.
+        + SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare till mätobjekt.
         + IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
         + StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
         + StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectness” anger detta attributs innehåll.
@@ -1656,7 +1656,7 @@ Anropet har följande restriktioner.
 |Registrerare|Får fråga om om vårdenhetens alla registreringar (som plusregistrerare)
 
 + Parameters
-    + EventID: `10115713` (number, required) - Identifierare för registrering vars loggrader skall returneras.
+    + EventID: `10115713` (number, required) - Identifierare till registrering.
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
     + Attributes
@@ -1675,7 +1675,7 @@ Anropet har följande restriktioner.
 |Registrerare|Får fråga om sina egna kontexter
 
 + Parameters
-    + ContextID: `20000` (number, required) - Identifierare för kontext vars loggrader skall returneras.
+    + ContextID: `20000` (number, required) - Identifierare till kontext.
     + aFromDate: `2019-08-14` (date) - Datum från när första loggraden skall returneras (de 1000 senaste raderna om den utelämnas).
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
@@ -1850,7 +1850,7 @@ På så sätt kan registreringar i två olika register länkas samman.
 
 ### Hämta specifik registrering [GET /api/registrations/{EventID}?apikey={APIKey}]
 + Parameters
-    + EventID: `10115713` (string, required) - Identifierare för aktuell registreringshändelse.
+    + EventID: `10115713` (string, required) - Identifierare till registreringshändelse.
     + APIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
 
@@ -1902,7 +1902,7 @@ På så sätt kan registreringar i två olika register länkas samman.
         
 ### Hämta registreringar enligt sökkriterier [GET /api/registrations/form/{FormID}?query={Query}&apikey={APIKey}]
 + Parameters
-    + FormID: `2224` (string, required) - Identifierare för aktuellt formulär.
+    + FormID: `2224` (string, required) - Identifierare till formulär.
     + Query: `C_StratumCode eq 215` (string) - Sökkriterier (se [förklaring](#Query)).
     + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel (för enhetsbundna registreringar).
 + Response 200 (application/json)
@@ -1945,7 +1945,7 @@ På så sätt kan registreringar i två olika register länkas samman.
         
 ### Hämta mallformaterade registreringar [GET /api/registrations/form/{FormID}?template={Template}&query={Query}&apikey={APIKey}]
 + Parameters
-    + FormID: `2224` (string, required) - Identifierare för aktuellt formulär.
+    + FormID: `2224` (string, required) - Identifierare till formulär.
     + Template: `{C_ArticleNumber} - {C_Description}` (string, required) - Formateringmall (se [förklaring](#Template)).
     + Query: `C_IsHalf eq 1,C_IsTotal eq 0` (string) - Sökkriterier (se [förklaring](#Query)).
     + APIKey: `MpuYxfbtp5I=` (string) - API-nyckel (för enhetsbundna registreringar).
@@ -1965,7 +1965,7 @@ På så sätt kan registreringar i två olika register länkas samman.
 
 ### Hämta alla registreringar för ett formulär [GET /api/registrations/form/{FormID}?apikey={APIKey}]
 + Parameters
-    + FormID: `2187` (string, required) - Identifierare för aktuellt formulär.
+    + FormID: `2187` (string, required) - Identifierare till formulär.
     + APIKey: `1YcBDBtMoKk=` (string) - API-nyckel (vid enhetsbundna registreringar).
 + Response 200 (application/json)
 
@@ -2047,14 +2047,12 @@ På så sätt kan registreringar i två olika register länkas samman.
 + Parameters
     + Token: `jKR1iNHozrfoix1cVVemOLZuDI_LjP7y7AkPxKWRQZ8` (string, required) - Identifierare till bjudning.
     + APIKey: `J6b-GSKrkfk=` (string, required) - API-nyckel.
-
 + Request (application/json)
 
         {
           "Anxiety": 2,
           "Staircase": 1
         }
-
 + Response 200 (application/json)
 
         {
@@ -2068,18 +2066,15 @@ På så sätt kan registreringar i två olika register länkas samman.
             "code": 0
         }
 
-### Uppdatera registrering [PUT /api/registrations/{EventID}?apikey={APIKey}]
+### Uppdatera registrering [PUT /api/registrations/{EventID}]
 + Parameters
-    + EventID: `10115713` (string) - Aktuell händelseidentifierare.
-    + APIKey: `J6b-GSKrkfk=` (string) - API-nyckel.
-
+    + EventID: `10115713` (string) - Identifierare till registreringshändelse.
 + Request (application/json)
 
         {
           "ProjectStatus": 2,
           "EthicsApproval": 4
         }
-
 + Response 200 (application/json)
 
         {
@@ -2088,6 +2083,18 @@ På så sätt kan registreringar i två olika register länkas samman.
                     "EventID": 11295124
                 }
             ],
+            "success": true,
+            "message": null,
+            "code": 0
+        }
+        
+### Ta bort registrering [DELETE /api/registrations/{EventID}]
++ Parameters
+    + EventID: `10115713` (string) - Identifierare till registreringshändelse.
++ Response 200 (application/json)
+
+        {
+            "data": null,
             "success": true,
             "message": null,
             "code": 0
@@ -2695,7 +2702,7 @@ R-skript har tre variabler tillgängliga, som håller information om anropande p
 
 __Scope.Unit__
 
-Identifierare (UnitCode) för anropande vårdenhet. Observera att det som skickas över är _registrets kod för vårdenheten_ (UnitCode), __inte__ Stratums globalt unika identifierare för vårdenhet (UnitID). 
+Identifierare (UnitCode) för anropande vårdenhet. Observera att det som skickas över är _registrets kod för vårdenheten_ (UnitCode), __inte__ Stratums globalt unika identifierare av vårdenhet (UnitID). 
 Kan till exempel användas för att anpassa resultat för specifika vårdenheter i ett register.
 
 __Scope.User__
@@ -2844,7 +2851,7 @@ Själva sidinnehållet kan hämtas upp med `id` och anrop till metadata-api:et, 
 
 ### Hämta[GET]
 + Parameters
-    + SiteID: `100` (number) - Webbplatsens identifierare.
+    + SiteID: `100` (number) - identifierare till webbplats.
     + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
 
@@ -2920,7 +2927,7 @@ till skillnad från [huvudnavigationen](#reference/konfigurationer/huvudnavigati
 
 ### Hämta[GET]
 + Parameters
-    + aSiteID: `100` (number) - Webbplatsens identifierare.
+    + aSiteID: `100` (number) - Identifierare till webbplats.
 + Response 200 (application/json)
 
         {
@@ -3283,7 +3290,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 
 ### Hämta [GET /api/proxies/{ProxyID}]
 + Parameters
-    + ProxyID: `123456` (number) - Identifierare för aktuell bjudning.
+    + ProxyID: `123456` (number) - Identifierare till bjudning.
 + Response 200 (application/json)
     + Attributes
         + data (Proxy)
@@ -3301,7 +3308,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 
 ### Hämta enkätunderlag via token [GET /api/proxies/survey?token={Token}&apikey={APIKey}]
 + Parameters
-    + Token: `f2gKnwATGpLlYysxuazaDhBEy9GW-QnlX_5p7PHal60anged` (string) - Krypterad identifierare till aktuell bjudning.
+    + Token: `f2gKnwATGpLlYysxuazaDhBEy9GW-QnlX_5p7PHal60anged` (string) - Krypterad identifierare till bjudning.
     + APIKey: `J6b-GSKrkfk=` (optional, string) - API-nyckel.
 + Response 200 (application/json)
 
@@ -3536,7 +3543,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
         
 ### Hämta token till bjudning [GET /api/proxies/token/{ProxyID}]
 + Parameters
-    + ProxyID: `151611` (string) - Unik identifierare till bjudning.
+    + ProxyID: `151611` (string) - Identifierare till bjudning.
 + Response 200 (application/json)
         
         {
@@ -3563,7 +3570,7 @@ Tabellen nedan visar de statusvärden en bjudning kan anta (domän 3101 - ”Rep
 
 ### Uppdatera [PUT /api/proxies/{ProxyID}]
 + Parameters
-    + ProxyID: `123456` (number) - Identifierare för aktuell bjudning.
+    + ProxyID: `123456` (number) - Identifierare till bjudning.
 + Response 200 (application/json)
     + Attributes
         + data (Proxy)
@@ -3603,7 +3610,7 @@ ___Stark autentisering krävs (för patientbundna formulär).___
 
 ### Hämta[GET]
 + Parameters
-    + aFormID: `1005` (number) - Formulärets identifierare.
+    + aFormID: `1005` (number) - Identifierare till huvudformulär.
     + aSubjectKey: `19121212-1212` (optional, string) - Personnummer (subjektnyckel).
 + Response 200 (text/html)
 
@@ -3616,8 +3623,8 @@ ___Stark autentisering krävs.___
 
 ### Hämta[GET]
 + Parameters
-    + aFormID: `1082` (number) - Underformulärets identifierare.
-    + anEventID: `10115713` (number) - Registreringsidentifierare till ägande registrering.
+    + aFormID: `1082` (number) - Identifierare till underformulär.
+    + anEventID: `10115713` (number) - Identifierare till ägande registreringshändelse.
 + Response 200 (text/html)
 
 ## Registrering [/#!event?id={anEventID}]
@@ -3630,7 +3637,7 @@ ___Stark autentisering krävs för patientbundna registreringar.___
 
 ### Hämta[GET]
 + Parameters
-    + anEventID: `10115713` (number) - Registreringsidentifierare.
+    + anEventID: `10115713` (number) - Identifierare till registreringshändelse.
 + Response 200 (text/html)
 
 ## Enhetsbundna registreringar [/#!profile]
@@ -3651,7 +3658,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Hämta studie [GET /api/rrct/{StudyID}]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Response 200 (application/json)
 
         {
@@ -3670,8 +3677,8 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Hämta screeningkandidat [GET /api/rrct/{StudyID}/candidates/{EventID}]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + EventID: `100000` (number) - Identifierare för screeningkandidat
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
+    + EventID: `100000` (number) - Identifierare till screeningkandidat.
 + Response 200 (application/json)
 
         {
@@ -3691,7 +3698,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Hämta alla screeningkandidater [GET /api/rrct/{StudyID}/candidates]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Response 200 (application/json)
 
         {
@@ -3711,10 +3718,10 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Exkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/fail]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Request (application/json)
     + Attributes
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + EventID: `12345678` (number) - Identifierare till kandidat (samma som registreringsidentifierare i Stratum).
         + mainReason: `NO_INFORMED_CONSENT` (string) - Orsak till misslyckad screening (uppräkningstyp definierad i studieapplikation).
         + detailedReason: `FOREIGN_LANGUAGE` (string) - Detaljerad orsak till misslyckad screening (uppräkningstyp definierad i studieapplikation).
 + Response 200 (application/json)
@@ -3728,10 +3735,10 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
         
 ### Inkludera screeningskandidat [POST /api/rrct/{StudyID}/candidates/pass]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Request (application/json)
     + Attributes
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + EventID: `12345678` (number) - Identifierare till kandidat (samma som registreringsidentifierare i Stratum).
 + Response 501 (application/json)
 
         {
@@ -3743,7 +3750,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Hämta alla subjekt för aktuell enhet [GET /api/rrct/{StudyID}/subjects]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Response 200 (application/json)
 
         {
@@ -3782,8 +3789,8 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Hämta status för randomisering av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
 + Response 200 (application/json)
 
         {
@@ -3807,8 +3814,8 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Hämta status för tillbakadragande av subjekt [GET /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
 + Response 200 (application/json)
 
         {
@@ -3822,8 +3829,8 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Sätt status för tillbakadragande av subjekt [PUT /api/rrct/{StudyID}/subjects/{SubjectKey}/withdrawn]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
 + Response 200 (application/json)
 
         {
@@ -3835,11 +3842,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Skapa lyckad screening och randomisering av subjekt [POST /api/rrct/{StudyID}/subjects]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Request (application/json)
     + Attributes
-        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
+        + EventID: `12345678` (number) - Identifierare till kandidat (samma som registreringsidentifierare i Stratum).
         + parameters(array[KeyValue]) - Randomiseringsparametrar som lista av nyckel/värde-par.
 + Response 200 (application/json)
 
@@ -3864,8 +3871,8 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
         
 ### Hämta alla datapunkter för ett subjekt [GET /api/rrct/{StudyID}/subjects/data/{SubjectKey}]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
-    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
+    + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
 + Response 200 (application/json)
 
         {
@@ -3894,11 +3901,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 
 ### Skapa datapunkter för ett subjekt [POST /api/rrct/{StudyID}/subjects/data]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Request (application/json)
     + Attributes
-        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
+        + EventID: `12345678` (number) - Identifierare till kandidat (samma som registreringsidentifierare i Stratum).
         + parameters(DataPoint) - Datapunkter som lista av nyckel/värde-par.
 + Response 200 (application/json)
 
@@ -3911,11 +3918,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
         
 ### Uppdatera datapunkter för ett subjekt [PUT /api/rrct/{StudyID}/subjects/data]
 + Parameters
-    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare för studien.
+    + StudyID: `clinicaltrial-mystudy-nationellariktlinjer.1.0.0` (string) - Identifierare till studien.
 + Request (application/json)
     + Attributes
-        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare för subjekt).
-        + EventID: `12345678` (number) - Identifierare för kandidat (samma som registreringsidentifierare i Stratum).
+        + SubjectKey: `19121212-1212` (string) - Personnummer (identifierare till subjekt).
+        + EventID: `12345678` (number) - Identifierare till kandidat (samma som registreringsidentifierare i Stratum).
         + parameters(DataPoint) - Datapunkter som lista av nyckel/värde-par.
 + Response 200 (application/json)
 
@@ -3948,7 +3955,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
         ]
 
 ## Register (object)
-+ RegisterID: `100` (number, required) - Unik identifierare.
++ RegisterID: `100` (number, required) - Identifierare till register.
 + RegisterName: `Testregistret` (string, required) - Namn på registret (svenska).
 + RegisterNameInEnglish: `Test register` (string) - Namn på registret (engelska).
 + ShortName: `RC` (string, required) - Registrets förkortade namn.
@@ -3960,7 +3967,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Site (Site, required) - Tillhörande Site-entitet.
 
 ## Form (object)
-+ FormID: `1001` (number, required) - Identifierare.
++ FormID: `1001` (number, required) - Identifierare till formulär.
 + FormName: `TestForm` (string, required) - Giltig identifierare i strängform.
 + FormTitle: `Testformulär` (string, required) - Titel.
 + TableName: `x1005` (string, required) - Namn på tabell i databas.
@@ -3972,7 +3979,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Parent (Form) - Ägande formulär (saknas för rotformulär).
 
 ## Question (object)
-+ QuestionID: `24205` (number, required) - Identifierare.
++ QuestionID: `24205` (number, required) - Identifierare till variabel.
 + ColumnName: `VisitDate` (string, required) - Namn på variabel (oftast namn på kolumn i databastabell).
 + MappedTo: `EventDate` (string) - Namn på eventuell extern entitet variabeln är länkad till ([läs mer](#MappedTo)).
 + PrefixText: `Besöksdatum` (string) - Text att visa innan variabelvärde (oftast fråga).
@@ -3992,14 +3999,14 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Domain (Domain, required) - Domän (utfallsrum) variabelns värde är bundna till.
 
 ## Domain (object)
-+ DomainID: `4000` (number, required) - Identifierare.
++ DomainID: `4000` (number, required) - Identifierare till domän.
 + DomainName: `TypeOfProject` (string) - Giltig identifierare i strängform.
 + DomainTitle: `Projektdatabasen: typ av projekt` (string) - Titel.
 + IsInteger: `true` (boolean) - Om domänens tillhörande värden begränsas till heltal.
 + Register (Register) - Tillhörande register [saknas om generisk domän].
 
 ## DomainValue (object)
-+ DomainValueID: `50018` (number, required) - Identifierare.
++ DomainValueID: `50018` (number, required) - Identifierare till domänvärde.
 + ValueName: `Jag går utan svårigheter` (string, required) - Beskrivande text för värdet.
 + ValueCode: `1` (string, required) - Värdekod.
 + IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
@@ -4007,7 +4014,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Domain (Domain, required) - Tillhörande domän.
 
 ## Unit (object)
-+ UnitID: `2000` (number, required) - Unik identifierare.
++ UnitID: `2000` (number, required) - Identifierare till vårdenhet.
 + UnitCode: `26` (number, required) - Registrets kod för  vårdenheten.
 + UnitName: `Testkliniken` (string) - Registrets namn på vårdenheten.
 + IsActive: `true` (optional, boolean) - Om aktiv [kan döljas i listor av vårdenheter om ej aktiv].
@@ -4017,11 +4024,11 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Bindings (array[UnitBinding], optional) - Lista av egenskaper, till exempel landsting eller vårdnivå.
 
 ## UnitBinding (object)
-+ DomainValueID: `54907` (required, number) - Identifierare för egenskapsvärde (domänvärde).
++ DomainValueID: `54907` (required, number) - Identifierare till domänvärde (egenskapsvärde).
 
 ## User (object)
-+ UserID: `90000` (number, required) - Unik identifierare.
-+ Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-post].
++ UserID: `90000` (number, required) - Identifierare till användare.
++ Username: `roger@medicor.se` (string, required) - Unikt användarnamn [helst e-postadress].
 + HSAID: `SE2321000131-E000000007501` (string) - ID för kopplas autentisering (HSAID, namn eller personnummer).
 + FirstName: `Roger` (string) - Förnamn.
 + LastName: `Salomonsson` (string) - Efternamn.
@@ -4035,7 +4042,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + DefaultContext (Context) - Förvald kontext efter autentisering (följer senast använd).
 
 ## Context (object)
-+ ContextID: `30730` (number, required) - Unik identifierare.
++ ContextID: `30730` (number, required) - Identifierare till kontext.
 + IsActive: `true` (boolean) - Om aktiv (kan inte användas i brukarsammanhang annars).
 + ActivatedAt: `2019-07-02 10:34:01` (string) - Datum och tid för senast aktiv.
 + ExpireDate: `2027-08-31 00:00:01` (string) - Datum när kontexten automatiskt inaktiveras.
@@ -4044,7 +4051,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + User (User, required) - Tillhörande användare.
 
 ## Role (object)
-+ RoleID: `201` (number, required) - Unik identifierare.
++ RoleID: `201` (number, required) - Identifierare till roll.
 + RoleName: `API–brukare` (string) - Rollens namn.
 + IsPermittedToLogin: `false` (boolean) - Om inloggning är tillåten (endast läsning).
 + IsPermittedToRegister: `false` (boolean) - Om registrering i register är tillåten.
@@ -4052,18 +4059,15 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + IsPermittedToAdminister: `false` (boolean) - Om administration av register är tillåten.
 + IsPermittedToCrossBorder: `false` (boolean) - Om överbryggning av vårdenhetsgränser är tillåten.
 
-## Resource (object)
-+ ResourceID: `1234` (number, required) - Unik identifierare.
-
 ## Site (object)
-+ SiteID: `100` (number, required) - Unik identifierare.
++ SiteID: `100` (number, required) - Identifierare till webbplats.
 + SiteName: `Registercentrum Västra Götaland` (string, required) - Titel på webbplatsen.
 + ThemeSettings: `{}` (string, required) - JSON-objekt med temainställningar.
 + LanguageID: `sv` (string, required) - Språkkod (ISO 639).
 + CountryID: `SE` (string, required) - Landskod (ISO 3166).
 
 ## Page (object)
-+ PageID: `1001` (number, required) - Unik identifierare.
++ PageID: `1001` (number, required) - Identifierare till sida.
 + PageTitle: `Om Stratum` (string) - Titel i navigation.
 + PageContent: `Detta är portalsidan för <a href="http://www.registercentrum.se">Registercentrum Västra Götalands</a> tekniska plattform Stratum.` (string) - Sidinnehåll i HTML. Kan även innehålla [programkomponent(er)](#reference/metadata/komponenter) och JavaScript i största allmänhet.
 + PageLevel: `0` (number) - För att skapa hierarkier av sidor. Allt på samma `PageLevel` är grupperat under föregående sida med närmast lägre `PageLevel` när sidorna sorteras med avseende på `PageOrder`. Typiskt värde är `0`.
@@ -4073,8 +4077,8 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Site (Site, required) - Tillhörande webbplats
 
 ## Subject (object)
-+ SubjectID: `1001` (number, required) - Unik identifierare.
-+ SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare för mätobjekt.
++ SubjectID: `1001` (number, required) - Identifierare till subjekt.
++ SubjectKey: `19121212-1212` (string, required) - Personnummer eller annan identifierare för mätobjekt (subjekt).
 + IsVerified: `true` (boolean) - Om personnummer är verifierad genom slagning mot folkbokföringstjänst ([Navet](https://www.skatteverket.se/foretagochorganisationer/myndigheter/informationsutbytemellanmyndigheter/navethamtauppgifteromfolkbokforing.4.18e1b10334ebe8bc80001754.html#Detaljeradinformationomtjansterna)).
 + StatusCode: `AV` (string) - Status i Navet (AV = Avliden, UV = Utvandrad, null = Uppgift saknas).
 + StatusDate: `2027-08-31` (string) - Datum för status (oftast död). Kan vara delar av datum, till exempel ”2001-01” eller bara ”2001”. Attributet ”DateCorrectness” anger detta attributs innehåll.
@@ -4083,7 +4087,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Register (Register, required) - Tillhörande register.
 
 ## LogEntry (object)
-+ LogEntryID: `100037` (number, required) - Unik identifierare.
++ LogEntryID: `100037` (number, required) - Identifierare till loggrad.
 + PerformedAt: `2017-08-09 11:14:43` (string) - Tidstämpel när loggraden skapades.
 + ActionTarget: `GET /api/metadata/units/register/104` (string) - Beskrivning av loggad händelse (innehåll beroende av loggtyp).
 + EventID: `10115713` (number) - Vilken registrering loggraden avser (om registreringsrelaterad, saknas annars).
@@ -4091,7 +4095,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + Context (Context, required) - Kontext som orsakat loggningen
 
 ## Event (object)
-+ EventID: `12345` (number, required) - Unik identifierare.
++ EventID: `12345` (number, required) - Identifierare till registreringshändelse.
 + EventDate: `2027-08-31` (string) - Datum då händelsen inträffade i vårdprocessen.
 + InsertedAt: `2017-08-09 11:14:43` (string) - Tidstämpel när registreringen skapades.
 + ModifiedAt: `2017-08-09 11:14:43` (string) - Tidstämpel när registreringen senast uppdaterades.
@@ -4102,7 +4106,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + ParentEvent (Event) - Eventuell överliggande registrering (för hierarkiska registrerinfskedjor).
   
 ## Proxy (object)
-+ ProxyID: `123456` (number, required) - Unik identifierare.
++ ProxyID: `123456` (number, required) - Identifierare till bjudning.
 + SubjectKey: `19121212-1212` (string) - Personnummer (för bjudning som inte triggas av annan registrering)
 + ReplyStatus: `100` (number, required) - Aktuell status (se [förklaring](#ReplyStatus)).
 + StatusDate: `2017-08-09 11:14:43` (string, required) - Tidsstämpel då status senast ändrades.
