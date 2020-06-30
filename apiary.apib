@@ -225,9 +225,9 @@ Vid status 400 returneras i attribut `code`:
         + message: `null` (string)
         + code: `0` (number)
 
-## Kontexter [/api/authentication/context]
+## Behörigheter [/api/authentication/context]
 
-### Hämta aktuell [GET]
+### Hämta aktuell kontext [GET]
 Returnerar aktuell kontext för den som begär anropet. Kan användas för att kontrollera om anroparen är starkt autentiserad.
 
 + Response 200 (application/json)
@@ -237,7 +237,7 @@ Returnerar aktuell kontext för den som begär anropet. Kan användas för att k
         + message: `null` (string)
         + code: `0` (number)
 
-### Byt aktuell [PUT]
+### Byt aktuell kontext [PUT]
 Sätter aktuell kontext (genomför kontextbyte).
 Vid status 400 returneras i attribut `code`:
 |Kod    |Förklaring
@@ -262,9 +262,9 @@ Vid status 400 returneras i attribut `code`:
 
 + Response 400 (application/json)
 
-### Säkerställ som dataleverantör [PUT /api/authentication/context/ensure/{UnitID}]
-För de register som har `allowAutoUser` satt i sin registerkonfiguration kommer detta anrop se till att användare och kontext som dataleverantör finns upplagda. 
-Om inloggningsbar kontext i registrerande roll redan finns så läggs ingen ny som dataleverantör upp. 
+### Säkerställ kontext [PUT /api/authentication/context/ensure/{UnitID}]
+För de register som har `allowAutoUser` satt i sin registerkonfiguration kommer detta anrop se till att användare och kontext (som registreringsbiträde) finns upplagda. 
+Om inloggningsbar kontext i registrerande roll redan finns så läggs ingen ny kontext upp. 
 I annat fall skapas användare och/eller kontext.
 Anropet måste göras med giltigt SITHS-certifikat. 
 Vid status 400 returneras i attribut `code`:
@@ -282,7 +282,7 @@ Vid status 400 returneras i attribut `code`:
         
 + Response 400 (application/json)
 
-### Hämta alla inloggningsbara [GET /api/authentication/contexts]
+### Hämta alla inloggningsbara kontexter [GET /api/authentication/contexts]
 Returnerar lista av alla kontexter som autentiserad användare kan logga in på.
 
 + Response 200 (application/json)
@@ -1110,8 +1110,9 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
         + ValueCode: `1` (string, required) - Värdekod.
         + IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
         + Sequence: `13` (number, required) - Ordningstal för sortering.
-        + Domain (object) - Domän värdet skall tillhöra.
+        + Domain (object, required) - Domän värdet skall tillhöra.
             + DomainID: `1001` (number, required) - Identifierare till domän.
+        + Children (array[DomainValue]) - Lista av domänvärden som grupperas till detta domänvärde.
 + Response 200 (application/json)
     + Attributes
         + data (DomainValue)
@@ -1130,6 +1131,7 @@ generera en sökbar lista med fasta svarsalternativ. Ett annat användningsområ
         + Sequence: `13` (number, required) - Ordningstal för sortering.
         + Domain (object) - Domän värdet skall flyttas till (utelämna annars).
             + DomainID: `1001` (number, required) - Identifierare till domän.
+        + Children (array[DomainValue]) - Lista av domänvärden som grupperas till detta domänvärde (utelämnas om inga ändringar skall göras).
 + Response 200 (application/json)
     + Attributes
         + data (DomainValue)
@@ -1584,8 +1586,10 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1018|NKRR data delivered
 |1021|Notification sent
 |1041|Data layer delivered
+|1042|Data layer delivered inhouse
 |1052|Subject overview delivered
 |1053|Subject excerpt delivered
+|1054|Invitation support delivered
 |1060|Statistics delivered
 |1065|Aggregate delivered
 |1101|User authenticated by credentials
@@ -1595,23 +1599,17 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |1105|User authenticated by RC
 |1106|User authenticated by EFOS
 |1113|User authentication failed
-|1140|Certificate assigned
-|1141|Certificate assigment failed
 |1121|User created
 |1122|User updated
 |1123|User deleted
+|1140|Certificate assigned
+|1141|Certificate assigment failed
 |1201|Context created
-|1202|Context disabled
 |1203|Context enabled
 |1204|Context updated
 |1205|Context activated
-|1301|Resource created
-|1302|Resource updated
-|1303|Resource deleted
-|1304|Resource delivered
-|1401|Page created
-|1402|Page updated
-|1403|Page deleted
+|1206|Context deactivated
+|1206|Context automatically deactivated
 |1501|Unit created
 |1502|Unit updated
 |1503|Unit deleted
@@ -1630,19 +1628,18 @@ Varje loggrad tillhör en typ som anges av attributet `LogTypeID`:
 |2011|Domain value created
 |2012|Domain value updated
 |2013|Domain value deleted
-|2021|Site created
-|2022|Site updated
-|2023|Site deleted
 |2031|Subject created
 |2032|Subject updated
 |2033|Subject deleted
 |2041|Proxy created
 |2042|Proxy updated
-|2043|Proxy delete
-|2044|Proxy URL sent by email
-|2045|Proxy URL sent by postal service
+|2043|Proxy deleted
 |2046|Proxies for unit delivered
 |2047|Token by PIN delivered
+|2048|Survey delivered
+|2051|LogEntries for event delivered
+|2052|LogEntries for context delivered
+|2053|LogEntries for system context delivered
 
 + Attributes
     + LogEntry (LogEntry)
@@ -1665,8 +1662,7 @@ Anropet har följande restriktioner.
         + message: `null` (string)
         + code: `0` (number)
 
-
-### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}?after={aFromDate}&exposeDeep={ExposeDeep}]
+### Hämta för en kontext [GET /api/metadata/logentries/context/{ContextID}?after={aFromDate}&logtype={LogTypeID}&exposeDeep={ExposeDeep}]
 Anropet har följande restriktioner.
 |Roll |Restriktion
 |-   |-
@@ -1676,6 +1672,25 @@ Anropet har följande restriktioner.
 
 + Parameters
     + ContextID: `20000` (number, required) - Identifierare till kontext.
+    + aFromDate: `2019-08-14` (date) - Datum från när första loggraden skall returneras (de 1000 senaste raderna om den utelämnas).
+    + LogTypeID: `1003` (number) - Identifierare för avgränsande loggtyp (alla loggtyper om den utelämnas).
+    + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
++ Response 200 (application/json)
+    + Attributes
+        + data (array[LogEntry])
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
+### Hämta systemloggningar [GET /api/metadata/logentries/system?after={aFromDate}&exposeDeep={ExposeDeep}]
+Returnerar de loggrader där systemet automatiskt har lagt upp eller inaktiverat kontexter. Anropet har följande restriktioner.
+|Roll |Restriktion
+|-   |-
+|Koordinator|Får fråga om registrets alla kontexter
+|Plusregistrerare|Får fråga om vårdenhetens alla kontexter
+|Registrerare|Får fråga om sina egna kontexter
+
++ Parameters
     + aFromDate: `2019-08-14` (date) - Datum från när första loggraden skall returneras (de 1000 senaste raderna om den utelämnas).
     + ExposeDeep: `false` (boolean) - Om relaterade entiteter i attribut också skall exponeras.
 + Response 200 (application/json)
@@ -4012,6 +4027,7 @@ All implementering av R-RCT-stöd för ett register sker därför på klientsida
 + IsActive: `true` (boolean, required) - Om värde skall visas och få användas i nya registreringar.
 + Sequence: `13` (number, required) - Ordningstal för sortering.
 + Domain (Domain, required) - Tillhörande domän.
++ Children (array[DomainValue], optional) - Lista av värdegrupperingar, till exempel diagnos till diagnosgrupp.
 
 ## Unit (object)
 + UnitID: `2000` (number, required) - Identifierare till vårdenhet.
