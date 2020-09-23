@@ -255,7 +255,7 @@ Vid status 400 returneras i attribut `code`:
 
 + Response 200 (application/json)
     + Attributes
-        + data (Context)
+        + data (Context)ed
         + success: `true` (boolean)
         + message: `null` (string)
         + code: `0` (number)
@@ -263,7 +263,7 @@ Vid status 400 returneras i attribut `code`:
 + Response 400 (application/json)
 
 ### Säkerställ kontext [PUT /api/authentication/context/ensure/{UnitID}]
-För de register som har `allowAutoUser` satt i sin registerkonfiguration kommer detta anrop se till att användare och kontext (som registreringsbiträde) finns upplagda. 
+För de register som har `allowAutoUser` satt i sin registerkonfiguration kommer detta anrop se till att användare och kontext (som registrerarbiträde) finns upplagda. 
 Om inloggningsbar kontext i registrerande roll redan finns så läggs ingen ny kontext upp. 
 I annat fall skapas användare och/eller kontext.
 Anropet måste göras med giltigt SITHS-certifikat. 
