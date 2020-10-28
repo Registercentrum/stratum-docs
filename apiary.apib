@@ -1384,8 +1384,8 @@ Roller:
 |ID |Roll               |Kategori         |Inloggning? |Syfte
 |-  |-                  |-                |-           |-
 |903|Koordinator        |Registerpersonal |ja          |Registrera och se patientdata över vårdgivargränser samt administrera register
-|901|Registrerare       |Vårdpersonal     |ja          |Registrera och se patientdata för vårdenheten
 |902|Plusregistrerare   |Vårdpersonal     |ja          |Registrerare med något större befogenheter
+|901|Registrerare       |Vårdpersonal     |ja          |Registrera och se patientdata för vårdenheten
 |102|Registrerarbiträde |Vårdpersonal     |ja          |Registrerare som inte kan se patientuppgifter
 |907|Patientobservatör  |Vårdpersonal     |ja          |Se patientdata för vårdenheten (monitorering)
 |908|Rapportobservatör  |Vårdpersonal     |ja          |Se aggregerad data för vårdenheten
@@ -1400,8 +1400,8 @@ Det förvalda i Stratum är att varje kontext endast kan se och arbeta med sin e
 |Roll                   |Se<br>historik   |Spara<br>registrering |Ta bort<br>registrering |Ladda ned<br>registreringar
 |-                      |-                |-                     |-                       |-
 |Koordinator            |ja, gränslöst    |ja, gränslöst         |ja, gränslöst           |ja, enhetens med personnummer
-|Registrerare           |ja, enhetens     |ja, på enheten        |nej                     |ja, enhetens *utan* personnummer
-|Plusregistrerare       |ja, enhetens     |ja, på enheten        |nej                     |ja, enhetens med personnummer
+|Plusregistrerare       |ja, enhetens     |ja, enhetens          |ja, enhetens            |ja, enhetens med personnummer
+|Registrerare           |ja, enhetens     |ja, enhetens          |ja, egna                |ja, enhetens *utan* personnummer
 |Registrerarbiträde     |nej              |ja                    |nej                     |nej
 |Patientobservatör      |ja, enhetens     |nej                   |nej                     |ja, enhetens *utan* personnummer
 |Rapportobservatör      |nej              |nej                   |nej                     |nej
