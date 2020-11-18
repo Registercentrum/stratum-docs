@@ -1543,6 +1543,16 @@ via folkbokföringen returnera ett inkomplett datum. I sådana fall tilldelas sa
         + message: `null` (string)
         + code: `0` (number)
 
+### Hämta med subjektnyckel [GET /api/metadata/subjects/key/{SubjectKey}]
++ Parameters
+    + SubjectKey: `121212-1212` (number) - Identifierare till subjekt. 
++ Response 200 (application/json)
+    + Attributes
+        + data (Subject)
+        + success: `true` (boolean)
+        + message: `null` (string)
+        + code: `0` (number)
+
 ### Skapa [POST /api/metadata/subjects]
 + Response 501 (application/json)
     + Attributes
